@@ -1,0 +1,12 @@
+{ "home":"Home",
+  "dashboard": "Dashboard",
+  "accounts": "Accounts",
+  "patientIntake": "Patient Intake",
+  "patientCreate": "Patient Create",
+  "existingPatient": "Existing Patient",
+  "settings": "Settings",
+  "logout": "Logout",
+  "language": "Language",
+  "addDoctor":"Add Doctor",
+  "customForm":"Custom Form"
+}

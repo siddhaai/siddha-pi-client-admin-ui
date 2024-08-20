@@ -1,0 +1,5 @@
+.buttonCustom {
+  background-color: #407bff;
+  color: red;
+  transition: background-color 0.3s ease;
+}
