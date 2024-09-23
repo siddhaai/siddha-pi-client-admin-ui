@@ -1,23 +1,31 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import App from "./App";
-import { BrowserRouter } from "react-router-dom";
-import { I18nextProvider } from "react-i18next";
-import i18n from "./components/i18n/i8n.jsx";
-import "./App.css";
+import ReactDOM from 'react-dom';
+import 'src/mocks';
+import { HelmetProvider } from 'react-helmet-async';
+import { BrowserRouter } from 'react-router-dom';
+import ScrollTop from 'src/hooks/useScrollTop';
 
-import disableReactDevTools from "./components/DisableDevTool.jsx";
+import 'nprogress/nprogress.css';
+import { Provider } from 'react-redux';
+import store from 'src/store';
+import App from 'src/App';
+import { SidebarProvider } from 'src/contexts/SidebarContext';
+import * as serviceWorker from 'src/serviceWorker';
+import { AuthProvider } from 'src/contexts/JWTAuthContext';
 
-disableReactDevTools(); //disable react dev tool in production
-
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(
-  <React.StrictMode>
-    <BrowserRouter>
-      {/* I18 transalter parent to children */}
-      <I18nextProvider i18n={i18n}>
-        <App />
-      </I18nextProvider>
-    </BrowserRouter>
-  </React.StrictMode>
+ReactDOM.render(
+  <HelmetProvider>
+    <Provider store={store}>
+      <SidebarProvider>
+        <BrowserRouter>
+          <ScrollTop />
+          <AuthProvider>
+            <App />
+          </AuthProvider>
+        </BrowserRouter>
+      </SidebarProvider>
+    </Provider>
+  </HelmetProvider>,
+  document.getElementById('root')
 );
+
+serviceWorker.unregister();
