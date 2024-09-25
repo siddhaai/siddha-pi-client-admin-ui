@@ -116,6 +116,8 @@ const TC = () => {
       const response = await axios.get('/agreement/getAgreementClientAdmin', {
         headers: { Authorization: `Bearer ${token}` }
       });
+      console.log('Agreement response', response);
+
       if (response.data.status === 200) {
         setAgreements(response.data.data); // Store agreements
         setShowTable(response.data.data.length > 0); // Only show table if agreements exist
@@ -169,6 +171,8 @@ const TC = () => {
   };
 
   const handleViewPdf = (title, body) => {
+    console.log(title, body);
+
     const container = document.createElement('div');
     container.innerHTML = body; // Use the body content as HTML
 

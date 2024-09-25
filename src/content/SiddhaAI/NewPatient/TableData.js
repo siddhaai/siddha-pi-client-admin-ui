@@ -11,8 +11,6 @@ import {
   MenuItem,
   Paper,
   Radio,
-  // TextareaAutosize
-  // IconButton
   RadioGroup,
   Step,
   StepLabel,
@@ -27,13 +25,11 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import * as Yup from 'yup';
-// import axios from 'axios';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs from 'dayjs';
 import { toast, Toaster } from 'react-hot-toast';
-// import { Link } from 'react-router-dom';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { IMaskInput } from 'react-imask';
@@ -126,7 +122,7 @@ const appointmentDetailsSchema = Yup.object({
     null,
     validateDateTime
   ),
-  time_Zone: Yup.string().required('Time Zone is required'),
+  // time_Zone: Yup.string().required('Time Zone is required'),
   hospital_location: Yup.string().required('Hospital Location is required'),
   reason: Yup.string().required('Reason is required'),
   notes: Yup.string().required('Notes is required'),
@@ -296,7 +292,7 @@ const TableData = () => {
     );
     console.log(values);
 
-    setAppointmenttimeZone(values.time_Zone);
+    // setAppointmenttimeZone(values.time_Zone);
     setOfficeLocation(values.hospital_location);
 
     setLoading(true);
@@ -464,7 +460,7 @@ const TableData = () => {
 
                 appointment_date: '',
                 duration: '',
-                time_Zone: '',
+                // time_Zone: '',
                 hospital_location: '',
                 reason: '',
                 notes: ''
@@ -531,7 +527,6 @@ const TableData = () => {
                             )}
                           </Field>
                         </Grid>
-
                         <Grid item xs={12} md={6}>
                           <Field name="phone">
                             {({ field, form: { setFieldValue } }) => (
@@ -725,7 +720,7 @@ const TableData = () => {
                             )}
                           </Field>
                         </Grid>
-                        <Grid item xs={12} md={6}>
+                        {/* <Grid item xs={12} md={6}>
                           <Field name="time_Zone">
                             {({ field }) => (
                               <TextField
@@ -746,7 +741,7 @@ const TableData = () => {
                               </TextField>
                             )}
                           </Field>
-                        </Grid>
+                        </Grid> */}
                         <Grid item xs={12} md={6}>
                           <Field name="hospital_location">
                             {({
@@ -898,13 +893,6 @@ const TableData = () => {
                                         onClick={handleCopy}
                                         sx={{
                                           mb: 2
-                                          // color: '#ffff',
-                                          // background: '#407BFF',
-                                          // '&:hover': {
-                                          //   color: '#ffff',
-                                          //   background: '#12171e',
-                                          //   border: '1px solid #407BFF'
-                                          // }
                                         }}
                                       >
                                         <ContentCopyIcon />
@@ -917,7 +905,6 @@ const TableData = () => {
                                           gap: '10px'
                                         }}
                                       >
-                                        {/* <Link to="/extended-sidebar/SiddhaAI/NewPatient/NewPatient"> */}
                                         <Button
                                           onClick={() =>
                                             handleCreatePatient(
@@ -925,17 +912,7 @@ const TableData = () => {
                                             )
                                           }
                                           fullWidth
-                                          sx={
-                                            {
-                                              // color: '#070707',
-                                              // background: 'silver',
-                                              // '&:hover': {
-                                              //   color: '#ffff',
-                                              //   background: '#12171e',
-                                              //   border: '1px solid #407BFF'
-                                              // }
-                                            }
-                                          }
+                                          sx={{}}
                                         >
                                           Create Patient
                                         </Button>
@@ -946,14 +923,6 @@ const TableData = () => {
                                           type="submit"
                                           disabled={isSubmitting || loading}
                                           fullWidth
-                                          // sx={{
-                                          //   color: '#ffff',
-                                          //   background: '#407BFF',
-                                          //   '&:hover': {
-                                          //     color: '#ffff',
-                                          //     background: '#12171e'
-                                          //   }
-                                          // }}
                                         >
                                           Send SMS
                                           {loading && (
@@ -975,7 +944,6 @@ const TableData = () => {
                     </Box>
                   )}
 
-                  
                   <BoxActions>
                     <Box p={2} display="flex" justifyContent="center">
                       {step > 0 && (
@@ -1006,7 +974,6 @@ const TableData = () => {
                           variant="contained"
                           color="primary"
                           type="submit"
-                          // disabled={isSubmitting || loading}
                         >
                           {/* {t('Finish')} */}
                           {loading && (

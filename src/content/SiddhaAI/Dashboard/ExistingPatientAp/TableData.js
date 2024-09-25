@@ -90,7 +90,7 @@ const appointmentDetailsSchema = Yup.object({
     validateDateTime
   ),
 
-  time_Zone: Yup.string().required('Time Zone is required'),
+  // time_Zone: Yup.string().required('Time Zone is required'),
   duration: Yup.string().required('Duration is required'),
   hospital_location: Yup.string().required('Hospital Location is required'),
   reason: Yup.string().required('Reason is required'),
@@ -256,7 +256,7 @@ const TableData = ({ selectedPatient }) => {
     setAppointmentDateandTime(
       dayjs(values.appointment_date).format('YYYY-MM-DDTHH:mm')
     );
-    setAppointmenttimeZone(values.time_Zone);
+    // setAppointmenttimeZone(values.time_Zone);
     setOfficeLocation(values.hospital_location);
 
     setLoading(true);
@@ -377,7 +377,7 @@ const TableData = ({ selectedPatient }) => {
                 preferred_doctor: '',
                 appointment_date: null,
                 duration: '',
-                time_Zone: '',
+                // time_Zone: '',
                 hospital_location: '',
                 reason: '',
                 notes: ''
@@ -496,7 +496,7 @@ const TableData = ({ selectedPatient }) => {
                             )}
                           </Field>
                         </Grid>
-                        <Grid item xs={12} md={6}>
+                        {/* <Grid item xs={12} md={6}>
                           <Field name="time_Zone">
                             {({ field }) => (
                               <TextField
@@ -517,7 +517,7 @@ const TableData = ({ selectedPatient }) => {
                               </TextField>
                             )}
                           </Field>
-                        </Grid>
+                        </Grid> */}
                         <Grid item xs={12} md={6}>
                           <Field name="hospital_location">
                             {({

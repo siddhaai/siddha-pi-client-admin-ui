@@ -16,7 +16,6 @@ import { useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import useAxiosInterceptor from 'src/contexts/Interceptor';
-import { ApiUrl } from '../ApiUrl';
 
 function TableData() {
   const { axios } = useAxiosInterceptor();

@@ -1,15 +1,13 @@
-
 // import { Helmet } from 'react-helmet-async';
 import TableData from './TableData';
 import { Grid } from '@mui/material';
 import PageHeader from './PageHeader';
 import PageTitleWrapper from 'src/components/PageTitleWrapper';
 
-console.log('itejio');
 function CreateDoctor() {
   return (
     <>
-     <PageTitleWrapper>
+      <PageTitleWrapper>
         <PageHeader />
       </PageTitleWrapper>
 
