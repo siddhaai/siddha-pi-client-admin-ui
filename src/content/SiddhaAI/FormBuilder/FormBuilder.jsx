@@ -22,7 +22,9 @@ import {
   Stepper,
   TextField,
   Tooltip,
-  Typography
+  Typography,
+  alpha,
+  useTheme
 } from '@mui/material';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
@@ -30,6 +32,7 @@ import { Field, Form, Formik } from 'formik';
 import { useEffect, useState } from 'react';
 import { toast, Toaster } from 'react-hot-toast';
 import useAxiosInterceptor from 'src/contexts/Interceptor';
+import NotificationImportantTwoToneIcon from '@mui/icons-material/NotificationImportantTwoTone';
 
 // Define fields and required fields
 const PersonalDetailsFields = [
@@ -133,7 +136,7 @@ const requiredFields = {
 };
 const FormBuilder = () => {
   const { axios } = useAxiosInterceptor();
-
+  const theme = useTheme();
   // Add new state for viewing the form
   const [viewFormData, setViewFormData] = useState(null);
   const [activeStep, setActiveStep] = useState(0);
@@ -532,7 +535,7 @@ const FormBuilder = () => {
                     />
                   </Tooltip>
                 </Stack>
-                <Box sx={{ p: 3 }}>
+                {/* <Box sx={{ p: 3 }}>
                   <Typography variant="h6">
                     Note:
                     <Typography color="secondary">
@@ -541,8 +544,48 @@ const FormBuilder = () => {
                       Patient Intake Form Type
                     </Typography>
                   </Typography>
-                </Box>
-
+                </Box> */}
+                <Grid item xs={12}>
+                  <Card
+                    variant="outlined"
+                    sx={{
+                      background: alpha(theme.colors.info.main, 0.08),
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      p: 2,
+                      mt: 2
+                    }}
+                  >
+                    <NotificationImportantTwoToneIcon
+                      sx={{
+                        mr: 1,
+                        color: theme.colors.info.main,
+                        fontSize: theme.typography.pxToRem(22)
+                      }}
+                    />
+                    <Box>
+                      <Typography
+                        variant="h4"
+                        sx={{
+                          pt: 0.2
+                        }}
+                        gutterBottom
+                      >
+                        Note :
+                      </Typography>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontSize: theme.typography.pxToRem(13)
+                        }}
+                      >
+                        To change the mode of the patient intake form, navigate
+                        to the admin panel settings: Settings → Patient Intake
+                        Form → Patient Intake Form Type
+                      </Typography>
+                    </Box>
+                  </Card>
+                </Grid>
                 {/* Show stepper only when the default form is selected */}
                 {isDefaultSelected && formData?.defaultForm && (
                   <Box sx={{ p: 3 }}>
@@ -659,7 +702,7 @@ const FormBuilder = () => {
             {isCustomSelected && (
               <Box sx={{ p: 3 }}>
                 <Grid container spacing={2}>
-                  <Grid item xs={12} md={6}>
+                  <Grid item xs={12} md={5}>
                     <Paper elevation={3} sx={{ padding: 2, height: '100%' }}>
                       <Typography variant="h6" align="center">
                         Patient Intake Form
@@ -722,7 +765,7 @@ const FormBuilder = () => {
                         )}
                     </Paper>
                   </Grid>
-                  <Grid item xs={12} md={5}>
+                  <Grid item xs={12} md={7}>
                     <Paper elevation={3} sx={{ padding: 2, height: '100%' }}>
                       <Box
                         sx={{

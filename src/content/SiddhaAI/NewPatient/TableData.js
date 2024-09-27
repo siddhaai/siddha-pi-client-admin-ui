@@ -158,11 +158,11 @@ const TableData = () => {
   const [isRegistrationComplete, setIsRegistrationComplete] = useState(false);
   const [dateTimeError, setDateTimeError] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState('');
-  const [smsTemplateResponseData, setSmsTmeplateResponseData] = useState([]);
+  const [smsTemplateResponseData, setSmsTemeplateResponseData] = useState([]);
   const [officePhone, setOfficePhone] = useState();
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(smsText);
+    navigator.clipboard.writeText(selectedTemplate);
     toast.success('SMS copied Successfully');
   };
 
@@ -290,10 +290,9 @@ const TableData = () => {
     setAppointmentDateandTime(
       dayjs(values.appointment_date).format('YYYY-MM-DDTHH:mm')
     );
-    console.log(values);
 
     // setAppointmenttimeZone(values.time_Zone);
-    setOfficeLocation(values.hospital_location);
+    // setOfficeLocation(values.hospital_location);
 
     setLoading(true);
     try {
@@ -313,15 +312,15 @@ const TableData = () => {
 
       const smsTemplateDetails = {
         patientId: id,
-        doctor_phone: officePhone,
+        // doctor_phone: officePhone,
         patientName: name,
         scheduleDateTime: dayjs(values.appointment_date).format(
           'YYYY-MM-DDTHH:mm:ss'
         ),
         patientPhNum: mobile,
-        timeZone: appointmenttimeZone,
+        // timeZone: appointmenttimeZone,
         doctor_PraticeName: doctorPracticeName,
-        office_location: officeLocation,
+        // office_location: officeLocation,
         patient_is_new: true
       };
       const response = await axios.post(
@@ -335,6 +334,8 @@ const TableData = () => {
         }
       );
 
+      console.log('sms response template', response);
+
       if (response?.data?.status === 201) {
         const response = await axios.post(`/sms`, smsTemplateDetails, {
           headers: {
@@ -343,7 +344,16 @@ const TableData = () => {
           }
         });
 
-        setSmsTmeplateResponseData(response.data.data.message_template);
+        // console.log('sms 2 response template', response.data.data);
+        // console.log(
+        //   'sms 2 response template',
+        //   response.data.data.message_template[0].messageContent
+        // );
+
+        setSmsTemeplateResponseData(response.data.data.message_template);
+        // setSmsTmeplateResponseData(
+        //   response.data.data.message_template[0].messageContent
+        // );
         toast.success('Appointment created successfully!');
 
         setStep((prevStep) => prevStep + 1);
@@ -364,6 +374,8 @@ const TableData = () => {
       setSubmitting(false);
     }
   };
+
+  // console.log('sms tem', smsTemplateResponseData);
 
   const handleSubmitCompleteRegistration = async ({ setSubmitting }) => {
     setLoading(true);
@@ -458,7 +470,7 @@ const TableData = () => {
                 dob: null,
                 preferred_doctor: '',
 
-                appointment_date: '',
+                appointment_date: null,
                 duration: '',
                 // time_Zone: '',
                 hospital_location: '',
@@ -720,28 +732,6 @@ const TableData = () => {
                             )}
                           </Field>
                         </Grid>
-                        {/* <Grid item xs={12} md={6}>
-                          <Field name="time_Zone">
-                            {({ field }) => (
-                              <TextField
-                                {...field}
-                                fullWidth
-                                label={t('Time Zone')}
-                                select
-                                error={Boolean(
-                                  touched.time_Zone && errors.time_Zone
-                                )}
-                                helperText={
-                                  touched.time_Zone && errors.time_Zone
-                                }
-                              >
-                                <MenuItem value="CST">CST</MenuItem>
-                                <MenuItem value="EST">EST</MenuItem>
-                                <MenuItem value="PST">PST</MenuItem>
-                              </TextField>
-                            )}
-                          </Field>
-                        </Grid> */}
                         <Grid item xs={12} md={6}>
                           <Field name="hospital_location">
                             {({
@@ -785,7 +775,7 @@ const TableData = () => {
                                 {...field}
                                 fullWidth
                                 multiline
-                                rows={4}
+                                // rows={2}
                                 label={t('Reason ')}
                                 placeholder={t(
                                   'Enter reason for appointment...'
@@ -796,7 +786,7 @@ const TableData = () => {
                             )}
                           </Field>
                         </Grid>
-                        <Grid item xs={12} md={6}>
+                        <Grid item xs={12}>
                           <Field name="notes">
                             {({ field }) => (
                               <TextField
@@ -846,35 +836,45 @@ const TableData = () => {
                             </Typography>
                             <Box component="div" noValidate sx={{ mt: 1 }}>
                               <Grid container spacing={2}>
-                                {smsTemplateResponseData?.length > 0 ? (
-                                  smsTemplateResponseData?.map((template) => (
-                                    <Grid item xs={12} key={template.id}>
-                                      <Card>
-                                        <CardIndicatorWrapper>
-                                          <Box
-                                            className="MuiCard-indicator"
-                                            sx={{
-                                              background: `${theme.colors.info.main}`
-                                            }}
-                                          />
-                                          <CardContent>
-                                            <FormControl component="fieldset">
-                                              <RadioGroup
-                                                value={selectedTemplate}
-                                                onChange={handleTemplateChange}
-                                              >
-                                                <FormControlLabel
-                                                  value={template.message} // Use template.message as value
-                                                  control={<Radio />}
-                                                  label={template.message}
-                                                />
-                                              </RadioGroup>
-                                            </FormControl>
-                                          </CardContent>
-                                        </CardIndicatorWrapper>
-                                      </Card>
-                                    </Grid>
-                                  ))
+                                {smsTemplateResponseData.length > 0 ? (
+                                  smsTemplateResponseData.map(
+                                    (template, index) => (
+                                      <Grid item xs={12} key={index}>
+                                        {' '}
+                                        {/* Use index as key or provide a unique id if available */}
+                                        <Card>
+                                          <CardIndicatorWrapper>
+                                            <Box
+                                              className="MuiCard-indicator"
+                                              sx={{
+                                                background: `${theme.colors.info.main}`
+                                              }}
+                                            />
+                                            <CardContent>
+                                              <FormControl component="fieldset">
+                                                <RadioGroup
+                                                  value={selectedTemplate}
+                                                  onChange={
+                                                    handleTemplateChange
+                                                  }
+                                                >
+                                                  <FormControlLabel
+                                                    value={
+                                                      template.messageContent
+                                                    } // Use messageContent as value
+                                                    control={<Radio />}
+                                                    label={
+                                                      template.messageContent
+                                                    } // Display the message content
+                                                  />
+                                                </RadioGroup>
+                                              </FormControl>
+                                            </CardContent>
+                                          </CardIndicatorWrapper>
+                                        </Card>
+                                      </Grid>
+                                    )
+                                  )
                                 ) : (
                                   <Typography
                                     variant="body1"
@@ -912,11 +912,9 @@ const TableData = () => {
                                             )
                                           }
                                           fullWidth
-                                          sx={{}}
                                         >
                                           Create Patient
                                         </Button>
-                                        {/* </Link> */}
                                         <Button
                                           variant="contained"
                                           color="primary"

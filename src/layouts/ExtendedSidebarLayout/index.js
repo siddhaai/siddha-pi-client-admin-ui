@@ -53,7 +53,7 @@ const ExtendedSidebarLayout = () => {
         <Box display="block">
           <Outlet />
         </Box>
-        <ThemeSettings />
+        {/* <ThemeSettings /> */}
       </Box>
     </Box>
   );

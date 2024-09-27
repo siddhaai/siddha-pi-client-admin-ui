@@ -19,7 +19,8 @@ import {
   Tooltip,
   IconButton,
   Avatar,
-  Card
+  Card,
+  Chip
 } from '@mui/material';
 import toast, { Toaster } from 'react-hot-toast';
 import useAxiosInterceptor from 'src/contexts/Interceptor';
@@ -43,6 +44,53 @@ export default function Settings() {
     custom: false, // Custom option for Patient Intake Form,
     logo: ''
   });
+
+  const [smsData, setSmsData] = useState({
+    templateName: '',
+    templateText: '', // The SMS template content, pre-filled with required variable
+    selectedVariables: ['WEB_APP_URL'] // 'WEB_APP_URL' is always selected and cannot be removed
+  });
+
+  const variables = [
+    { label: 'Patient First Name', value: 'patientName' },
+    { label: 'Appointment Date & Time', value: 'scheduleDateTime' },
+    { label: 'Time Zone', value: 'timeZone' },
+    // { label: 'Doctor Phone Number', value: 'doctor_phone' },
+    { label: 'Patient Intake Form Url', value: 'WEB_APP_URL', required: true } // Required checkbox
+  ];
+
+  // Handle variable selection (checkbox toggle)
+  const handleVariableSelect = (variable) => {
+    const isSelected = smsData.selectedVariables.includes(variable);
+
+    if (isSelected) {
+      // Remove variable from selectedVariables and templateText
+      setSmsData((prevData) => ({
+        ...prevData,
+        selectedVariables: prevData.selectedVariables.filter(
+          (v) => v !== variable
+        ),
+        templateText: prevData.templateText.replace(`{{${variable}}}`, '')
+      }));
+    } else {
+      // Add variable to selectedVariables and insert it into templateText
+      setSmsData((prevData) => ({
+        ...prevData,
+        selectedVariables: [...prevData.selectedVariables, variable],
+        templateText: `${prevData.templateText} {{${variable}}}`
+      }));
+    }
+  };
+
+  // Handle changes in the textarea
+  const handleTextChange = (e) => {
+    setSmsData({ ...smsData, templateText: e.target.value });
+  };
+
+  // Handle template name input
+  const handleTemplateNameChange = (e) => {
+    setSmsData({ ...smsData, templateName: e.target.value });
+  };
 
   const [isEditing, setIsEditing] = useState(false);
   const [tabIndex, setTabIndex] = useState(0); // Track current tab
@@ -146,6 +194,11 @@ export default function Settings() {
 
   // Handle form submission
   const handleSubmit = async () => {
+    if (!smsData.selectedVariables.includes('WEB_APP_URL')) {
+      toast.error('Please select "Patient Intake Form Url" field');
+      return; // Prevent form submission
+    }
+
     const requestBody = {
       client_admin_session_time: formData.sessionTimeout,
       siddha_pi_form_session_time: formData.expiry,
@@ -155,7 +208,13 @@ export default function Settings() {
       weekly_report: formData.reportWeekly,
       monthly_report: formData.reportMonthly,
       select_pi_form_send_to_patient_default: formData.default,
-      select_pi_form_send_to_patient_custom: formData.custom
+      select_pi_form_send_to_patient_custom: formData.custom,
+      sms_template: [
+        {
+          templateName: smsData.templateName, // The template name entered by the user
+          smsTemplateContant: smsData.templateText // The template content with placeholders
+        }
+      ]
     };
 
     try {
@@ -227,7 +286,7 @@ export default function Settings() {
       };
       reader.readAsDataURL(file);
     } else {
-      toast.error('Please select a valid image file (JPG, PNG, etc.)');
+      toast.error('Please select a valid image file');
     }
   };
 
@@ -255,7 +314,8 @@ export default function Settings() {
         monthly_report,
         select_pi_form_send_to_patient_default,
         select_pi_form_send_to_patient_custom,
-        logo
+        logo,
+        sms_template
       } = response.data.settings;
 
       setFormData({
@@ -271,6 +331,21 @@ export default function Settings() {
         custom: select_pi_form_send_to_patient_custom,
         logo
       });
+
+      if (sms_template && sms_template.length > 0) {
+        const template = sms_template[0]; // Assuming you're using the first template
+        const preSelectedVariables = variables
+          .filter((variable) =>
+            template.smsTemplateContant.includes(`{{${variable.value}}}`)
+          )
+          .map((variable) => variable.value);
+
+        setSmsData({
+          templateName: template.templateName,
+          templateText: template.smsTemplateContant,
+          selectedVariables: preSelectedVariables
+        });
+      }
     } catch (error) {
       toast.error(`${error.message}`);
     }
@@ -299,9 +374,7 @@ export default function Settings() {
         <Tab label="Patient Intake Form" />
         <Tab label="Admin" />
         <Tab label="Notification" />
-        <Tab label="Logo" />
-        {/* <Tab label="Admin Email & Time Zones" />
-        <Tab label="Report" /> */}
+        <Tab label="Hospital" />
       </Tabs>
       {/* Tab Panels */}
       {tabIndex === 0 && (
@@ -361,6 +434,90 @@ export default function Settings() {
               />
             </Grid>
           </Grid>
+          <Divider sx={{ my: 3 }} />
+
+          <Box>
+            <Typography variant="h5" gutterBottom>
+              Custom SMS Template
+            </Typography>
+
+            {/* Text Field for the SMS Template Name */}
+            <Box mt={2}>
+              <TextField
+                label="Template Name"
+                value={smsData.templateName}
+                onChange={handleTemplateNameChange}
+                placeholder="Enter SMS template name"
+              />
+            </Box>
+
+            {/* Display variable checkboxes */}
+            <Grid container spacing={2} sx={{ mt: 2 }}>
+              {variables.map((variable) => (
+                <Grid item key={variable.value}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={smsData.selectedVariables.includes(
+                          variable.value
+                        )}
+                        onChange={() => handleVariableSelect(variable.value)}
+                      />
+                    }
+                    label={variable.label}
+                  />
+                </Grid>
+              ))}
+            </Grid>
+
+            {/* Text area for SMS template with chips for variables */}
+            <Box mt={2}>
+              {/* <Typography variant="caption">
+                Click on the checkboxes to add variables into the text area
+                below.
+              </Typography> */}
+              <Box
+                mt={1}
+                p={2}
+                sx={{
+                  width: '100%',
+                  minHeight: '100px',
+                  border: '1px solid #ccc',
+                  borderRadius: '4px',
+                  backgroundColor: '#f9f9f9',
+                  position: 'relative'
+                }}
+              >
+                {/* Display the chips for selected variables */}
+                {smsData.selectedVariables.map((variable) => (
+                  <Chip
+                    key={variable}
+                    label={`{{${variable}}}`}
+                    onDelete={() => handleVariableSelect(variable)}
+                    sx={{ m: 0.5 }}
+                  />
+                ))}
+
+                {/* Text area where the user can type */}
+                <textarea
+                  value={smsData.templateText}
+                  onChange={handleTextChange}
+                  style={{
+                    width: '100%',
+                    padding: '10px',
+                    fontSize: '16px',
+                    lineHeight: '1.5',
+                    border: 'none',
+                    outline: 'none',
+                    background: 'transparent',
+                    resize: 'none'
+                  }}
+                  rows={6}
+                  placeholder="Type your sms content here..."
+                />
+              </Box>
+            </Box>
+          </Box>
         </Box>
       )}
       {tabIndex === 1 && (
@@ -388,6 +545,7 @@ export default function Settings() {
             </Grid>
           </Grid>
 
+          <Divider sx={{ my: 3 }} />
           <Box>
             <Grid container spacing={2} sx={{ mt: 2 }}>
               <Grid item xs={12} md={6}>
@@ -428,65 +586,6 @@ export default function Settings() {
                               // variant="contained"
                               onClick={() => deleteEmailField(index)}
                             >
-                              <Tooltip title="Delete">
-                                <Delete color="error" />
-                              </Tooltip>
-                            </Button>
-                          </TableCell>
-                        )}
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </Grid>
-            </Grid>
-
-            <Grid container spacing={2} sx={{ mt: 2 }}>
-              <Grid item xs={12} md={6}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={{ textAlign: 'center' }}>
-                        Time Zone
-                      </TableCell>
-                      <TableCell sx={{ textAlign: 'center' }}>Select</TableCell>
-                      {isEditing && (
-                        <TableCell sx={{ textAlign: 'center' }}>
-                          <Button
-                            onClick={addTimeZoneField}
-                            sx={{ mt: 0 }}
-                            variant="outlined"
-                            disabled={!isEditing}
-                          >
-                            <Add /> Add
-                          </Button>
-                        </TableCell>
-                      )}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {formData.timeZones.map((zoneObj, index) => (
-                      <TableRow key={index}>
-                        <TableCell>
-                          <TextField
-                            fullWidth
-                            value={zoneObj.timeZones}
-                            onChange={(e) =>
-                              handleTimeZoneChange(index, e.target.value)
-                            }
-                            disabled={!isEditing}
-                          />
-                        </TableCell>
-                        <TableCell sx={{ textAlign: 'center' }}>
-                          <Radio
-                            checked={zoneObj.selected || false}
-                            onChange={() => handleTimeZoneSelect(index)}
-                            disabled={!isEditing}
-                          />
-                        </TableCell>
-                        {isEditing && (
-                          <TableCell sx={{ textAlign: 'center' }}>
-                            <Button onClick={() => deleteTimeZoneField(index)}>
                               <Tooltip title="Delete">
                                 <Delete color="error" />
                               </Tooltip>
@@ -574,9 +673,8 @@ export default function Settings() {
       {tabIndex === 3 && (
         <Box mt={3}>
           <Typography variant="h5" gutterBottom>
-            Change Logo
+            Healthcare organization logo
           </Typography>
-
           <Box display="flex" alignItems="center" gap={2}>
             {/* Display current or selected logo */}
             <Card>
@@ -597,13 +695,13 @@ export default function Settings() {
                     onChange={handleImageChange}
                   />
                   <Tooltip title="Upload new picture">
-                    <CloudUploadIcon />
+                    <CloudUploadIcon sx={{ width: '50px', height: '50px' }} />
                   </Tooltip>
                 </IconButton>
 
                 {/* If image is selected, show Cancel and Save Logo buttons */}
                 {selectedImage && (
-                  <Box>
+                  <Box display="flex" gap={2}>
                     <Button
                       variant="outlined"
                       color="primary"
@@ -623,16 +721,81 @@ export default function Settings() {
                 )}
               </>
             ) : (
-              <Button onClick={() => setIsEditing(true)} variant="contained">
+              <Button
+                sx={{ display: 'none' }}
+                onClick={() => setIsEditing(true)}
+                variant="contained"
+              >
                 Change Picture
               </Button>
             )}
           </Box>
+
+          <Divider sx={{ my: 3 }} />
+
+          <Grid container spacing={2} sx={{ mt: 2 }}>
+            <Grid item xs={12} md={6}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ textAlign: 'center' }}>Select</TableCell>
+                    <TableCell sx={{ textAlign: 'center' }}>
+                      Time Zone
+                    </TableCell>
+                    {isEditing && (
+                      <TableCell sx={{ textAlign: 'center' }}>
+                        <Button
+                          onClick={addTimeZoneField}
+                          sx={{ mt: 0 }}
+                          variant="outlined"
+                          disabled={!isEditing}
+                        >
+                          <Add /> Add
+                        </Button>
+                      </TableCell>
+                    )}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {formData.timeZones.map((zoneObj, index) => (
+                    <TableRow key={index}>
+                      <TableCell sx={{ textAlign: 'center' }}>
+                        <Radio
+                          checked={zoneObj.selected || false}
+                          onChange={() => handleTimeZoneSelect(index)}
+                          disabled={!isEditing}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <TextField
+                          fullWidth
+                          value={zoneObj.timeZones}
+                          onChange={(e) =>
+                            handleTimeZoneChange(index, e.target.value)
+                          }
+                          disabled={!isEditing}
+                        />
+                      </TableCell>
+                      {isEditing && (
+                        <TableCell sx={{ textAlign: 'center' }}>
+                          <Button onClick={() => deleteTimeZoneField(index)}>
+                            <Tooltip title="Delete">
+                              <Delete color="error" />
+                            </Tooltip>
+                          </Button>
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Grid>
+          </Grid>
         </Box>
       )}
 
       {/* Hide the Change Settings buttons if tabIndex === 3 */}
-      {tabIndex !== 3 && (
+      {/* {tabIndex !== 3 && (
         <Box mt={3}>
           {!isEditing ? (
             <Button variant="contained" onClick={() => setIsEditing(true)}>
@@ -654,7 +817,29 @@ export default function Settings() {
             </>
           )}
         </Box>
-      )}
+      )} */}
+
+      <Box mt={3}>
+        {!isEditing ? (
+          <Button variant="contained" onClick={() => setIsEditing(true)}>
+            Change Settings
+          </Button>
+        ) : (
+          <>
+            <Button variant="contained" onClick={handleSubmit}>
+              Save Settings
+            </Button>
+            <Button
+              variant="outlined"
+              color="secondary"
+              sx={{ ml: 2 }}
+              onClick={handleCancel} // Clicking "Cancel" will exit edit mode
+            >
+              Cancel
+            </Button>
+          </>
+        )}
+      </Box>
     </Box>
   );
 }
