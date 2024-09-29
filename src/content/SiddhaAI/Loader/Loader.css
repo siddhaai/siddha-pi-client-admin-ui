@@ -53,11 +53,12 @@
   } */
 
 /* /* custom Loader Styles */
+
 .loader {
   width: 40px;
   height: 40px;
   position: relative;
-  --c: no-repeat linear-gradient(#407bff 0 0);
+  --c: no-repeat linear-gradient(#2d88b9 0 0);
   background: var(--c) center/100% 10px, var(--c) center/10px 100%;
 }
 

@@ -70,7 +70,7 @@ const CustomToolbar = () => (
     </span>
     <span className="ql-formats">
       <button className="ql-link"></button>
-      <button className="ql-image"></button>
+      {/* <button className="ql-image"></button> */}
       {/* <button className="ql-video"></button> */}
       <button className="ql-formula"></button>
     </span>

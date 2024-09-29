@@ -16,7 +16,6 @@ import {
 import SidebarTopSection from './SidebarTopSection';
 import SidebarMenu from './SidebarMenu';
 import SidebarFooter from './SidebarFooter';
-import Logo from 'src/components/LogoSign';
 
 const SidebarWrapper = styled(Box)(
   ({ theme }) => `
@@ -115,16 +114,16 @@ function Sidebar() {
                   width: 52
                 }}
               >
-                <Logo />
+                {/* <Logo /> */}
               </Box>
             </Box>
-            <Divider
+            {/* <Divider
               sx={{
                 my: theme.spacing(3),
                 mx: theme.spacing(2),
                 background: theme.colors.alpha.trueWhite[10]
               }}
-            />
+            /> */}
             <SidebarTopSection />
             <Divider
               sx={{

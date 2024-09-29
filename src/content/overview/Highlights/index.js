@@ -409,9 +409,9 @@ function Highlights() {
                 color="text.secondary"
                 fontWeight="normal"
               >
-                {t(
+                {/* {t(
                   "Version 3.1 represents our biggest Tokyo update. We've added a brand new layout with 100% reworked and improved components. Check out the live preview to see them in action."
-                )}
+                )} */}
               </TypographySubHeading>
             </Grid>
             <Grid item xs={12} md={6}>

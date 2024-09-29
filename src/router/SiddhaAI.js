@@ -46,7 +46,7 @@ const Settings = Loader(
   lazy(() => import('src/content/SiddhaAI/Settings/Settings'))
 );
 
-const Ai = Loader(lazy(() => import('src/content/SiddhaAI/Ai/AiTest')));
+// const Ai = Loader(lazy(() => import('src/content/SiddhaAI/Ai/AiTest')));
 const TC = Loader(lazy(() => import('src/content/SiddhaAI/TC/TC')));
 
 const AdminRoutes = [
@@ -132,15 +132,15 @@ const AdminRoutes = [
       }
     ]
   },
-  {
-    path: 'Ai',
-    children: [
-      {
-        path: 'Ai',
-        element: <Ai />
-      }
-    ]
-  },
+  // {
+  //   path: 'Ai',
+  //   children: [
+  //     {
+  //       path: 'Ai',
+  //       element: <Ai />
+  //     }
+  //   ]
+  // },
   {
     path: 'TC',
     children: [

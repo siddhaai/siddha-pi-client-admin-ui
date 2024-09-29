@@ -291,7 +291,7 @@ function PatientIntakeSuccessCount() {
           Today : {`${dailyTotalSmsCount ? dailyTotalSmsCount : '0'}`}
         </Typography>
       </CardContent>
-      <Chart options={Box1Options} series={Box1Data} type="area" height={72} />
+      {/* <Chart options={Box1Options} series={Box1Data} type="area" height={72} /> */}
 
       <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
         <DialogContent>
@@ -380,3 +380,252 @@ function PatientIntakeSuccessCount() {
 }
 
 export default PatientIntakeSuccessCount;
+
+// import {
+//   CardContent,
+//   CardHeader,
+//   Card,
+//   Box,
+//   Typography,
+//   Button,
+//   Dialog,
+//   DialogContent,
+//   useTheme,
+//   CircularProgress
+// } from '@mui/material';
+// import { useTranslation } from 'react-i18next';
+// import { useState, useEffect } from 'react';
+// import { format, startOfWeek, endOfWeek } from 'date-fns';
+// import Chart from 'react-apexcharts';
+// import toast from 'react-hot-toast';
+// import useAxiosInterceptor from 'src/contexts/Interceptor';
+
+// function IntakeGraph() {
+//   const { axios } = useAxiosInterceptor();
+//   const { t } = useTranslation();
+//   const theme = useTheme();
+//   const [open, setOpen] = useState(false);
+//   const [loading, setLoading] = useState(false);
+//   const [chartData, setChartData] = useState({
+//     dates: [],
+//     newPatients: [],
+//     smsCounts: [],
+//     formSubmited: [],
+//     existingPatientRetrieve: []
+//   });
+//   const [dailyTotalSmsCount, setDailyTotalSmsCount] = useState('');
+
+//   const fetchTotalPatientIntake = async () => {
+//     const token = localStorage.getItem('token');
+//     try {
+//       const response = await axios.get(`/calculate-weekly-report`, {
+//         headers: { Authorization: `Bearer ${token}` }
+//       });
+
+//       const reports = response.data.reports.dailySummary;
+
+//       // Process data for the chart
+//       const dates = reports.map(
+//         (report) =>
+//           `${format(new Date(report._id.date), 'MM/dd/yyyy')} (${format(
+//             new Date(report._id.date),
+//             'EEEE'
+//           )})`
+//       );
+//       const newPatients = reports.map(
+//         (report) => report.totalPatientCreateCount
+//       );
+//       const smsCounts = reports.map((report) => report.totalSmsSendCount);
+//       const formSubmited = reports.map(
+//         (report) => report.totalupdatePatientPiForm
+//       );
+//       const existingPatientRetrieve = reports.map(
+//         (report) => report.totalExistingPatientRetrievedCount
+//       );
+
+//       // Update state with chart data
+//       setChartData({
+//         dates,
+//         newPatients,
+//         smsCounts,
+//         formSubmited,
+//         existingPatientRetrieve
+//       });
+//     } catch (error) {
+//       toast.error('Failed to fetch daily report');
+//     }
+//   };
+
+//   useEffect(() => {
+//     fetchTotalPatientIntake();
+//   }, []);
+
+//   // Fetch total SMS count for the card display
+//   useEffect(() => {
+//     const fetchTotalSmsCount = async () => {
+//       const token = localStorage.getItem('token');
+//       try {
+//         const responseChartData = await axios.get(`/dailyReport`, {
+//           headers: { Authorization: `Bearer ${token}` }
+//         });
+//         setDailyTotalSmsCount(
+//           responseChartData.data.dailyReports.totalDailyReports[0]
+//             .totalSmsSendCount
+//         );
+//       } catch (error) {
+//         toast.error('Failed to fetch daily report');
+//       }
+//     };
+
+//     fetchTotalSmsCount();
+//   }, []);
+
+//   // Chart options for the preview
+//   const chartOptionsPreview = {
+//     chart: {
+//       background: 'transparent',
+//       toolbar: { show: true },
+//       zoom: { enabled: false }
+//     },
+//     colors: [theme.colors.success.main, theme.colors.info.main],
+//     dataLabels: { enabled: false },
+//     theme: { mode: theme.palette.mode },
+//     stroke: { show: true, curve: 'smooth', width: 2 },
+//     legend: { show: true },
+//     xaxis: {
+//       categories: chartData.dates,
+//       labels: {
+//         rotate: -45, // Rotate labels to avoid overlap
+//         style: { fontSize: '10px' }
+//       }
+//     },
+//     yaxis: {
+//       title: { text: 'Count' }
+//     },
+//     tooltip: { enabled: true },
+//     grid: { show: false },
+//     plotOptions: {
+//       bar: { columnWidth: '40%', borderRadius: 5 }
+//     }
+//   };
+
+//   // Detailed chart for the dialog
+//   const chartOptions = {
+//     ...chartOptionsPreview,
+//     plotOptions: {
+//       bar: { columnWidth: '30%', borderRadius: 5 } // Adjust for detailed view
+//     }
+//   };
+
+//   const handleCardClick = () => {
+//     setLoading(true);
+//     fetchTotalPatientIntake().finally(() => setLoading(false)); // Ensure loading is handled
+//     setOpen(true);
+//   };
+
+//   const handleClose = () => {
+//     setOpen(false);
+//   };
+
+//   return (
+//     <Card
+//       sx={{
+//         overflow: 'visible',
+//         width: '100%',
+//         cursor: 'pointer',
+//         transition: 'transform 0.3s, box-shadow 0.3s',
+//         '&:hover': {
+//           transform: 'scale(1.05)',
+//           boxShadow: theme.shadows[6]
+//         }
+//       }}
+//       onClick={handleCardClick}
+//     >
+//       <CardHeader
+//         sx={{ p: 2 }}
+//         titleTypographyProps={{
+//           component: 'h5',
+//           variant: 'caption',
+//           fontWeight: 'bold'
+//         }}
+//         title={t('Patients Intake Status')}
+//       />
+//       <CardContent
+//         sx={{
+//           pt: 0,
+//           display: 'flex',
+//           alignItems: 'center',
+//           flexDirection: 'column'
+//         }}
+//       >
+//         <Typography variant="h1">
+//           Today: {`${dailyTotalSmsCount || '0'}`}
+//         </Typography>
+//         {/* <Box sx={{ width: '100%', mt: 2 }}>
+//           <Chart
+//             options={chartOptionsPreview}
+//             series={[
+//               { name: 'SMS Send', data: chartData.smsCounts },
+//               {
+//                 name: 'Patient Intake Form Submitted',
+//                 data: chartData.formSubmited
+//               }
+//             ]}
+//             type="bar"
+//             height={200}
+//           />
+//         </Box> */}
+//       </CardContent>
+
+//       {/* Dialog for detailed view */}
+//       <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
+//         <DialogContent>
+//           {loading ? (
+//             <Box
+//               sx={{
+//                 display: 'flex',
+//                 justifyContent: 'center',
+//                 alignItems: 'center',
+//                 height: '300px'
+//               }}
+//             >
+//               <CircularProgress />
+//               <Typography variant="h6" sx={{ marginLeft: 2 }}>
+//                 Loading...
+//               </Typography>
+//             </Box>
+//           ) : (
+//             <Box>
+//               <Button
+//                 sx={{ position: 'absolute', top: 6, right: 8 }}
+//                 onClick={handleClose}
+//                 color="error"
+//               >
+//                 Close
+//               </Button>
+//               <Typography variant="h4" mt={3}>
+//                 {t('Patient Intake Status')}
+//               </Typography>
+//               <Box sx={{ mt: 3 }}>
+//                 <Chart
+//                   options={chartOptions}
+//                   series={[
+//                     { name: 'SMS Send', data: chartData.smsCounts },
+//                     {
+//                       name: 'Patient Intake Form Submitted',
+//                       data: chartData.formSubmited
+//                     }
+//                   ]}
+//                   type="bar"
+//                   height={350}
+//                 />
+//               </Box>
+//             </Box>
+//           )}
+//         </DialogContent>
+//       </Dialog>
+//     </Card>
+//   );
+// }
+
+// export default IntakeGraph;

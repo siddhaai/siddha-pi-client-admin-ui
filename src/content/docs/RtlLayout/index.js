@@ -28,9 +28,7 @@ return (
   return (
     <>
       <Helmet>
-        <title>
-          Right-to-Left Layout - Tokyo React Javascript Admin Dashboard
-        </title>
+        <title>Siddha Ai</title>
       </Helmet>
       <Container maxWidth={false}>
         <Grid container spacing={4}>
@@ -38,7 +36,7 @@ return (
             <PageHeader heading="Right-to-Left Layout" subheading="" />
           </Grid>
           <Grid item xs={12}>
-            <Typography paragraph>
+            {/* <Typography paragraph>
               Tokyo React Javascript Admin Dashboard fully supports
               right-to-left layouts. By default, the RTL support is disabled,
               but it's easy to enable it.
@@ -46,7 +44,7 @@ return (
             <Typography paragraph>
               Uncomment the lines in the below example, inside{' '}
               <code>src\theme\ThemeProvider.js</code>
-            </Typography>
+            </Typography> */}
             <Prism
               showLineNumbers
               wrapLines
@@ -56,7 +54,7 @@ return (
               {intDir}
             </Prism>
             <br />
-            <Typography paragraph>
+            {/* <Typography paragraph>
               When using a RTL layout, in <code>public\index.html</code> you
               will have to add <code>dir="rtl"</code> to the <code>body</code>{' '}
               or <code>html</code> tag.
@@ -68,7 +66,7 @@ return (
               <code>import i18n from 'src/i18n/i18n';</code> or simply replace{' '}
               <code>i18n.dir()</code> with <code>'rtl'</code> if you don't want
               automatic RTL detection.
-            </Typography>
+            </Typography> */}
           </Grid>
         </Grid>
       </Container>

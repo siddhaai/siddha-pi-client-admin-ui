@@ -5,7 +5,6 @@ import useAxiosInterceptor from 'src/contexts/Interceptor';
 
 import { Avatar, Box, Typography, useTheme } from '@mui/material';
 // import { useTranslation } from 'react-i18next';
-import { ApiUrl } from 'src/content/SiddhaAI/ApiUrl';
 
 // const MenuUserBox = styled(Box)(
 //   ({ theme }) => `

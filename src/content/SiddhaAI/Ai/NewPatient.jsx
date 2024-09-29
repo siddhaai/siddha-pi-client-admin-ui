@@ -1,351 +1,3 @@
-// import React, { useState } from 'react';
-// import Box from '@mui/material/Box';
-// import Button from '@mui/material/Button';
-// import CssBaseline from '@mui/material/CssBaseline';
-// import Grid from '@mui/material/Grid';
-// import Paper from '@mui/material/Paper';
-// import Typography from '@mui/material/Typography';
-// import { Formik, Field, Form } from 'formik';
-// import * as Yup from 'yup';
-// import toast, { Toaster } from 'react-hot-toast';
-// import CircularProgress from '@mui/material/CircularProgress';
-// import useAxiosInterceptor from 'src/contexts/Interceptor';
-
-// // API URLs
-// const LoginApiUrl = '/adminLogin';
-// const FileUploadApiUrl =
-//   'http://ec2-44-207-188-40.compute-1.amazonaws.com:8000/ai';
-
-// // Validation schemas using Yup
-// const loginValidationSchema = Yup.object({
-//   username: Yup.string().required('Username is required'),
-//   password: Yup.string().required('Password is required')
-// });
-
-// const fileValidationSchema = Yup.object({
-//   file: Yup.mixed().required('A file is required')
-// });
-
-// const FileUpload = () => {
-//   const { axios } = useAxiosInterceptor();
-//   const [response, setResponse] = useState(null);
-//   const [loading, setLoading] = useState(false);
-//   const [imagePreview, setImagePreview] = useState(null);
-//   const [isLoggedIn, setIsLoggedIn] = useState(false);
-//   const [authHeaders, setAuthHeaders] = useState({});
-
-//   // Function to handle login form submission
-//   const handleLogin = async (values, { setSubmitting }) => {
-//     try {
-//       const result = await axios.post(LoginApiUrl, {}, {
-//         headers: {
-//           Username: values.username,
-//           Password: values.password
-//         }
-//       });
-
-//       if (result.status === 200) {
-//         toast.success('Login successful!');
-//         setIsLoggedIn(true);
-//         setAuthHeaders({
-//           Authorization: `Bearer ${result.data.token}`
-//         });
-//       } else {
-//         toast.error('Login failed.');
-//       }
-//     } catch (error) {
-//       toast.error('Login failed.');
-//     } finally {
-//       setSubmitting(false);
-//     }
-//   };
-
-//   // Function to handle file upload form submission
-//   const handleSubmit = async (values, { setSubmitting }) => {
-//     const formData = new FormData();
-//     formData.append('file', values.file);
-
-//     setLoading(true);
-
-//     try {
-//       const result = await axios.post(FileUploadApiUrl, formData, {
-//         headers: {
-//           ...authHeaders,
-//           'Content-Type': 'multipart/form-data'
-//         }
-//       });
-
-//       const [jsonData, processingTime] = result.data;
-//       const parsedData = JSON.parse(jsonData);
-
-//       setResponse({ data: parsedData, time: processingTime });
-//       toast.success('File uploaded successfully!');
-//     } catch (error) {
-//       toast.error('Failed to upload file.');
-//       setResponse(null);
-//     } finally {
-//       setLoading(false);
-//       setSubmitting(false);
-//     }
-//   };
-
-//   // Function to handle file input change
-//   const handleFileChange = (event, setFieldValue) => {
-//     const file = event.currentTarget.files[0];
-//     setFieldValue('file', file);
-//     if (file) {
-//       setImagePreview(URL.createObjectURL(file));
-//     }
-//   };
-
-//   return (
-//     <Box
-//       component="main"
-//       sx={{ flexGrow: 1, p: 3, backgroundColor: '#f0f4f8' }}
-//     >
-//       <CssBaseline />
-//       <Grid
-//         container
-//         spacing={3}
-//         justifyContent="center"
-//         sx={{ minHeight: '100vh', alignItems: 'center' }}
-//       >
-//         {!isLoggedIn ? (
-//           <Grid item xs={12} md={5}>
-//             <Paper
-//               elevation={8}
-//               sx={{
-//                 padding: 4,
-//                 backgroundColor: '#ffffff',
-//                 boxShadow: '0px 8px 24px rgba(0,0,0,0.2)',
-//                 borderRadius: '12px'
-//               }}
-//             >
-//               <Typography
-//                 variant="h4"
-//                 component="h1"
-//                 gutterBottom
-//                 color="#0277bd"
-//                 textAlign="center"
-//               >
-//                 Login
-//               </Typography>
-//               <Formik
-//                 initialValues={{ username: '', password: '' }}
-//                 validationSchema={loginValidationSchema}
-//                 onSubmit={handleLogin}
-//               >
-//                 {({ isSubmitting }) => (
-//                   <Form>
-//                     <Box
-//                       sx={{
-//                         display: 'flex',
-//                         flexDirection: 'column',
-//                         alignItems: 'center'
-//                       }}
-//                     >
-//                       <Field
-//                         name="username"
-//                         type="text"
-//                         placeholder="Username"
-//                         style={{
-//                           marginBottom: '20px',
-//                           width: '100%',
-//                           padding: '10px',
-//                           borderRadius: '8px',
-//                           border: '2px solid #0277bd'
-//                         }}
-//                       />
-//                       <Field
-//                         name="password"
-//                         type="password"
-//                         placeholder="Password"
-//                         style={{
-//                           marginBottom: '20px',
-//                           width: '100%',
-//                           padding: '10px',
-//                           borderRadius: '8px',
-//                           border: '2px solid #0277bd'
-//                         }}
-//                       />
-//                       <Button
-//                         type="submit"
-//                         variant="contained"
-//                         color="primary"
-//                         disabled={isSubmitting}
-//                         sx={{
-//                           mt: 2,
-//                           backgroundColor: '#0277bd',
-//                           '&:hover': { backgroundColor: '#01579b' }
-//                         }}
-//                       >
-//                         Login
-//                       </Button>
-//                     </Box>
-//                   </Form>
-//                 )}
-//               </Formik>
-//             </Paper>
-//           </Grid>
-//         ) : (
-//           <>
-//             <Grid item xs={12} md={5}>
-//               <Paper
-//                 elevation={8}
-//                 sx={{
-//                   padding: 4,
-//                   backgroundColor: '#ffffff',
-//                   boxShadow: '0px 8px 24px rgba(0,0,0,0.2)',
-//                   borderRadius: '12px'
-//                 }}
-//               >
-//                 <Typography
-//                   variant="h4"
-//                   component="h1"
-//                   gutterBottom
-//                   color="#0277bd"
-//                   textAlign="center"
-//                 >
-//                   Upload and Capture
-//                 </Typography>
-//                 <Formik
-//                   initialValues={{ file: null }}
-//                   validationSchema={fileValidationSchema}
-//                   onSubmit={handleSubmit}
-//                 >
-//                   {({ setFieldValue, isSubmitting }) => (
-//                     <Form>
-//                       <Box
-//                         sx={{
-//                           display: 'flex',
-//                           flexDirection: 'column',
-//                           alignItems: 'center'
-//                         }}
-//                       >
-//                         <input
-//                           type="file"
-//                           name="file"
-//                           accept="image/*"
-//                           onChange={(event) =>
-//                             handleFileChange(event, setFieldValue)
-//                           }
-//                           style={{
-//                             marginBottom: '20px',
-//                             width: '100%',
-//                             padding: '10px',
-//                             borderRadius: '8px',
-//                             border: '2px solid #0277bd'
-//                           }}
-//                         />
-//                         <Button
-//                           type="submit"
-//                           variant="contained"
-//                           color="primary"
-//                           disabled={isSubmitting}
-//                           sx={{
-//                             mt: 2,
-//                             backgroundColor: '#0277bd',
-//                             '&:hover': { backgroundColor: '#01579b' }
-//                           }}
-//                         >
-//                           Upload
-//                         </Button>
-//                         {imagePreview && (
-//                           <Box sx={{ mt: 3, textAlign: 'center' }}>
-//                             <Typography variant="body1" color="#0277bd">
-//                               Preview:
-//                             </Typography>
-//                             <img
-//                               src={imagePreview}
-//                               alt="Preview"
-//                               style={{
-//                                 maxWidth: '100%',
-//                                 maxHeight: '300px',
-//                                 borderRadius: '12px',
-//                                 boxShadow: '0px 4px 12px rgba(0,0,0,0.2)'
-//                               }}
-//                             />
-//                           </Box>
-//                         )}
-//                       </Box>
-//                     </Form>
-//                   )}
-//                 </Formik>
-//               </Paper>
-//             </Grid>
-//             <Grid item xs={12} md={5}>
-//               <Paper
-//                 elevation={8}
-//                 sx={{
-//                   padding: 4,
-//                   backgroundColor: '#ffffff',
-//                   boxShadow: '0px 8px 24px rgba(0,0,0,0.2)',
-//                   borderRadius: '12px'
-//                 }}
-//               >
-//                 <Typography
-//                   variant="h4"
-//                   component="h1"
-//                   gutterBottom
-//                   color="#0277bd"
-//                   textAlign="center"
-//                 >
-//                   Response
-//                 </Typography>
-//                 {loading ? (
-//                   <Box
-//                     sx={{
-//                       display: 'flex',
-//                       justifyContent: 'center',
-//                       alignItems: 'center',
-//                       height: '200px'
-//                     }}
-//                   >
-//                     <CircularProgress color="primary" size={60} />
-//                   </Box>
-//                 ) : response ? (
-//                   <Box
-//                     sx={{
-//                       backgroundColor: '#e3f2fd',
-//                       padding: '20px',
-//                       borderRadius: '12px',
-//                       border: '1px solid #0277bd',
-//                       whiteSpace: 'pre-wrap',
-//                       wordWrap: 'break-word',
-//                       maxHeight: '400px',
-//                       overflowY: 'auto',
-//                       boxShadow: '0px 4px 12px rgba(0,0,0,0.2)'
-//                     }}
-//                   >
-//                     <Typography variant="h6" color="#0277bd">
-//                       Processed Data:
-//                     </Typography>
-//                     <pre>{JSON.stringify(response.data, null, 2)}</pre>
-//                     <Typography variant="h6" color="#01579b" sx={{ mt: 2 }}>
-//                       Processing Time: {response.time.toFixed(2)} seconds
-//                     </Typography>
-//                   </Box>
-//                 ) : (
-//                   <Typography
-//                     variant="body1"
-//                     color="textSecondary"
-//                     textAlign="center"
-//                   >
-//                     No response to display.
-//                   </Typography>
-//                 )}
-//               </Paper>
-//             </Grid>
-//           </>
-//         )}
-//       </Grid>
-//       <Toaster position="bottom-center" />
-//     </Box>
-//   );
-// };
-
-// export default FileUpload;
-
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Stepper,
@@ -367,13 +19,7 @@ import {
   Radio,
   useTheme,
   styled,
-  Container,
-  TableContainer,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody
+  Container
 } from '@mui/material';
 import { IMaskInput } from 'react-imask';
 import {
@@ -438,13 +84,13 @@ const validatePersonalDetails = (values) => {
     errors.first_name = 'First name must contain only letters.';
   }
 
-  // if (!values.last_name) {
-  //   errors.last_name = 'Last name is required.';
-  // } else if (values.last_name.length < 3) {
-  //   errors.last_name = 'Last name must be at least 3 characters.';
-  // } else if (!nameRegex.test(values.last_name)) {
-  //   errors.last_name = 'Last name must contain only letters.';
-  // }
+  if (!values.last_name) {
+    errors.last_name = 'Last name is required.';
+  } else if (values.last_name.length < 3) {
+    errors.last_name = 'Last name must be at least 3 characters.';
+  } else if (!nameRegex.test(values.last_name)) {
+    errors.last_name = 'Last name must contain only letters.';
+  }
 
   // Phone number validation
   if (!values.phone) {
@@ -455,19 +101,19 @@ const validatePersonalDetails = (values) => {
     errors.phone = 'Phone number cannot start with 0 or 1 in the area code.';
   }
 
-  // if (!values.gender) {
-  //   errors.gender = 'Gender is required.';
-  // }
+  if (!values.gender) {
+    errors.gender = 'Gender is required.';
+  }
 
-  // if (!values.preferred_doctor) {
-  //   errors.preferred_doctor = 'Preferred doctor is required.';
-  // }
+  if (!values.preferred_doctor) {
+    errors.preferred_doctor = 'Preferred doctor is required.';
+  }
 
-  // if (!values.dob) {
-  //   errors.dob = 'Date of birth is required.';
-  // } else if (dayjs(values.dob).isAfter(dayjs())) {
-  //   errors.dob = 'Date of birth cannot be in the future.';
-  // }
+  if (!values.dob) {
+    errors.dob = 'Date of birth is required.';
+  } else if (dayjs(values.dob).isAfter(dayjs())) {
+    errors.dob = 'Date of birth cannot be in the future.';
+  }
 
   return errors;
 };
@@ -526,15 +172,11 @@ const validateAppointmentDetails = (values) => {
     errors.notes = 'Notes cannot exceed 300 characters.';
   }
 
-  if (!values.preferred_doctor) {
-    errors.preferred_doctor = 'Preferred doctor is required.';
-  }
-
   return errors;
 };
 
 // Component
-const PatientIntakeExisting = () => {
+const PatientIntakeNew = () => {
   const { axios } = useAxiosInterceptor();
   const theme = useTheme();
   const { t } = useTranslation();
@@ -544,20 +186,16 @@ const PatientIntakeExisting = () => {
   const [doctors, setDoctors] = useState([]);
   const [officePhone, setOfficePhone] = useState();
   const [selectedOffices, setSelectedOffices] = useState([]);
+  const [id, setId] = useState('');
   const [smsText, setSmsText] = useState('');
   const [mobile, setMobile] = useState(''); //patient Phone Number
   const [name, setName] = useState('');
   const [appointmentDateandTime, setAppointmentDateandTime] = useState('');
   // const [stateForSmsApi, setStateForSmsApi] = useState(false);
-  // const [doctorsPhNo, setDoctorsPhNo] = useState('');
+  const [doctorsPhNo, setDoctorsPhNo] = useState('');
   const [doctorPracticeName, setDoctorPracticeName] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState('');
   const [smsTemplateResponseData, setSmsTemeplateResponseData] = useState([]);
-
-  //existing patient states
-  const [selectedPatient, setSelectedPatient] = useState(false);
-  const [patients, setPatients] = useState(); // State to hold the list of patients
-  const [selectedPatientId, setSelectedPatientId] = useState(''); // ID of the selected patient for radio button selection
 
   const fetchDoctorOffice = async () => {
     try {
@@ -614,11 +252,11 @@ const PatientIntakeExisting = () => {
   // State for Personal Details
   const [personalDetails, setPersonalDetails] = useState({
     first_name: '',
-    phone: ''
-    // last_name: '',
-    // dob: null,
-    // gender: '',
-    // preferred_doctor: ''
+    last_name: '',
+    phone: '',
+    dob: null,
+    gender: '',
+    preferred_doctor: ''
   });
 
   // State for Appointment Details
@@ -627,8 +265,7 @@ const PatientIntakeExisting = () => {
     duration: '',
     hospital_location: '',
     reason: '',
-    notes: '',
-    preferred_doctor: ''
+    notes: ''
   });
 
   // State for SMS Details
@@ -645,9 +282,9 @@ const PatientIntakeExisting = () => {
   };
 
   // Handle Date of Birth change
-  // const handleDateChange = (date) => {
-  //   setPersonalDetails({ ...personalDetails, dob: date });
-  // };
+  const handleDateChange = (date) => {
+    setPersonalDetails({ ...personalDetails, dob: date });
+  };
 
   // Handle change for Appointment Details
   const handleChangeAppointmentDetails = (e) => {
@@ -671,54 +308,54 @@ const PatientIntakeExisting = () => {
       setErrors(validationErrors);
       return;
     }
+
     setName(personalDetails.first_name);
     setMobile(personalDetails.phone);
+
     setLoading(true);
     try {
-      // const token = localStorage.getItem('token');
       const headersPayload = {
         patientFname: personalDetails.first_name,
-        patientPhNum: personalDetails.phone
-        // patientDob: dayjs(values.dob).format('YYYY-MM-DD')
+        patientLname: personalDetails.last_name,
+        patientPhNum: personalDetails.phone,
+        patientDob: dayjs(personalDetails.dob).format('YYYY-MM-DD'),
+        doctorId: personalDetails.preferred_doctor,
+        patientGender: personalDetails.gender
       };
 
-      const response = await axios.post(`/existingPatients`, headersPayload, {
+      const response = await axios.post(`/patientCreate`, headersPayload, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
         }
       });
 
-      if (response.data.status === 200) {
-        setPatients(response?.data?.data);
-        setSelectedPatient(true);
-        // setStep((prevStep) => prevStep + 1); // Move to the next step
-        // console.log(step, 'step 0');
+      if (response.status === 201) {
+        toast.success('Patient created successfully!');
+        setId(response.data.data.id);
+        const selectedDoctor = doctors.find(
+          (doctor) => doctor.id === personalDetails.preferred_doctor
+        );
+
+        // Set the phone number and practice name of the selected doctor
+        if (selectedDoctor) {
+          setDoctorsPhNo(selectedDoctor.cell_phone || '');
+          setDoctorPracticeName(selectedDoctor.practice_group_name || '');
+        }
+        setActiveStep((prevStep) => prevStep + 1); // Move to the next step
       } else {
         toast.error(
           response.data.message || 'Failed to validate personal information.'
         );
       }
     } catch (error) {
-      if (error.response && error.response.status === 404) {
-        // No patient found
-        toast.error('No patient found with the provided details.');
-      } else {
-        // General error handling
-        toast.error(
-          error.response?.data?.detail ||
-            'An unexpected error occurred. Please try again.'
-        );
-      }
+      toast.error(
+        error.response?.data?.message ||
+          'Something went wrong. Please try again.'
+      );
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleSelectPatient = (patientId) => {
-    const patient = patients.find((p) => p.patient_id === patientId);
-    setSelectedPatient(patient); // Store the full patient object
-    setSelectedPatientId(patientId);
   };
 
   // Handle Submit for Appointment Details
@@ -737,7 +374,7 @@ const PatientIntakeExisting = () => {
     setLoading(true);
 
     const headersPayload = {
-      patientId: selectedPatient.patient_id,
+      patientId: id,
       scheduleDateTime: dayjs(appointmentDetails.appointment_date).format(
         'YYYY-MM-DDTHH:mm'
       ),
@@ -745,20 +382,19 @@ const PatientIntakeExisting = () => {
       office_location: appointmentDetails.hospital_location,
       reason: appointmentDetails.reason,
       notes: appointmentDetails.notes,
-      doctorId: appointmentDetails.preferred_doctor, // Assuming doctor ID is static or passed from props
+      doctorId: personalDetails.preferred_doctor, // Assuming doctor ID is static or passed from props
       patientReSchedule: false
     };
 
     const smsTemplateDetails = {
-      patientId: selectedPatient.patient_id,
+      patientId: id,
       patientName: name,
       scheduleDateTime: dayjs(appointmentDetails.appointment_date).format(
         'YYYY-MM-DDTHH:mm'
       ),
       patientPhNum: mobile,
       doctor_PraticeName: doctorPracticeName,
-      doctor_phone: officePhone,
-      patient_is_new: false
+      patient_is_new: true
     };
 
     try {
@@ -867,14 +503,14 @@ const PatientIntakeExisting = () => {
     <Box>
       <Toaster position="bottom-right" />
       <Helmet>
-        <title>Get Existing Patient</title>
+        <title>Patient Register</title>
       </Helmet>
       <MainContent>
         <Container sx={{ my: 2 }} maxWidth="md">
           <Card sx={{ mt: -1.5, pt: 4 }}>
             <Box px={4}>
               <Typography variant="h2" sx={{ mb: 1 }}>
-                {t('Get Existing Patient')}
+                {t('Add New Patient')}
               </Typography>
               <Typography
                 variant="h4"
@@ -911,7 +547,7 @@ const PatientIntakeExisting = () => {
                         helperText={errors.first_name}
                       />
                     </Grid>
-                    {/* <Grid item xs={12} sm={6}>
+                    <Grid item xs={12} sm={6}>
                       <TextField
                         fullWidth
                         label="Last Name"
@@ -921,11 +557,11 @@ const PatientIntakeExisting = () => {
                         error={!!errors.last_name}
                         helperText={errors.last_name}
                       />
-                    </Grid> */}
+                    </Grid>
                     <Grid item xs={12} sm={6}>
                       <TextField
                         fullWidth
-                        label="Phones"
+                        label="Phone"
                         name="phone"
                         value={personalDetails.phone}
                         onChange={handleChangePersonalDetails}
@@ -936,7 +572,7 @@ const PatientIntakeExisting = () => {
                         helperText={errors.phone}
                       />
                     </Grid>
-                    {/* <Grid item xs={12} sm={6}>
+                    <Grid item xs={12} sm={6}>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
                           label="Date of Birth"
@@ -970,7 +606,24 @@ const PatientIntakeExisting = () => {
                         <MenuItem value="Other">Other</MenuItem>
                       </TextField>
                     </Grid>
-                   */}
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        select
+                        label="Preferred Doctor"
+                        name="preferred_doctor"
+                        value={personalDetails.preferred_doctor}
+                        onChange={handleChangePersonalDetails}
+                        error={!!errors.preferred_doctor}
+                        helperText={errors.preferred_doctor}
+                      >
+                        {doctors?.map((doctor) => (
+                          <MenuItem key={doctor?.id} value={doctor?.id}>
+                            {doctor?.first_name}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+                    </Grid>
                   </Grid>
                   <Grid
                     xs={12}
@@ -984,120 +637,22 @@ const PatientIntakeExisting = () => {
                       disabled={loading}
                       // fullWidth
                     >
-                      Get Patient
+                      Create a patient
                     </Button>
                   </Grid>
                 </Box>
               )}
 
-              {activeStep === 0 && selectedPatient && (
-                <>
-                  {/* TableContainer with a fixed height and overflow auto for scrolling */}
-                  <TableContainer
-                    component={Paper}
-                    sx={{
-                      maxHeight: '300px', // Set the height limit
-                      overflowY: 'auto', // Enable vertical scrolling if content exceeds height
-                      padding: '0 20px'
-                    }}
-                  >
-                    <Table stickyHeader>
-                      {' '}
-                      {/* stickyHeader keeps the header visible when scrolling */}
-                      <TableHead>
-                        <TableRow>
-                          <TableCell sx={{ textAlign: 'center' }}>
-                            Select
-                          </TableCell>
-                          <TableCell sx={{ textAlign: 'center' }}>
-                            Chart Id
-                          </TableCell>
-                          <TableCell sx={{ textAlign: 'center' }}>
-                            First Name
-                          </TableCell>
-                          <TableCell sx={{ textAlign: 'center' }}>
-                            Date of Birth
-                          </TableCell>
-                          <TableCell sx={{ textAlign: 'center' }}>
-                            Gender
-                          </TableCell>
-                          <TableCell sx={{ textAlign: 'center' }}>
-                            Phone
-                          </TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {patients.map((patient) => (
-                          <TableRow key={patient.patient_id}>
-                            <TableCell sx={{ textAlign: 'center' }}>
-                              <Radio
-                                checked={
-                                  selectedPatientId === patient.patient_id
-                                }
-                                onChange={() =>
-                                  handleSelectPatient(patient.patient_id)
-                                }
-                                value={patient.patient_id}
-                                name="select-patient"
-                              />
-                            </TableCell>
-                            <TableCell sx={{ textAlign: 'center' }}>
-                              {patient.chart_id}
-                            </TableCell>
-                            <TableCell sx={{ textAlign: 'center' }}>
-                              {patient.first_name}
-                            </TableCell>
-                            <TableCell sx={{ textAlign: 'center' }}>
-                              {patient.date_of_birth}
-                            </TableCell>
-                            <TableCell sx={{ textAlign: 'center' }}>
-                              {patient.gender}
-                            </TableCell>
-                            <TableCell sx={{ textAlign: 'center' }}>
-                              {patient.cell_phone}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </>
-              )}
-
-              {activeStep === 0 && selectedPatient && (
-                <div>
-                  <Box p={2} display="flex" justifyContent="center">
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => {
-                        if (selectedPatient) {
-                          setActiveStep((prevStep) => prevStep + 1); // Move to the next step
-                        } else {
-                          toast.error(
-                            'Please select a patient before proceeding'
-                          );
-                        }
-                      }}
-                      disabled={!selectedPatientId} // Disable button if no patient is selected
-                    >
-                      {t('Next')}
-                    </Button>
-                  </Box>
-                </div>
-              )}
-
               {activeStep === 1 && (
                 <Box>
-                  {/* <Typography variant="h6" gutterBottom>
+                  <Typography variant="h6" gutterBottom>
                     Appointment Details
-                  </Typography> */}
+                  </Typography>
                   <Grid container spacing={2}>
-                    <Grid item xs={12} sm={6} md={6}>
+                    <Grid item xs={12}>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DesktopDateTimePicker
                           label="Appointment Date & Time"
-                          disablePast={true}
                           value={appointmentDetails.appointment_date}
                           onChange={handleAppointmentDateChange}
                           renderInput={(params) => (
@@ -1111,7 +666,7 @@ const PatientIntakeExisting = () => {
                         />
                       </LocalizationProvider>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={6} s>
+                    <Grid item xs={12}>
                       <TextField
                         fullWidth
                         select
@@ -1127,7 +682,7 @@ const PatientIntakeExisting = () => {
                         <MenuItem value="90">90</MenuItem>
                       </TextField>
                     </Grid>
-                    <Grid item xs={12} sm={6}>
+                    <Grid item xs={12}>
                       <TextField
                         fullWidth
                         select
@@ -1145,26 +700,7 @@ const PatientIntakeExisting = () => {
                         ))}
                       </TextField>
                     </Grid>
-
-                    <Grid item xs={12} sm={6}>
-                      <TextField
-                        fullWidth
-                        select
-                        label="Preferred Doctor"
-                        name="preferred_doctor"
-                        value={appointmentDetails.preferred_doctor}
-                        onChange={handleChangeAppointmentDetails}
-                        error={!!errors.preferred_doctor}
-                        helperText={errors.preferred_doctor}
-                      >
-                        {doctors?.map((doctor) => (
-                          <MenuItem key={doctor?.id} value={doctor?.id}>
-                            {doctor?.first_name}
-                          </MenuItem>
-                        ))}
-                      </TextField>
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
+                    <Grid item xs={12}>
                       <TextField
                         fullWidth
                         label="Reason"
@@ -1177,7 +713,7 @@ const PatientIntakeExisting = () => {
                         rows={4} // Reason is now a textarea with 4 rows
                       />
                     </Grid>
-                    <Grid item xs={12} sm={6}>
+                    <Grid item xs={12}>
                       <TextField
                         fullWidth
                         label="Notes"
@@ -1194,7 +730,7 @@ const PatientIntakeExisting = () => {
                   <Button
                     variant="contained"
                     onClick={handleSubmitAppointmentDetails}
-                    sx={{ my: 3 }}
+                    sx={{ mt: 3 }}
                     disabled={loading}
                   >
                     Schedule Appointment
@@ -1333,4 +869,4 @@ const PatientIntakeExisting = () => {
   );
 };
 
-export default PatientIntakeExisting;
+export default PatientIntakeNew;

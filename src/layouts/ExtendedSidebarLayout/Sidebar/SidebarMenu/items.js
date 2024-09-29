@@ -4,7 +4,7 @@ import DynamicFormIcon from '@mui/icons-material/DynamicForm';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import SettingsIcon from '@mui/icons-material/Settings';
-// import PsychologyIcon from '@mui/icons-material/Psychology';
+import PsychologyIcon from '@mui/icons-material/Psychology';
 import ArticleIcon from '@mui/icons-material/Article';
 
 const menuItems = [
@@ -59,7 +59,7 @@ const menuItems = [
       //   name: `AI`,
       //   icon: PsychologyIcon,
       //   link: 'SiddhaAI/Ai/Ai'
-      // },
+      // }
     ]
   },
   {

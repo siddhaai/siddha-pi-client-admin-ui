@@ -20,15 +20,27 @@ import {
   IconButton,
   Avatar,
   Card,
-  Chip
+  Chip,
+  CardContent,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  useMediaQuery,
+  useTheme
 } from '@mui/material';
 import toast, { Toaster } from 'react-hot-toast';
 import useAxiosInterceptor from 'src/contexts/Interceptor';
 import { Add, Delete } from '@mui/icons-material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import CloseIcon from '@mui/icons-material/Close';
 
 export default function Settings() {
   const { axios } = useAxiosInterceptor();
+  const theme = useTheme();
+  const [smsCard, setSmsCard] = useState(false);
+  const [smsTemplateView, setSmsTemplateView] = useState('');
+  const [openDialog, setOpenDialog] = useState(false);
 
   // Initialize the states
   const [formData, setFormData] = useState({
@@ -36,14 +48,18 @@ export default function Settings() {
     emailNotification: '',
     sessionTimeout: '',
     remainderTitle: '',
-    emails: [],
-    timeZones: [],
+    emails: [{ email: '' }], // Initial state with one empty email field    timeZones: [],
     reportWeekly: false,
     reportMonthly: false,
     default: false, // Default option for Patient Intake Form
     custom: false, // Custom option for Patient Intake Form,
     logo: ''
   });
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
   const [smsData, setSmsData] = useState({
     templateName: '',
@@ -60,25 +76,69 @@ export default function Settings() {
   ];
 
   // Handle variable selection (checkbox toggle)
+  // const handleVariableSelect = (variable) => {
+  //   const isSelected = smsData.selectedVariables.includes(variable);
+
+  //   if (isSelected) {
+  //     // Remove variable from selectedVariables and templateText
+  //     setSmsData((prevData) => ({
+  //       ...prevData,
+  //       selectedVariables: prevData.selectedVariables.filter(
+  //         (v) => v !== variable
+  //       ),
+  //       templateText: prevData.templateText.replace(`{{${variable}}}`, '')
+  //     }));
+  //   } else {
+  //     // Add variable to selectedVariables and insert it into templateText
+  //     setSmsData((prevData) => ({
+  //       ...prevData,
+  //       selectedVariables: [...prevData.selectedVariables, variable],
+  //       templateText: `${prevData.templateText} {{${variable}}}`
+  //     }));
+  //   }
+  // };
+
   const handleVariableSelect = (variable) => {
+    const textarea = document.getElementById('smsTemplateTextarea');
+    const cursorPosition = textarea.selectionStart; // Get the current cursor position
     const isSelected = smsData.selectedVariables.includes(variable);
 
     if (isSelected) {
-      // Remove variable from selectedVariables and templateText
-      setSmsData((prevData) => ({
-        ...prevData,
-        selectedVariables: prevData.selectedVariables.filter(
-          (v) => v !== variable
-        ),
-        templateText: prevData.templateText.replace(`{{${variable}}}`, '')
-      }));
+      // Remove the variable from selectedVariables and the templateText
+      setSmsData((prevData) => {
+        const updatedTemplateText = prevData.templateText.replace(
+          `{{${variable}}}`,
+          ''
+        );
+        return {
+          ...prevData,
+          selectedVariables: prevData.selectedVariables.filter(
+            (v) => v !== variable
+          ),
+          templateText: updatedTemplateText
+        };
+      });
     } else {
-      // Add variable to selectedVariables and insert it into templateText
-      setSmsData((prevData) => ({
-        ...prevData,
-        selectedVariables: [...prevData.selectedVariables, variable],
-        templateText: `${prevData.templateText} {{${variable}}}`
-      }));
+      // Insert the variable at the cursor position
+      setSmsData((prevData) => {
+        const beforeText = prevData.templateText.slice(0, cursorPosition);
+        const afterText = prevData.templateText.slice(cursorPosition);
+        const updatedTemplateText = `${beforeText}{{${variable}}}${afterText}`;
+        return {
+          ...prevData,
+          selectedVariables: [...prevData.selectedVariables, variable],
+          templateText: updatedTemplateText
+        };
+      });
+
+      // Move the cursor to the right of the inserted variable
+      setTimeout(() => {
+        textarea.setSelectionRange(
+          cursorPosition + `{{${variable}}}`.length,
+          cursorPosition + `{{${variable}}}`.length
+        );
+        textarea.focus();
+      }, 0);
     }
   };
 
@@ -96,6 +156,13 @@ export default function Settings() {
   const [tabIndex, setTabIndex] = useState(0); // Track current tab
   const [selectedImage, setSelectedImage] = useState(null); // Selected new image for upload
   const token = localStorage.getItem('token');
+  const [errors, setErrors] = useState({}); // State to track validation errors
+  const [cursorPosition, setCursorPosition] = useState(0); // To track cursor position
+
+  // Track the cursor position in the textarea
+  const handleCursorPositionChange = (event) => {
+    setCursorPosition(event.target.selectionStart); // Update cursor position on text area click or change
+  };
 
   // Handle tab change
   const handleTabChange = (event, newIndex) => {
@@ -139,7 +206,7 @@ export default function Settings() {
     }
   };
 
-  // Add email input field
+  // Add new email field
   const addEmailField = () => {
     setFormData({
       ...formData,
@@ -156,11 +223,20 @@ export default function Settings() {
   };
 
   // Handle email field change
+  // Handle email change with validation
   const handleEmailChange = (index, value) => {
-    const updatedEmails = formData.emails.map((emailObj, i) =>
-      i === index ? { email: value } : emailObj
-    );
+    const updatedEmails = [...formData.emails];
+    updatedEmails[index].email = value;
     setFormData({ ...formData, emails: updatedEmails });
+
+    // Check for validation
+    const newErrors = { ...errors };
+    if (!validateEmail(value)) {
+      newErrors[index] = 'Invalid email format';
+    } else {
+      delete newErrors[index]; // Remove error if valid
+    }
+    setErrors(newErrors);
   };
 
   // Handle time zone field change
@@ -181,9 +257,15 @@ export default function Settings() {
   };
 
   // Delete email field
+  // Delete email field
   const deleteEmailField = (index) => {
     const updatedEmails = formData.emails.filter((_, i) => i !== index);
     setFormData({ ...formData, emails: updatedEmails });
+
+    // Remove error for the deleted field
+    const updatedErrors = { ...errors };
+    delete updatedErrors[index];
+    setErrors(updatedErrors);
   };
 
   // Delete time zone field
@@ -351,6 +433,28 @@ export default function Settings() {
     }
   };
 
+  const getAdminCustomSms = async () => {
+    try {
+      const response = await axios.get('/sms/getSmsTemplate', {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (response?.status === 200) {
+        console.log('sms templ', response?.data[0]?.messageContent);
+        setSmsTemplateView(response?.data[0]?.messageContent);
+        setOpenDialog(true);
+        setSmsCard(true);
+      } else {
+        toast.error('Error fetching SMS template');
+      }
+    } catch (error) {
+      toast.error(`${error.message}`);
+    }
+  };
+
   useEffect(() => {
     getAdminCustomSetting();
   }, []);
@@ -358,6 +462,14 @@ export default function Settings() {
   const handleCancel = () => {
     setIsEditing(false); // Reset to non-editing state when Cancel is clicked
   };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
+
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg'));
+  const isExtraLargeScreen = useMediaQuery(theme.breakpoints.up('xl'));
 
   return (
     <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
@@ -384,7 +496,7 @@ export default function Settings() {
           </Typography>
           <Grid container alignItems="center" spacing={2}>
             <Grid item xs={12} md={6} lg={2}>
-              <Typography variant="caption">Expired In:</Typography>
+              <Typography variant="caption">Expires In:</Typography>
               <TextField
                 type="number"
                 name="expiry"
@@ -438,17 +550,80 @@ export default function Settings() {
 
           <Box>
             <Typography variant="h5" gutterBottom>
-              Custom SMS Template
+              Custom SMS
             </Typography>
 
             {/* Text Field for the SMS Template Name */}
             <Box mt={2}>
+              {/* Template Name Input Field */}
               <TextField
-                label="Template Name"
+                disabled={!isEditing}
+                label="SMS Title"
                 value={smsData.templateName}
                 onChange={handleTemplateNameChange}
-                placeholder="Enter SMS template name"
+                placeholder="Enter SMS Title"
               />
+
+              {/* View Button */}
+              <Button
+                disabled={!isEditing}
+                variant="outlined"
+                onClick={getAdminCustomSms}
+                sx={{ ml: 2 }}
+              >
+                View
+              </Button>
+
+              {/* Conditional rendering of the SMS template card */}
+              {smsCard && (
+                <Card>
+                  <Dialog
+                    open={openDialog}
+                    onClose={handleCloseDialog}
+                    fullWidth
+                    maxWidth={
+                      isExtraLargeScreen
+                        ? 'lg'
+                        : isLargeScreen
+                        ? 'md'
+                        : isSmallScreen
+                        ? 'sm'
+                        : 'xs'
+                    } // Adjust the width dynamically based on screen size
+                  >
+                    {/* <DialogTitle>
+                      <IconButton
+                        aria-label="close"
+                        onClick={handleCloseDialog}
+                        sx={{
+                          position: 'absolute',
+                          right: 8,
+                          top: 8,
+                          color: theme.palette.grey[500]
+                        }}
+                      >
+                        <CloseIcon />
+                      </IconButton>
+                    </DialogTitle> */}
+
+                    {/* SMS Template Content */}
+                    <DialogContent dividers>
+                      <CardContent>
+                        <Typography variant="body2">
+                          {smsTemplateView}
+                        </Typography>
+                      </CardContent>
+                    </DialogContent>
+
+                    {/* Dialog Actions */}
+                    <DialogActions>
+                      <Button onClick={handleCloseDialog} color="secondary">
+                        Cancel
+                      </Button>
+                    </DialogActions>
+                  </Dialog>
+                </Card>
+              )}
             </Box>
 
             {/* Display variable checkboxes */}
@@ -456,6 +631,7 @@ export default function Settings() {
               {variables.map((variable) => (
                 <Grid item key={variable.value}>
                   <FormControlLabel
+                    disabled={!isEditing}
                     control={
                       <Checkbox
                         checked={smsData.selectedVariables.includes(
@@ -491,6 +667,7 @@ export default function Settings() {
                 {/* Display the chips for selected variables */}
                 {smsData.selectedVariables.map((variable) => (
                   <Chip
+                    disabled={!isEditing}
                     key={variable}
                     label={`{{${variable}}}`}
                     onDelete={() => handleVariableSelect(variable)}
@@ -500,6 +677,8 @@ export default function Settings() {
 
                 {/* Text area where the user can type */}
                 <textarea
+                  id="smsTemplateTextarea"
+                  disabled={!isEditing}
                   value={smsData.templateText}
                   onChange={handleTextChange}
                   style={{
@@ -555,11 +734,12 @@ export default function Settings() {
                       <TableCell sx={{ textAlign: 'center' }}>Email</TableCell>
                       {isEditing && (
                         <TableCell sx={{ textAlign: 'center' }}>
-                          {' '}
                           <Button
                             onClick={addEmailField}
                             variant="outlined"
-                            disabled={!isEditing}
+                            disabled={
+                              !isEditing || Object.keys(errors).length > 0
+                            } // Disable if there are errors
                           >
                             <Add /> Add
                           </Button>
@@ -573,19 +753,19 @@ export default function Settings() {
                         <TableCell>
                           <TextField
                             fullWidth
+                            type="email"
                             value={emailObj.email}
                             onChange={(e) =>
                               handleEmailChange(index, e.target.value)
                             }
                             disabled={!isEditing}
+                            error={!!errors[index]} // Show error state if email is invalid
+                            helperText={errors[index]} // Display error message
                           />
                         </TableCell>
                         {isEditing && (
                           <TableCell sx={{ textAlign: 'center' }}>
-                            <Button
-                              // variant="contained"
-                              onClick={() => deleteEmailField(index)}
-                            >
+                            <Button onClick={() => deleteEmailField(index)}>
                               <Tooltip title="Delete">
                                 <Delete color="error" />
                               </Tooltip>
