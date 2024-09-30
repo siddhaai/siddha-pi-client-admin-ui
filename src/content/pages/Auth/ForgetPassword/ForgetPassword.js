@@ -8,12 +8,13 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import ForgetPasswordEmailImg from '../../../../assets/email.svg';
+import ForgetPasswordEmailImg from '../../../../assets/EnterOTP.svg';
 import toast, { Toaster } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { ApiUrl } from 'src/content/SiddhaAI/ApiUrl';
+// import axios from 'axios';
+// import { ApiUrl } from 'src/content/SiddhaAI/ApiUrl';
 import Loader from '../../../SiddhaAI/Loader/Loader';
+import useAxiosInterceptor from 'src/contexts/Interceptor';
 
 /* Validation schema */
 const validationSchema = Yup.object({
@@ -22,6 +23,8 @@ const validationSchema = Yup.object({
 });
 
 export default function ForgetPasswordEmail() {
+  const { axios } = useAxiosInterceptor();
+
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState(0); // Timer state
@@ -50,7 +53,7 @@ export default function ForgetPasswordEmail() {
     }
     setLoading(true);
     try {
-      const response = await axios.post(`${ApiUrl}/admin/forgotPassword`, {
+      const response = await axios.post(`/admin/forgotPassword`, {
         email
       });
 
@@ -73,7 +76,7 @@ export default function ForgetPasswordEmail() {
   const handleSubmitOtp = async (values, { setSubmitting }) => {
     setLoading(true);
     try {
-      const response = await axios.post(`${ApiUrl}/admin/otpVerify`, {
+      const response = await axios.post(`/admin/otpVerify`, {
         email: values.email,
         otp: parseInt(values.otp)
       });

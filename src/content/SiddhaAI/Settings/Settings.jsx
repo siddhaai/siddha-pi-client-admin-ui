@@ -558,10 +558,10 @@ export default function Settings() {
               {/* Template Name Input Field */}
               <TextField
                 disabled={!isEditing}
-                label="SMS Title"
+                label="SMS Template Title"
                 value={smsData.templateName}
                 onChange={handleTemplateNameChange}
-                placeholder="Enter SMS Title"
+                placeholder="Enter SMS Template Title"
               />
 
               {/* View Button */}

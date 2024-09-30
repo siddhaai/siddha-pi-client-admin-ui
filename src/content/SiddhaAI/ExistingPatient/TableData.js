@@ -1559,7 +1559,7 @@ const PatientIntakeExisting = () => {
       const response = await axios.post(
         `/sms/toPatient`,
         {
-          message_template: selectedTemplate,
+          message: selectedTemplate,
           patientPhNum: `+1${cleanedPhoneNumber}`
         },
         {
@@ -1570,7 +1570,7 @@ const PatientIntakeExisting = () => {
         }
       );
 
-      if (response.data.data.status === 200) {
+      if (response.status === 200) {
         toast.success('SMS sent successfully!');
         const delayedAction = () => {
           handleCreatePatient();
@@ -1661,7 +1661,7 @@ const PatientIntakeExisting = () => {
                     <Grid item xs={12} sm={6}>
                       <TextField
                         fullWidth
-                        label="Phones"
+                        label="Phone"
                         name="phone"
                         value={personalDetails.phone}
                         onChange={handleChangePersonalDetails}

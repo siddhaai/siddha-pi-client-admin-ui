@@ -1442,7 +1442,7 @@ const PatientIntakeNew = () => {
       const response = await axios.post(
         `/sms/toPatient`,
         {
-          message_template: selectedTemplate,
+          message: selectedTemplate,
           patientPhNum: `+1${cleanedPhoneNumber}`
         },
         {
@@ -1453,7 +1453,7 @@ const PatientIntakeNew = () => {
         }
       );
 
-      if (response.data.data.status === 200) {
+      if (response.status === 200) {
         toast.success('SMS sent successfully!');
         const delayedAction = () => {
           handleCreatePatient();

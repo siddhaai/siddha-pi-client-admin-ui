@@ -11,13 +11,14 @@ import * as Yup from 'yup';
 import { IconButton, InputAdornment } from '@mui/material';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import ResetPasswordImg from '../../../../assets/otp2.svg';
+import ResetPasswordImg from '../../../../assets/ResetPWD.svg';
 import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+// import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 // import { ApiUrl } from '../ApiUrl';
-import { ApiUrl } from 'src/content/SiddhaAI/ApiUrl';
+// import { ApiUrl } from 'src/content/SiddhaAI/ApiUrl';
 import Loader from '../../../SiddhaAI/Loader/Loader';
+import useAxiosInterceptor from 'src/contexts/Interceptor';
 
 /* Validation schema */
 const validationSchema = Yup.object({
@@ -91,6 +92,8 @@ const validationSchema = Yup.object({
 // `;
 
 export default function ResetPassword() {
+  const { axios } = useAxiosInterceptor();
+
   const navigate = useNavigate();
   const location = useLocation(); // Access the passed state
   const [loading, setLoading] = useState(false);
@@ -103,7 +106,7 @@ export default function ResetPassword() {
   const handleSubmit = async (values, { setSubmitting }) => {
     setLoading(true);
     try {
-      const response = await axios.post(`${ApiUrl}/admin/resetPassword`, {
+      const response = await axios.post(`/admin/resetPassword`, {
         newPassword: values.password,
         email
       });

@@ -21,7 +21,7 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableContainer,
+  // TableContainer,
   TableHead,
   TableRow,
   useMediaQuery,
@@ -260,10 +260,10 @@ const DataCard = () => {
           justifyContent="space-between"
           sx={{ p: 2 }}
         >
-          <Typography variant="h6" sx={{ whiteSpace: 'nowrap' }}>
-            {t('Patient Forms')}
-          </Typography>
-
+          <CardHeader
+            title={t('PATIENT INTAKE FORM STATUS')}
+            sx={{ p: 2, whiteSpace: 'nowrap' }}
+          />
           <Grid
             container
             spacing={2}

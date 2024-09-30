@@ -8,7 +8,8 @@ import {
   Dialog,
   DialogContent,
   useTheme,
-  CircularProgress
+  CircularProgress,
+  Tooltip
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
@@ -183,73 +184,74 @@ function PatientIntakeSuccessCount() {
     setOpen(false);
   };
 
-  const Box1Options = {
-    chart: {
-      background: 'transparent',
-      toolbar: {
-        show: false
-      },
-      sparkline: {
-        enabled: true
-      },
-      zoom: {
-        enabled: true
-      }
-    },
-    colors: [theme.colors.warning.main],
-    dataLabels: {
-      enabled: false
-    },
-    theme: {
-      mode: theme.palette.mode
-    },
-    stroke: {
-      show: true,
-      colors: [theme.colors.warning.main],
-      curve: 'smooth',
-      width: 2
-    },
-    legend: {
-      show: false
-    },
-    labels: [
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday',
-      'Sunday',
-      'Last Week',
-      'Last Month',
-      'Last Year'
-    ],
-    xaxis: {
-      labels: {
-        show: false
-      },
-      axisBorder: {
-        show: false
-      },
-      axisTicks: {
-        show: false
-      }
-    },
-    yaxis: {
-      show: false,
-      min: 0
-    },
-    tooltip: {
-      enabled: false // Disable the tooltip
-    }
-  };
+  // const Box1Options = {
+  //   chart: {
+  //     background: 'transparent',
+  //     toolbar: {
+  //       show: false
+  //     },
+  //     sparkline: {
+  //       enabled: true
+  //     },
+  //     zoom: {
+  //       enabled: true
+  //     }
+  //   },
+  //   colors: [theme.colors.warning.main],
+  //   dataLabels: {
+  //     enabled: false
+  //   },
+  //   theme: {
+  //     mode: theme.palette.mode
+  //   },
+  //   stroke: {
+  //     show: true,
+  //     colors: [theme.colors.warning.main],
+  //     curve: 'smooth',
+  //     width: 2
+  //   },
+  //   legend: {
+  //     show: false
+  //   },
+  //   labels: [
+  //     'Monday',
+  //     'Tuesday',
+  //     'Wednesday',
+  //     'Thursday',
+  //     'Friday',
+  //     'Saturday',
+  //     'Sunday',
+  //     'Last Week',
+  //     'Last Month',
+  //     'Last Year'
+  //   ],
+  //   xaxis: {
+  //     labels: {
+  //       show: false
+  //     },
+  //     axisBorder: {
+  //       show: false
+  //     },
+  //     axisTicks: {
+  //       show: false
+  //     }
+  //   },
+  //   yaxis: {
+  //     show: false,
+  //     min: 0
+  //   },
+  //   tooltip: {
+  //     enabled: false // Disable the tooltip
+  //   }
+  // };
 
-  const Box1Data = [
-    {
-      name: 'Sales',
-      data: [32, 52, 45, 32, 54, 56, 28, 25, 36, 62]
-    }
-  ];
+  // const Box1Data = [
+  //   {
+  //     name: 'Sales',
+  //     data: [32, 52, 45, 32, 54, 56, 28, 25, 36, 62]
+  //   }
+  // ];
+
   return (
     <Card
       sx={{
@@ -264,33 +266,46 @@ function PatientIntakeSuccessCount() {
       }}
       onClick={handleCardClick}
     >
-      <CardHeader
-        sx={{
-          p: 2
-        }}
-        titleTypographyProps={{
-          component: 'h5',
-          variant: 'caption',
-          fontWeight: 'bold'
-        }}
-        title={t('Patients Intake Status')}
-      />
-      <CardContent
-        sx={{
-          pt: 0,
-          display: 'flex',
-          alignItems: 'center'
-        }}
+      <Tooltip
+        title="Click here to view Patients Intake Status in bar chart"
+        placement="top"
+        arrow
       >
-        <Typography
+        <CardHeader
           sx={{
-            px: 1
+            p: 2
           }}
-          variant="h1"
+          titleTypographyProps={{
+            component: 'h5',
+            variant: 'caption',
+            fontWeight: 'bold'
+          }}
+          title={t('Patients Intake Status')}
+        />
+      </Tooltip>
+      <Tooltip
+        title="Click here to view Patients Intake Status in bar chart"
+        // placement="right-start"
+        arrow
+      >
+        <CardContent
+          sx={{
+            pt: 0,
+            display: 'flex',
+            alignItems: 'center'
+          }}
         >
-          Today : {`${dailyTotalSmsCount ? dailyTotalSmsCount : '0'}`}
-        </Typography>
-      </CardContent>
+          <Typography
+            sx={{
+              px: 1
+            }}
+            variant="h1"
+          >
+            Today : {`${dailyTotalSmsCount ? dailyTotalSmsCount : '0'}`}
+          </Typography>
+        </CardContent>
+      </Tooltip>
+
       {/* <Chart options={Box1Options} series={Box1Data} type="area" height={72} /> */}
 
       <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
@@ -360,7 +375,7 @@ function PatientIntakeSuccessCount() {
                   //   data: chartData.existingPatientRetrieve
                   // },
                   {
-                    name: 'SMS Send',
+                    name: 'SMS Sent',
                     data: chartData.smsCounts
                   },
                   {

@@ -34,6 +34,7 @@ import useRefMounted from 'src/hooks/useRefMounted';
 import useAuth from 'src/hooks/useAuth';
 import useAxiosInterceptor from 'src/contexts/Interceptor';
 import { Copyright } from '@mui/icons-material';
+import Doctors from '../../../../assets/Doctors.svg';
 
 // Validation Schema
 const validationSchema = Yup.object({
@@ -233,7 +234,8 @@ export default function Login() {
                 sm={4}
                 md={6}
                 sx={{
-                  backgroundImage: 'url(/static/images/SiddhaAI/signin.svg)',
+                  // backgroundImage: 'url(/static/images/SiddhaAI/signin.svg)',
+                  backgroundImage: `url(${Doctors})`,
                   backgroundSize: 'contain',
                   backgroundRepeat: 'no-repeat',
                   backgroundPosition: 'center'
