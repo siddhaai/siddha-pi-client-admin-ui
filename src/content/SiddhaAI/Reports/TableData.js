@@ -35,6 +35,27 @@ function Reports() {
         show: true,
         tools: {
           download: true
+        },
+        export: {
+          csv: {
+            filename: 'Overall Report'
+          },
+          svg: {
+            filename: 'Overall Report'
+          },
+          png: {
+            filename: 'Overall Report'
+          }
+        },
+        events: {
+          beforeDownload: (chartContext, options) => {
+            const canvas = chartContext.el.querySelector('canvas');
+            const ctx = canvas.getContext('2d');
+
+            // Add custom title text to the canvas before downloading
+            ctx.font = '20px Arial';
+            ctx.fillText('Overall Report', 10, 30); // Position the title at (10, 30)
+          }
         }
       },
       zoom: {

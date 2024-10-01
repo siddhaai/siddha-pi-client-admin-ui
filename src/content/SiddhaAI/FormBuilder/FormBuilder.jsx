@@ -151,6 +151,7 @@ const FormBuilder = () => {
 
   // Fetch form data from the API
   useEffect(() => {
+    setIsLoading(true);
     axios
       .get('/formBuild', {
         headers: {
@@ -160,7 +161,9 @@ const FormBuilder = () => {
       })
       .then((response) => {
         const { defaultForm, customForm } = response.data;
+
         setFormData({ defaultForm, customForm });
+        setIsLoading(false);
       })
       .catch((error) => console.error('Error fetching form data', error));
   }, [token]);

@@ -370,6 +370,17 @@ export default function Login() {
                       <Copyright sx={{ mt: 0 }} />
                       Siddha AI {new Date().getFullYear()}
                     </Box>
+
+                    <Box
+                      sx={{
+                        mt: 1,
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center'
+                      }}
+                    >
+                      <Typography color="secondary">Version 0.0.1</Typography>
+                    </Box>
                   </Box>
                 </Box>
               </Grid>

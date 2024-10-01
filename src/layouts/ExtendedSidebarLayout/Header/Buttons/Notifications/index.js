@@ -402,10 +402,10 @@ function HeaderNotifications() {
                     }}
                   >
                     <Typography variant="h5" gutterBottom>
-                      Java exam day
+                      {/* Java exam day */}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Bill Clinton's presidential scandal makes it online.
+                      {/* Bill Clinton's presidential scandal makes it online. */}
                     </Typography>
                     <Box display="flex" mt={1} alignItems="flex-start">
                       <AvatarGroup max={4}>
@@ -502,11 +502,11 @@ function HeaderNotifications() {
                     }}
                   >
                     <Typography variant="h5" gutterBottom>
-                      Business investor meeting
+                      {/* Business investor meeting */}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Mosaic, the first graphical browser, is introduced to the
-                      average consumer.
+                      {/* Mosaic, the first graphical browser, is introduced to the
+                      average consumer. */}
                     </Typography>
                     <Box display="flex" mt={2} alignItems="flex-start">
                       <Card
@@ -581,10 +581,10 @@ function HeaderNotifications() {
                     }}
                   >
                     <Typography variant="h5" gutterBottom>
-                      Learning round table gathering
+                      {/* Learning round table gathering */}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      First ever iPod launches.
+                      {/* First ever iPod launches. */}
                     </Typography>
                     <Box display="flex" mt={1} alignItems="flex-start">
                       <Button size="small" variant="contained">

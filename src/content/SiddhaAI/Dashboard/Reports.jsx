@@ -13,45 +13,43 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { format, addDays } from 'date-fns';
-import { Line } from 'react-chartjs-2';
 import Chart from 'react-apexcharts';
-import { tooltip } from 'aws-amplify';
 import { useNavigate } from 'react-router-dom';
 
-const fetchChartData = async () => {
-  // Simulate API call with data for Monday to Friday, from 8 AM to 6 PM
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-        datasets: [
-          {
-            label: 'Success Count',
-            data: [
-              { x: 'Monday', y: '8:00 AM', count: 2 },
-              { x: 'Monday', y: '5:00 PM', count: 5 },
-              { x: 'Monday', y: '9:00 AM', count: 3 },
-              { x: 'Monday', y: '12:00 PM', count: 4 },
-              { x: 'Tuesday', y: '8:00 AM', count: 1 },
-              { x: 'Tuesday', y: '9:00 AM', count: 4 },
-              { x: 'Thursday', y: '8:00 AM', count: 5 },
-              { x: 'Thursday', y: '2:10 AM', count: 5 },
-              { x: 'Friday', y: '4:00 PM', count: 2 },
-              { x: 'Friday', y: '2:00 PM', count: 2 },
-              { x: 'Friday', y: '10:00 AM', count: 2 },
-              { x: 'Friday', y: '8:00 AM', count: 10 }
-            ],
-            fill: true,
-            borderColor: 'rgb(241, 31, 94)',
-            tension: 0.1,
-            pointBackgroundColor: 'rgb(241, 31, 94)',
-            showLine: true
-          }
-        ]
-      });
-    }, 1000); // Simulate API delay
-  });
-};
+// const fetchChartData = async () => {
+//   // Simulate API call with data for Monday to Friday, from 8 AM to 6 PM
+//   return new Promise((resolve) => {
+//     setTimeout(() => {
+//       resolve({
+//         labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+//         datasets: [
+//           {
+//             label: 'Success Count',
+//             data: [
+//               { x: 'Monday', y: '8:00 AM', count: 2 },
+//               { x: 'Monday', y: '5:00 PM', count: 5 },
+//               { x: 'Monday', y: '9:00 AM', count: 3 },
+//               { x: 'Monday', y: '12:00 PM', count: 4 },
+//               { x: 'Tuesday', y: '8:00 AM', count: 1 },
+//               { x: 'Tuesday', y: '9:00 AM', count: 4 },
+//               { x: 'Thursday', y: '8:00 AM', count: 5 },
+//               { x: 'Thursday', y: '2:10 AM', count: 5 },
+//               { x: 'Friday', y: '4:00 PM', count: 2 },
+//               { x: 'Friday', y: '2:00 PM', count: 2 },
+//               { x: 'Friday', y: '10:00 AM', count: 2 },
+//               { x: 'Friday', y: '8:00 AM', count: 10 }
+//             ],
+//             fill: true,
+//             borderColor: 'rgb(241, 31, 94)',
+//             tension: 0.1,
+//             pointBackgroundColor: 'rgb(241, 31, 94)',
+//             showLine: true
+//           }
+//         ]
+//       });
+//     }, 1000); // Simulate API delay
+//   });
+// };
 
 function Block1() {
   const { t } = useTranslation();

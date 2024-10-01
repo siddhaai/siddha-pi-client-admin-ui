@@ -118,22 +118,37 @@ function PatientIntakeSuccessCount() {
         show: true,
         tools: {
           download: true
+        },
+        export: {
+          csv: {
+            filename: 'Patient Intake Status'
+          },
+          svg: {
+            filename: 'Patient Intake Status'
+          },
+          png: {
+            filename: 'Patient Intake Status'
+          }
+        },
+        events: {
+          beforeDownload: (chartContext, options) => {
+            const canvas = chartContext.el.querySelector('canvas');
+            const ctx = canvas.getContext('2d');
+
+            // Add custom title text to the canvas before downloading
+            ctx.font = '20px Arial';
+            ctx.fillText('Patient Intake Status', 10, 30); // Position the title at (10, 30)
+          }
         }
       },
       zoom: {
         enabled: false
       }
     },
-    colors: [
-      // theme.colors.primary.main,
-      // theme.colors.warning.main,
-      theme.colors.success.main,
-      theme.colors.info.main
-    ],
+    colors: [theme.colors.success.main, theme.colors.info.main],
     dataLabels: {
       enabled: false
     },
-
     theme: {
       mode: theme.palette.mode
     },
@@ -146,7 +161,7 @@ function PatientIntakeSuccessCount() {
       show: true
     },
     xaxis: {
-      categories: chartData.dates, // Use formatted dates with day
+      categories: chartData.dates,
       labels: {
         show: true
       }
@@ -165,8 +180,8 @@ function PatientIntakeSuccessCount() {
     },
     plotOptions: {
       bar: {
-        columnWidth: '30%', // Adjust the width of the bars here (e.g., '50%' or a pixel value like '30px')
-        borderRadius: 5 // Optional: Adds rounded corners to the bars
+        columnWidth: '30%',
+        borderRadius: 5
       }
     }
   };

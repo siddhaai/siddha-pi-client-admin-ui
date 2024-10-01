@@ -125,7 +125,7 @@ const TableData = ({ selectedPatient }) => {
   const [selectedPatientId, setSelectedPatientId] = useState(''); // ID of the selected patient for radio button selection
   const [dateTimeError, setDateTimeError] = useState(null);
   const token = localStorage.getItem('token');
-  const [smsTemplateResponseData, setSmsTmeplateResponseData] = useState([]);
+  const [smsTemplateResponseData, setSmsTemplateResponseData] = useState([]);
   // State to handle the selected radio button
   const [selectedTemplate, setSelectedTemplate] = useState('');
   const [officePhone, setOfficePhone] = useState();
@@ -216,7 +216,7 @@ const TableData = ({ selectedPatient }) => {
       const response = await axios.post(
         `/sms/toPatient`,
         {
-          message_template: selectedTemplate,
+          message: selectedTemplate,
           patientPhNum: `+1${cleanedPhoneNumber}` // Use cleaned phone number here
         },
         {
@@ -227,7 +227,7 @@ const TableData = ({ selectedPatient }) => {
         }
       );
 
-      if (response.data.data.status === 200) {
+      if (response.status === 200) {
         toast.success('SMS sent successfully!');
         const delayedAction = () => {
           handleCreatePatient();
@@ -235,9 +235,8 @@ const TableData = ({ selectedPatient }) => {
         };
 
         setTimeout(delayedAction, 3000); // 3000 milliseconds = 3 seconds
-        // setIsRegistrationComplete(true); // Set registration complete on success
       } else {
-        toast.error('Failed to Send SMS.');
+        toast.error('Failed to Send SMS');
       }
     } catch (error) {
       if (error.response) {
@@ -275,18 +274,20 @@ const TableData = ({ selectedPatient }) => {
 
       const smsTemplateDetails = {
         patientId: parseInt(selectedPatientId?.patientid),
-        doctor_phone: officePhone,
+        doctorId: values.preferred_doctor,
+        // doctor_phone: officePhone,
         patientName: selectedPatientId?.patientName,
         scheduleDateTime: dayjs(values.appointment_date).format(
           'YYYY-MM-DDTHH:mm:ss'
         ),
         patientPhNum: selectedPatientId?.patientPhNum,
-        timeZone: appointmenttimeZone,
-        doctor_PraticeName: doctorPracticeName,
-        office_location: values.hospital_location,
-        patient_is_new: false,
+        // timeZone: appointmenttimeZone,
+        // doctor_PraticeName: doctorPracticeName,
+        // office_location: values.hospital_location,
+        patient_is_new: selectedPatientId?.patient_is_new,
         patientReSchedule: true,
         document_id: selectedPatientId?.document_id
+        // NpiNumber:selectedPatientId?.NpiNumber
       };
 
       const response = await axios.post(
@@ -309,7 +310,7 @@ const TableData = ({ selectedPatient }) => {
           }
         });
 
-        setSmsTmeplateResponseData(response.data.data.message_template);
+        setSmsTemplateResponseData(response.data.data.message_template);
 
         toast.success('Appointment created successfully!');
 
@@ -597,6 +598,7 @@ const TableData = ({ selectedPatient }) => {
                               <TextField
                                 {...field}
                                 fullWidth
+                                multiline
                                 rows={4}
                                 label={t('Reason')}
                                 placeholder={t(
@@ -608,7 +610,7 @@ const TableData = ({ selectedPatient }) => {
                             )}
                           </Field>
                         </Grid>
-                        <Grid item xs={12}>
+                        <Grid item xs={12} md={6}>
                           <Field name="notes">
                             {({ field }) => (
                               <TextField
@@ -631,13 +633,13 @@ const TableData = ({ selectedPatient }) => {
                   )}
 
                   {step === 1 && (
-                    <Box p={1}>
+                    <Box py={3}>
                       <Grid
                         container
-                        spacing={2}
                         component="main"
                         sx={{ display: 'flex', justifyContent: 'center' }}
                       >
+                        {/* <Toaster /> */}
                         <Paper
                           sx={{
                             p: 4,
@@ -656,114 +658,107 @@ const TableData = ({ selectedPatient }) => {
                             <Typography component="h1" variant="h5">
                               Send SMS
                             </Typography>
-                            <Box component="div" noValidate sx={{ mt: 3 }}>
+                            <Box component="div" noValidate sx={{ mt: 1 }}>
                               <Grid container spacing={2}>
-                                {smsTemplateResponseData?.length > 0 ? (
-                                  smsTemplateResponseData?.map((template) => (
-                                    <Grid item xs={12} key={template.id}>
-                                      <Card>
-                                        <CardIndicatorWrapper>
-                                          <Box
-                                            className="MuiCard-indicator"
-                                            sx={{
-                                              background: `${theme.colors.info.main}`
-                                            }}
-                                          />
-                                          <CardContent>
-                                            <FormControl component="fieldset">
-                                              <RadioGroup
-                                                value={selectedTemplate}
-                                                onChange={handleTemplateChange}
-                                              >
-                                                <FormControlLabel
-                                                  value={template.message} // Use template.message as value
-                                                  control={<Radio />}
-                                                  label={template.message}
-                                                />
-                                              </RadioGroup>
-                                            </FormControl>
-                                          </CardContent>
-                                        </CardIndicatorWrapper>
-                                      </Card>
-                                    </Grid>
-                                  ))
+                                {/* Check if smsTemplateResponseData exists and is not empty */}
+                                {smsTemplateResponseData &&
+                                smsTemplateResponseData.length > 0 ? (
+                                  smsTemplateResponseData.map(
+                                    (template, index) => (
+                                      <Grid item xs={12} key={index}>
+                                        {/* Use index as key or provide a unique id if available */}
+                                        <Card>
+                                          <CardIndicatorWrapper>
+                                            <Box
+                                              className="MuiCard-indicator"
+                                              sx={{
+                                                background: `${theme.colors.info.main}`
+                                              }}
+                                            />
+                                            <CardContent>
+                                              <FormControl component="fieldset">
+                                                <RadioGroup
+                                                  value={selectedTemplate}
+                                                  onChange={
+                                                    handleTemplateChange
+                                                  }
+                                                >
+                                                  <FormControlLabel
+                                                    value={
+                                                      template.messageContent
+                                                    } // Correctly use messageContent as value
+                                                    control={<Radio />}
+                                                    label={
+                                                      template.messageContent
+                                                    } // Display the message content
+                                                  />
+                                                </RadioGroup>
+                                              </FormControl>
+                                            </CardContent>
+                                          </CardIndicatorWrapper>
+                                        </Card>
+                                      </Grid>
+                                    )
+                                  )
                                 ) : (
                                   <Typography
                                     variant="body1"
                                     color="textSecondary"
                                   >
-                                    No templates available.
+                                    No sms available.
                                   </Typography>
                                 )}
-                              </Grid>
-                              <Grid item xs={12} sx={{ mt: 2 }}>
-                                {smsText && (
-                                  <>
-                                    <Button
-                                      variant="contained"
-                                      fullWidth
-                                      onClick={handleCopy}
-                                      sx={{
-                                        display: 'none',
-                                        mb: 2,
-                                        color: '#ffff',
-                                        background: '#407BFF',
-                                        '&:hover': {
-                                          color: '#ffff',
-                                          background: '#12171e',
-                                          border: '1px solid #407BFF'
-                                        }
-                                      }}
-                                    >
-                                      <ContentCopyIcon />
-                                      Copy Text
-                                    </Button>
-                                    <div
-                                      style={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        gap: '10px'
-                                      }}
-                                    >
-                                      <Button
-                                        onClick={() =>
-                                          handleCreatePatient(
-                                            isSubmitting?.resetForm
-                                          )
-                                        }
-                                        fullWidth
-                                        sx={{
-                                          display: 'none',
-                                          color: '#070707',
-                                          background: 'silver',
-                                          '&:hover': {
-                                            color: '#ffff',
-                                            background: '#12171e',
-                                            border: '1px solid #407BFF'
-                                          }
-                                        }}
-                                      >
-                                        Existing Patient
-                                      </Button>
-                                      {/* </Link> */}
+
+                                <Grid item xs={12} sx={{ mt: 2 }}>
+                                  {smsText && (
+                                    <>
                                       <Button
                                         variant="contained"
-                                        color="primary"
-                                        type="submit"
-                                        disabled={isSubmitting || loading}
                                         fullWidth
+                                        onClick={handleCopy}
+                                        sx={{
+                                          mb: 2
+                                        }}
                                       >
-                                        Send SMS
-                                        {loading && (
-                                          <CircularProgress
-                                            size={24}
-                                            sx={{ ml: 2 }}
-                                          />
-                                        )}
+                                        <ContentCopyIcon />
+                                        Copy SMS
                                       </Button>
-                                    </div>
-                                  </>
-                                )}
+                                      <div
+                                        style={{
+                                          display: 'flex',
+                                          justifyContent: 'space-between',
+                                          gap: '10px'
+                                        }}
+                                      >
+                                        <Button
+                                          onClick={
+                                            () => handleCreatePatient()
+                                            // isSubmitting?.resetForm
+                                          }
+                                          fullWidth
+                                        >
+                                          Existing Patient
+                                        </Button>
+                                        <Button
+                                          variant="contained"
+                                          color="primary"
+                                          type="submit"
+                                          onClick={handleSubmit}
+                                          disabled={loading}
+                                          fullWidth
+                                        >
+                                          Send SMS
+                                          {loading && (
+                                            <CircularProgress
+                                              size={24}
+                                              sx={{ ml: 2 }}
+                                            />
+                                          )}
+                                        </Button>
+                                      </div>
+                                    </>
+                                  )}
+                                </Grid>
                               </Grid>
                             </Box>
                           </Box>
@@ -774,14 +769,14 @@ const TableData = ({ selectedPatient }) => {
 
                   {step === 0 && (
                     <BoxActions>
-                      <Box p={2} display="flex" justifyContent="center">
+                      <Box p={2} display="flex" sx={{ ml: '20px' }}>
                         <Button
                           variant="contained"
                           color="primary"
                           type="submit"
                           disabled={isSubmitting || loading}
                         >
-                          {t('Appointment Schedule')}
+                          {t('Add appointment')}
                           {loading && (
                             <CircularProgress size={24} sx={{ ml: 2 }} />
                           )}

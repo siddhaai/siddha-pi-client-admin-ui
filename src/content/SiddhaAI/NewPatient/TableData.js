@@ -1377,7 +1377,8 @@ const PatientIntakeNew = () => {
       ),
       patientPhNum: mobile,
       doctor_PraticeName: doctorPracticeName,
-      patient_is_new: true
+      patient_is_new: true,
+      doctorId: personalDetails.preferred_doctor // Assuming doctor ID is static or passed from props
     };
 
     try {
@@ -1623,6 +1624,7 @@ const PatientIntakeNew = () => {
                       // fullWidth
                     >
                       Register a patient
+                      {loading && <CircularProgress size={24} sx={{ ml: 2 }} />}
                     </Button>
                   </Grid>
                 </Box>
@@ -1722,6 +1724,7 @@ const PatientIntakeNew = () => {
                     disabled={loading}
                   >
                     Add appointment
+                    {loading && <CircularProgress size={24} sx={{ ml: 2 }} />}
                   </Button>
                 </Box>
               )}

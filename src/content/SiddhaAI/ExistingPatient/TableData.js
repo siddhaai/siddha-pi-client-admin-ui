@@ -1115,7 +1115,6 @@ import { IMaskInput } from 'react-imask';
 import {
   LocalizationProvider,
   // DateTimePicker,
-  DatePicker,
   DesktopDateTimePicker
 } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -1494,7 +1493,8 @@ const PatientIntakeExisting = () => {
       patientPhNum: mobile,
       doctor_PraticeName: doctorPracticeName,
       doctor_phone: officePhone,
-      patient_is_new: false
+      patient_is_new: false,
+      doctorId: appointmentDetails.preferred_doctor // Assuming doctor ID is static or passed from props
     };
 
     try {
@@ -1686,6 +1686,7 @@ const PatientIntakeExisting = () => {
                       // fullWidth
                     >
                       Get Patient
+                      {loading && <CircularProgress size={24} sx={{ ml: 2 }} />}
                     </Button>
                   </Grid>
                 </Box>
@@ -1902,6 +1903,7 @@ const PatientIntakeExisting = () => {
                       disabled={loading}
                     >
                       Add appointment
+                      {loading && <CircularProgress size={24} sx={{ ml: 2 }} />}
                     </Button>
                   </Box>
                 </Box>

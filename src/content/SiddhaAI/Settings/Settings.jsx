@@ -25,15 +25,14 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogTitle,
   useMediaQuery,
-  useTheme
+  useTheme,
+  CardHeader
 } from '@mui/material';
 import toast, { Toaster } from 'react-hot-toast';
 import useAxiosInterceptor from 'src/contexts/Interceptor';
 import { Add, Delete } from '@mui/icons-material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import CloseIcon from '@mui/icons-material/Close';
 
 export default function Settings() {
   const { axios } = useAxiosInterceptor();
@@ -507,7 +506,7 @@ export default function Settings() {
                 disabled={!isEditing}
               />
             </Grid>
-            <Grid item>
+            <Grid item sx={{ mt: 1.5 }}>
               <Typography variant="caption">
                 {formData.expiry > 1 ? "Day's" : 'Day'}
               </Typography>
@@ -565,14 +564,17 @@ export default function Settings() {
               />
 
               {/* View Button */}
-              <Button
-                disabled={!isEditing}
-                variant="outlined"
-                onClick={getAdminCustomSms}
-                sx={{ ml: 2 }}
-              >
-                View
-              </Button>
+
+              <Tooltip title="Click here to view sample sms">
+                <Button
+                  disabled={!isEditing}
+                  variant="outlined"
+                  onClick={getAdminCustomSms}
+                  sx={{ ml: 2, mt: 1 }}
+                >
+                  Preview
+                </Button>
+              </Tooltip>
 
               {/* Conditional rendering of the SMS template card */}
               {smsCard && (
@@ -609,6 +611,16 @@ export default function Settings() {
                     {/* SMS Template Content */}
                     <DialogContent dividers>
                       <CardContent>
+                        {/* <CardHeader> */}
+                        <Typography
+                          variant="h6"
+                          sx={{ padding: '20px 0' }}
+                          color="secondary"
+                        >
+                          Sample SMS
+                        </Typography>
+                        {/* </CardHeader> */}
+                        {/* <Divider /> */}
                         <Typography variant="body2">
                           {smsTemplateView}
                         </Typography>
