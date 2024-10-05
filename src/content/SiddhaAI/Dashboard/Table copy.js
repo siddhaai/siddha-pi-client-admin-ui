@@ -1,4 +1,3 @@
-// import CloseIcon from '@mui/icons-material/Close';
 // import ReplayIcon from '@mui/icons-material/Replay';
 // import {
 //   alpha,
@@ -11,34 +10,31 @@
 //   DialogActions,
 //   DialogContent,
 //   DialogTitle,
-//   IconButton,
+//   FormControl,
+//   Typography,
+//   Grid,
+//   InputLabel,
+//   MenuItem,
 //   Paper,
+//   Select,
 //   styled,
 //   Table,
 //   TableBody,
 //   TableCell,
-//   TableContainer,
 //   TableHead,
 //   TableRow,
+//   useMediaQuery,
 //   useTheme,
-//   useMediaQuery // Import useMediaQuery
+//   IconButton
 // } from '@mui/material';
 // import { useEffect, useState } from 'react';
 // import { useTranslation } from 'react-i18next';
 // import useAxiosInterceptor from 'src/contexts/Interceptor';
+// import toast, { Toaster } from 'react-hot-toast';
 // import ExistingPatientAp from './ExistingPatientAp/TableData';
+// import CloseIcon from '@mui/icons-material/Close';
 
-// // Custom styling for the table
-// const TableWrapper = styled(Table)(
-//   ({ theme }) => `
-//   tbody tr:hover {
-//     background: ${alpha(theme.colors.primary.main, 0.02)};
-//     border-color: ${alpha(theme.colors.alpha.black[5], 0.55)} !important;
-//   }
-// `
-// );
-
-// // Styled labels for success and error statuses
+// // Define styled components for different status labels
 // const LabelSuccess = styled(Box)(
 //   ({ theme }) => `
 //   display: inline-block;
@@ -78,239 +74,280 @@
 // `
 // );
 
+// const LabelBlue = styled(Box)(
+//   ({ theme }) => `
+//   display: inline-block;
+//   background: ${alpha(theme.palette.info.main, 0.1)};
+//   color: ${theme.palette.info.main};
+//   text-transform: uppercase;
+//   font-size: ${theme.typography.pxToRem(11)};
+//   font-weight: bold;
+//   padding: ${theme.spacing(1, 2)};
+//   border-radius: ${theme.general.borderRadiusSm};
+// `
+// );
+
 // const DataCard = () => {
 //   const { axios } = useAxiosInterceptor();
 //   const { t } = useTranslation();
 //   const theme = useTheme();
 
-//   // Use Media Queries to determine screen size
+//   const [openDialog, setOpenDialog] = useState(false);
+//   const [data, setData] = useState([]); // Single array of patients
+//   const [loading, setLoading] = useState(false);
+//   const [selectedPatient, setSelectedPatient] = useState(null);
+//   const [status, setStatus] = useState('all');
+
 //   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 //   const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg'));
 //   const isExtraLargeScreen = useMediaQuery(theme.breakpoints.up('xl'));
 
-//   const [openDialog, setOpenDialog] = useState(false);
-//   const [data, setData] = useState([]);
-//   const [loading, setLoading] = useState(false);
-//   const [selectedPatient, setSelectedPatient] = useState(null);
-//   const [datapatientDetails, setDataPatientDetails] = useState([]);
-
-//   // Fetch pending patient forms
-//   const fetchMonitorPatients = async () => {
+//   const fetchMonitorPatients = async (status) => {
 //     setLoading(true);
 //     const token = localStorage.getItem('token');
+//     const url = `/monitor-patients`;
+
 //     try {
-//       const response = await axios.get(`/monitor-patients`, {
+//       // Pass status as a query parameter
+//       const response = await axios.get(`${url}`, {
 //         headers: {
 //           Authorization: `Bearer ${token}`
+//         },
+//         params: {
+//           all_data: status || '' // If status is empty, send an empty value to fetch all
 //         }
 //       });
-//       // console.log('response', response.data.data);
 
 //       if (response.data.success) {
-//         setData(response.data.data.pendingPatientForms || []);
-//         setDataPatientDetails(response.data.data.patientDetails || []);
+//         const patientsData = response.data.data;
+
+//         // When no status is passed, store all categories from the API response
+//         setData({
+//           pendingPatientForms: patientsData.pendingPatientForms || [],
+//           inProgressPatientForms: patientsData.inProgressPatientForms || [],
+//           patientFormSubmit: patientsData.patientFormSubmit || [],
+//           expiredPatientForms: patientsData.expiredPatientForms || []
+//         });
 //       } else {
-//         console.error('Invalid data structure');
+//         toast.error('Invalid data');
 //       }
 //     } catch (err) {
 //       console.error('Error fetching data:', err);
+//       toast.error('Failed to fetch data');
 //     } finally {
 //       setLoading(false);
 //     }
 //   };
 
 //   useEffect(() => {
-//     fetchMonitorPatients();
+//     fetchMonitorPatients(); // Fetch all patients on component mount
 //   }, []);
 
-//   // Handle re-schedule button click
 //   const handleReScheduleClick = (patient) => {
 //     setSelectedPatient(patient);
 //     setOpenDialog(true);
 //   };
 
-//   // Close the dialog
 //   const handleCloseDialog = () => {
 //     setOpenDialog(false);
 //     setSelectedPatient(null);
 //   };
 
+//   const renderTableRows = (patientsData, selectedStatus) => {
+//     // If a status is selected, access the specific array based on the status
+//     let patients = [];
+
+//     if (selectedStatus === 'pendingPatientForms') {
+//       patients = patientsData?.pendingPatientForms;
+//     } else if (selectedStatus === 'inProgressPatientForms') {
+//       patients = patientsData?.inProgressPatientForms;
+//     } else if (selectedStatus === 'patientFormSubmit') {
+//       patients = patientsData?.patientFormSubmit;
+//     } else if (selectedStatus === 'expiredPatientForms') {
+//       patients = patientsData?.expiredPatientForms;
+//     } else {
+//       // If no status is selected, combine all arrays to display all patients
+//       patients = [
+//         ...(patientsData?.pendingPatientForms || []),
+//         ...(patientsData?.inProgressPatientForms || []),
+//         ...(patientsData?.patientFormSubmit || []),
+//         ...(patientsData?.expiredPatientForms || [])
+//       ];
+//     }
+
+//     if (!patients || patients.length === 0) {
+//       return (
+//         <>
+//           {loading ? (
+//             <TableRow>
+//               <Typography
+//                 colSpan={5}
+//                 sx={{ margin: theme.spacing(2), textAlign: 'center' }}
+//               >
+//                 {t('Loading...')}
+//               </Typography>
+//             </TableRow>
+//           ) : (
+//             <TableRow>
+//               <TableCell colSpan={5} sx={{ textAlign: 'center' }}>
+//                 {t('No records found')}
+//               </TableCell>
+//             </TableRow>
+//           )}
+//         </>
+//       );
+//     }
+
+//     return patients.map((patient) => {
+//       let statusLabel;
+
+//       if (patient?.status === 'Pending') {
+//         statusLabel = <LabelWarning>{t('Pending')}</LabelWarning>;
+//       } else if (patient?.status === 'InProgress') {
+//         statusLabel = <LabelBlue>{t('In Progress')}</LabelBlue>;
+//       } else if (patient?.status === 'FormSubmited') {
+//         statusLabel = <LabelSuccess>{t('Submitted')}</LabelSuccess>;
+//       } else {
+//         statusLabel = <LabelError>{t('Expired')}</LabelError>;
+//       }
+
+//       return (
+//         <TableRow key={patient?.document_id}>
+//           <TableCell sx={{ textAlign: 'center' }}>
+//             {patient?.patientName}
+//           </TableCell>
+//           <TableCell sx={{ textAlign: 'center' }}>
+//             {patient?.patientPhNum}
+//           </TableCell>
+//           <TableCell sx={{ textAlign: 'center' }}>
+//             {new Date(patient?.created_at).toLocaleDateString('en-US')}
+//           </TableCell>
+//           <TableCell sx={{ textAlign: 'center' }}>{statusLabel}</TableCell>
+//           {patient.status === 'Expired' && (
+//             <TableCell sx={{ textAlign: 'center' }}>
+//               <Button onClick={() => handleReScheduleClick(patient)}>
+//                 <ReplayIcon />
+//                 {t('Re-Schedule')}
+//               </Button>
+//             </TableCell>
+//           )}
+//         </TableRow>
+//       );
+//     });
+//   };
+
+//   const handleStatus = (event) => {
+//     const selectedStatus = event.target.value;
+//     setStatus(selectedStatus);
+
+//     // Fetch patients based on the selected status
+//     fetchMonitorPatients(selectedStatus); // Pass the selected status to the API call
+//   };
+
 //   return (
 //     <Box>
-//       {/* Pending PI Form Users */}
-//       <Card sx={{ mb: 2, width: '100%' }}>
-//         <CardHeader title={t('PENDING FORMS USER DETAILS')} sx={{ p: 2 }} />
-//         <CardContent sx={{ pt: 0 }}>
-//           <TableContainer component={Paper}>
-//             <TableWrapper>
-//               <Table>
-//                 <TableHead>
-//                   <TableRow>
-//                     <TableCell sx={{ textAlign: 'center' }}>
-//                       Patient Name
-//                     </TableCell>
-//                     <TableCell sx={{ textAlign: 'center' }}>
-//                       Patient Mobile
-//                     </TableCell>
-//                     <TableCell sx={{ textAlign: 'center' }}>
-//                       Last SMS Send
-//                     </TableCell>
-//                     <TableCell sx={{ textAlign: 'center' }}>Status</TableCell>
-//                   </TableRow>
-//                 </TableHead>
-//                 <TableBody>
-//                   {loading ? (
-//                     <TableRow>
-//                       <TableCell colSpan={5} sx={{ textAlign: 'center' }}>
-//                         Loading...
-//                       </TableCell>
-//                     </TableRow>
-//                   ) : (
-//                     datapatientDetails.map((patient, index) => (
-//                       <TableRow key={index}>
-//                         <TableCell sx={{ textAlign: 'center' }}>
-//                           {patient?.patientName}
-//                         </TableCell>
-//                         <TableCell sx={{ textAlign: 'center' }}>
-//                           {patient?.patientPhNum}
-//                         </TableCell>
-//                         <TableCell sx={{ textAlign: 'center' }}>
-//                           {new Date(patient.created_at).toLocaleDateString(
-//                             'en-US'
-//                           )}
-//                         </TableCell>
-//                         <TableCell sx={{ textAlign: 'center' }}>
-//                           {patient?.access_token_used ? (
-//                             <LabelSuccess>{t('Submitted')}</LabelSuccess>
-//                           ) : (
-//                             <LabelWarning>{t('Pending')}</LabelWarning>
-//                           )}
-//                         </TableCell>
-//                       </TableRow>
-//                     ))
-//                   )}
-//                 </TableBody>
-//               </Table>
-//             </TableWrapper>
-//           </TableContainer>
-//         </CardContent>
-//       </Card>
+//       <Toaster position="bottom-right" />
 
-//       {/* Expired PI  forms Users */}
 //       <Card sx={{ mb: 2, width: '100%' }}>
-//         <CardHeader title={t('EXPIRED FORMS USER DETAILS')} sx={{ p: 2 }} />
-//         <CardContent sx={{ pt: 0 }}>
-//           <TableContainer component={Paper}>
-//             <TableWrapper>
-//               <Table>
-//                 <TableHead>
-//                   <TableRow>
-//                     <TableCell sx={{ textAlign: 'center' }}>
-//                       Patient Name
-//                     </TableCell>
-//                     <TableCell sx={{ textAlign: 'center' }}>
-//                       Patient Mobile
-//                     </TableCell>
-//                     <TableCell sx={{ textAlign: 'center' }}>
-//                       Last SMS Send
-//                     </TableCell>
-//                     <TableCell sx={{ textAlign: 'center' }}>Status</TableCell>
-//                     <TableCell sx={{ textAlign: 'center' }}>
-//                       Re-Schedule
-//                     </TableCell>
-//                   </TableRow>
-//                 </TableHead>
-//                 <TableBody>
-//                   {loading ? (
-//                     <TableRow>
-//                       <TableCell colSpan={5} sx={{ textAlign: 'center' }}>
-//                         Loading...
-//                       </TableCell>
-//                     </TableRow>
-//                   ) : (
-//                     data.map((patient) => (
-//                       <TableRow key={patient?.patientid}>
-//                         <TableCell sx={{ textAlign: 'center' }}>
-//                           {patient?.patientName}
-//                         </TableCell>
-//                         <TableCell sx={{ textAlign: 'center' }}>
-//                           {patient?.patientPhNum}
-//                         </TableCell>
-//                         <TableCell sx={{ textAlign: 'center' }}>
-//                           {new Date(patient.created_at).toLocaleDateString(
-//                             'en-US'
-//                           )}
-//                         </TableCell>
-//                         <TableCell sx={{ textAlign: 'center' }}>
-//                           {patient?.access_token_used ? (
-//                             <LabelSuccess>{t('Submitted')}</LabelSuccess>
-//                           ) : (
-//                             <LabelError>{t('Expired')}</LabelError>
-//                           )}
-//                         </TableCell>
-//                         <TableCell sx={{ textAlign: 'center' }}>
-//                           <Button
-//                             onClick={() => handleReScheduleClick(patient)}
-//                           >
-//                             <ReplayIcon />
-//                             Re-Schedule
-//                           </Button>
-//                         </TableCell>
-//                       </TableRow>
-//                     ))
-//                   )}
-//                 </TableBody>
-//               </Table>
-//             </TableWrapper>
-//           </TableContainer>
-//         </CardContent>
-//       </Card>
-
-//       {/* Re-Schedule Dialog */}
-//       <Dialog
-//         open={openDialog}
-//         onClose={handleCloseDialog}
-//         fullWidth
-//         maxWidth={
-//           isExtraLargeScreen
-//             ? 'lg'
-//             : isLargeScreen
-//             ? 'md'
-//             : isSmallScreen
-//             ? 'sm'
-//             : 'xs'
-//         } // Dynamically adjust width based on screen size
-//       >
-//         <DialogTitle>
-//           {t('Re-Schedule Appointment')}
-//           <IconButton
-//             aria-label="close"
-//             onClick={handleCloseDialog}
-//             sx={{
-//               position: 'absolute',
-//               right: 8,
-//               top: 8,
-//               color: theme.palette.grey[500]
-//             }}
+//         <Box
+//           display="flex"
+//           alignItems="center"
+//           justifyContent="space-between"
+//           sx={{ p: 2 }}
+//         >
+//           <CardHeader
+//             title={t('PATIENT INTAKE FORM STATUS')}
+//             sx={{ p: 2, whiteSpace: 'nowrap' }}
+//           />
+//           <Grid
+//             container
+//             spacing={2}
+//             sx={{ display: 'flex', justifyContent: 'flex-end' }}
 //           >
-//             <CloseIcon />
-//           </IconButton>
-//         </DialogTitle>
-//         <DialogContent dividers>
-//           <ExistingPatientAp patient={selectedPatient} />
-//         </DialogContent>
-//         <DialogActions>
-//           <Button onClick={handleCloseDialog} color="secondary">
-//             {t('Cancel')}
-//           </Button>
-//         </DialogActions>
-//       </Dialog>
+//             <Grid item xs={12} md={6} lg={3}>
+//               <FormControl fullWidth>
+//                 <InputLabel>{t('Status')}</InputLabel>
+//                 <Select
+//                   label="status"
+//                   value={status}
+//                   onChange={handleStatus}
+//                   fullWidth
+//                 >
+//                   <MenuItem value="all">All</MenuItem>
+//                   <MenuItem value="pendingPatientForms">Pending</MenuItem>
+//                   <MenuItem value="inProgressPatientForms">
+//                     In Progress
+//                   </MenuItem>
+//                   <MenuItem value="patientFormSubmit">Submitted</MenuItem>
+//                   <MenuItem value="expiredPatientForms">Expired</MenuItem>
+//                 </Select>
+//               </FormControl>
+//             </Grid>
+//           </Grid>
+//         </Box>
+
+//         <Table>
+//           <TableHead>
+//             <TableRow>
+//               <TableCell sx={{ textAlign: 'center' }}>
+//                 {t('Patient Name')}
+//               </TableCell>
+//               <TableCell sx={{ textAlign: 'center' }}>
+//                 {t('Patient Phone')}
+//               </TableCell>
+//               <TableCell sx={{ textAlign: 'center' }}>
+//                 {t('Created At')}
+//               </TableCell>
+//               <TableCell sx={{ textAlign: 'center' }}>{t('Status')}</TableCell>
+//               <TableCell sx={{ textAlign: 'center' }}>{t('Action')}</TableCell>
+//             </TableRow>
+//           </TableHead>
+//           <TableBody>{renderTableRows(data, status)}</TableBody>
+//         </Table>
+//         <Dialog
+//           open={openDialog}
+//           onClose={handleCloseDialog}
+//           fullWidth
+//           maxWidth={
+//             isExtraLargeScreen
+//               ? 'lg'
+//               : isLargeScreen
+//               ? 'md'
+//               : isSmallScreen
+//               ? 'sm'
+//               : 'xs'
+//           } // Dynamically adjust width based on screen size
+//         >
+//           <DialogTitle>
+//             {t('Re-Schedule Appointment')}
+//             <IconButton
+//               aria-label="close"
+//               onClick={handleCloseDialog}
+//               sx={{
+//                 position: 'absolute',
+//                 right: 8,
+//                 top: 8,
+//                 color: theme.palette.grey[500]
+//               }}
+//             >
+//               <CloseIcon />
+//             </IconButton>
+//           </DialogTitle>
+//           <DialogContent dividers>
+//             <ExistingPatientAp selectedPatient={selectedPatient} />
+//           </DialogContent>
+//           <DialogActions>
+//             <Button onClick={handleCloseDialog} color="secondary">
+//               {t('Cancel')}
+//             </Button>
+//           </DialogActions>
+//         </Dialog>
+//       </Card>
 //     </Box>
 //   );
 // };
 
 // export default DataCard;
-
 
 import ReplayIcon from '@mui/icons-material/Replay';
 import {

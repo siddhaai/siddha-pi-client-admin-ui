@@ -379,7 +379,7 @@ export default function Login() {
                         alignItems: 'center'
                       }}
                     >
-                      <Typography color="secondary">Version 0.0.1</Typography>
+                      <Typography color="secondary">Version 0.0.2</Typography>
                     </Box>
                   </Box>
                 </Box>

@@ -1124,6 +1124,7 @@ import { Helmet } from 'react-helmet-async';
 import useAxiosInterceptor from 'src/contexts/Interceptor';
 import { useTranslation } from 'react-i18next';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import SendIcon from '@mui/icons-material/Send';
 
 const MainContent = styled(Box)`
   height: 100%;
@@ -1162,9 +1163,10 @@ const TextMaskCustom = React.forwardRef(function TextMaskCustom(props, ref) {
 // Validation Functions
 const validatePersonalDetails = (values) => {
   const errors = {};
-  const nameRegex = /^[A-Za-z]+$/;
+  const nameRegex = /^[A-Za-z]+$/; // Only letters for first name
   const phoneRegex = /^\(\d{3}\) \d{3}-\d{4}$/; // US phone format (XXX) XXX-XXXX
 
+  // Validate first name
   if (!values.first_name) {
     errors.first_name = 'First name is required.';
   } else if (values.first_name.length < 3) {
@@ -1172,14 +1174,6 @@ const validatePersonalDetails = (values) => {
   } else if (!nameRegex.test(values.first_name)) {
     errors.first_name = 'First name must contain only letters.';
   }
-
-  // if (!values.last_name) {
-  //   errors.last_name = 'Last name is required.';
-  // } else if (values.last_name.length < 3) {
-  //   errors.last_name = 'Last name must be at least 3 characters.';
-  // } else if (!nameRegex.test(values.last_name)) {
-  //   errors.last_name = 'Last name must contain only letters.';
-  // }
 
   // Phone number validation
   if (!values.phone) {
@@ -1189,20 +1183,6 @@ const validatePersonalDetails = (values) => {
   } else if (['0', '1'].includes(values.phone[1])) {
     errors.phone = 'Phone number cannot start with 0 or 1 in the area code.';
   }
-
-  // if (!values.gender) {
-  //   errors.gender = 'Gender is required.';
-  // }
-
-  // if (!values.preferred_doctor) {
-  //   errors.preferred_doctor = 'Preferred doctor is required.';
-  // }
-
-  // if (!values.dob) {
-  //   errors.dob = 'Date of birth is required.';
-  // } else if (dayjs(values.dob).isAfter(dayjs())) {
-  //   errors.dob = 'Date of birth cannot be in the future.';
-  // }
 
   return errors;
 };
@@ -1251,14 +1231,20 @@ const validateAppointmentDetails = (values) => {
     errors.hospital_location = 'Hospital location is required.';
   }
 
+  // Alpha-numeric validation for Reason
+  const reasonRegex = /^[a-zA-Z0-9\s]*$/; // Allows only alphanumeric characters and spaces
   if (!values.reason) {
     errors.reason = 'Reason for appointment is required.';
+  } else if (!reasonRegex.test(values.reason)) {
+    errors.reason = 'Reason can only contain letters and numbers.';
+  } else if (values.reason.length > 100) {
+    errors.reason = 'Reason cannot exceed 100 characters';
   }
 
   if (!values.notes) {
-    errors.notes = 'Notes are required.';
-  } else if (values.notes.length > 300) {
-    errors.notes = 'Notes cannot exceed 300 characters.';
+    errors.notes = 'Additional notes are required.';
+  } else if (values.notes.length > 1000) {
+    errors.notes = 'Additional notes cannot exceed 1000 characters.';
   }
 
   if (!values.preferred_doctor) {
@@ -1350,10 +1336,6 @@ const PatientIntakeExisting = () => {
   const [personalDetails, setPersonalDetails] = useState({
     first_name: '',
     phone: ''
-    // last_name: '',
-    // dob: null,
-    // gender: '',
-    // preferred_doctor: ''
   });
 
   // State for Appointment Details
@@ -1366,17 +1348,50 @@ const PatientIntakeExisting = () => {
     preferred_doctor: ''
   });
 
-  // State for SMS Details
-  // const [smsDetails, setSmsDetails] = useState({
-  //   message: ''
-  // });
-
   const [errors, setErrors] = useState({});
 
-  // Handle change for Personal Details
+  // Handle change for Personal Details with real-time validation
   const handleChangePersonalDetails = (e) => {
     const { name, value } = e.target;
-    setPersonalDetails({ ...personalDetails, [name]: value });
+
+    // Update the field value
+    setPersonalDetails((prevDetails) => ({
+      ...prevDetails,
+      [name]: value
+    }));
+
+    // Validate the field as the user types
+    let fieldError = {};
+
+    // Inline validation for the 'first_name' field
+    if (name === 'first_name') {
+      if (!value) {
+        fieldError.first_name = 'First name is required.';
+      } else if (value.length < 3) {
+        fieldError.first_name = 'First name must be at least 3 characters.';
+      } else if (!/^[A-Za-z]+$/.test(value)) {
+        fieldError.first_name = 'First name must contain only letters.';
+      }
+    }
+
+    // Inline validation for the 'phone' field
+    if (name === 'phone') {
+      const phoneRegex = /^\(\d{3}\) \d{3}-\d{4}$/; // US phone format (XXX) XXX-XXXX
+      if (!value) {
+        fieldError.phone = 'Phone number is required.';
+      } else if (!phoneRegex.test(value)) {
+        fieldError.phone = 'Phone number must be in the format (XXX) XXX-XXXX.';
+      } else if (['0', '1'].includes(value[1])) {
+        fieldError.phone =
+          'Phone number cannot start with 0 or 1 in the area code.';
+      }
+    }
+
+    // Update errors for the specific field, remove error if field is valid
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: fieldError[name] || '' // Clear the error if the field is valid
+    }));
   };
 
   // Handle Date of Birth change
@@ -1384,37 +1399,136 @@ const PatientIntakeExisting = () => {
   //   setPersonalDetails({ ...personalDetails, dob: date });
   // };
 
-  // Handle change for Appointment Details
+  // Handle change for Appointment Details with real-time validation
+  // const handleChangeAppointmentDetails = (e) => {
+  //   const { name, value } = e.target;
+  //   setAppointmentDetails((prevDetails) => {
+  //     const updatedDetails = { ...prevDetails, [name]: value };
+
+  //     // Validate the updated field and remove the error if it's valid
+  //     const updatedErrors = validateAppointmentDetails(updatedDetails);
+  //     setErrors(updatedErrors);
+
+  //     return updatedDetails;
+  //   });
+  // };
+
+  // // Handle Date Change for Appointment with real-time validation
+  // const handleAppointmentDateChange = (newDateTime) => {
+  //   setAppointmentDetails((prevDetails) => {
+  //     const updatedDetails = { ...prevDetails, appointment_date: newDateTime };
+
+  //     // Validate the updated date field and remove the error if it's valid
+  //     const updatedErrors = validateAppointmentDetails(updatedDetails);
+  //     setErrors(updatedErrors);
+
+  //     return updatedDetails;
+  //   });
+  // };
+
+  // Handle change for Appointment Details with real-time validation
+  // Updated handleChange function
   const handleChangeAppointmentDetails = (e) => {
     const { name, value } = e.target;
+
+    // Update the field value
     setAppointmentDetails({ ...appointmentDetails, [name]: value });
+
+    // Validate the specific field that has changed
+    const fieldError = validateAppointmentDetails({
+      ...appointmentDetails,
+      [name]: value
+    });
+
+    // Update error state for the specific field
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: fieldError[name] || null // Only update the error for the specific field
+    }));
   };
 
-  // Handle Date Change for Appointment
+  // Updated handleAppointmentDateChange for date field
   const handleAppointmentDateChange = (newDateTime) => {
     setAppointmentDetails({
       ...appointmentDetails,
       appointment_date: newDateTime
     });
+
+    // Validate the date field when it changes
+    const dateTimeError = validateDateTime(newDateTime);
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      appointment_date: dateTimeError || null // Only update the error for date field
+    }));
   };
+
+  // // Handle Submit for Personal Information
+  // const handleSubmitPersonalInfo = async () => {
+  //   const validationErrors = validatePersonalDetails(personalDetails);
+
+  //   if (Object.keys(validationErrors).length > 0) {
+  //     setErrors(validationErrors);
+  //     return;
+  //   }
+  //   setName(personalDetails.first_name);
+  //   setMobile(personalDetails.phone);
+  //   setLoading(true);
+  //   try {
+  //     // const token = localStorage.getItem('token');
+  //     const headersPayload = {
+  //       patientFname: personalDetails.first_name,
+  //       patientPhNum: personalDetails.phone
+  //       // patientDob: dayjs(values.dob).format('YYYY-MM-DD')
+  //     };
+
+  //     const response = await axios.post(`/existingPatients`, headersPayload, {
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         Authorization: `Bearer ${token}`
+  //       }
+  //     });
+  //     if (response.data.status === 200) {
+  //       setPatients(response?.data?.data);
+  //       setSelectedPatient(true);
+  //       // setStep((prevStep) => prevStep + 1); // Move to the next step
+  //       // console.log(step, 'step 0');
+  //     } else {
+  //       toast.error(
+  //         response.data.message || 'Failed to validate personal information.'
+  //       );
+  //     }
+  //   } catch (error) {
+  //     if (error.response && error.response.status === 404) {
+  //       // No patient found
+  //       toast.error('No patient found with the provided details.');
+  //     } else {
+  //       // General error handling
+  //       toast.error(
+  //         error.response?.data?.detail ||
+  //           'An unexpected error occurred. Please try again.'
+  //       );
+  //     }
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   // Handle Submit for Personal Information
   const handleSubmitPersonalInfo = async () => {
     const validationErrors = validatePersonalDetails(personalDetails);
 
     if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
+      setErrors(validationErrors); // Display validation errors
       return;
     }
+
+    setLoading(true); // Show loading spinner while the form is being submitted
     setName(personalDetails.first_name);
     setMobile(personalDetails.phone);
-    setLoading(true);
     try {
-      // const token = localStorage.getItem('token');
       const headersPayload = {
         patientFname: personalDetails.first_name,
         patientPhNum: personalDetails.phone
-        // patientDob: dayjs(values.dob).format('YYYY-MM-DD')
       };
 
       const response = await axios.post(`/existingPatients`, headersPayload, {
@@ -1425,10 +1539,8 @@ const PatientIntakeExisting = () => {
       });
 
       if (response.data.status === 200) {
-        setPatients(response?.data?.data);
-        setSelectedPatient(true);
-        // setStep((prevStep) => prevStep + 1); // Move to the next step
-        // console.log(step, 'step 0');
+        setPatients(response.data.data); // Save retrieved patient data
+        setSelectedPatient(true); // Mark that a patient is selected
       } else {
         toast.error(
           response.data.message || 'Failed to validate personal information.'
@@ -1436,35 +1548,127 @@ const PatientIntakeExisting = () => {
       }
     } catch (error) {
       if (error.response && error.response.status === 404) {
-        // No patient found
         toast.error('No patient found with the provided details.');
       } else {
-        // General error handling
         toast.error(
           error.response?.data?.detail ||
             'An unexpected error occurred. Please try again.'
         );
       }
     } finally {
-      setLoading(false);
+      setLoading(false); // Hide the loading spinner
     }
   };
 
+  // const handleSelectPatient = (patientId) => {
+  //   const patient = patients.find((p) => p.patient_id === patientId);
+  //   setSelectedPatient(patient); // Store the full patient object
+  //   setSelectedPatientId(patientId);
+  // };
+
   const handleSelectPatient = (patientId) => {
+    console.log('patientId', patientId);
+
     const patient = patients.find((p) => p.patient_id === patientId);
     setSelectedPatient(patient); // Store the full patient object
-    setSelectedPatientId(patientId);
+    setSelectedPatientId(patientId); // Set selected patient ID
   };
+
+  // // Handle Submit for Appointment Details
+  // const handleSubmitAppointmentDetails = async () => {
+  //   const validationErrors = validateAppointmentDetails(appointmentDetails);
+
+  //   if (Object.keys(validationErrors).length > 0) {
+  //     setErrors(validationErrors);
+  //     return;
+  //   }
+
+  //   setAppointmentDateandTime(
+  //     dayjs(appointmentDetails.appointment_date).format('YYYY-MM-DDTHH:mm')
+  //   );
+
+  //   setLoading(true);
+
+  //   const headersPayload = {
+  //     patientId: selectedPatient.patient_id,
+  //     scheduleDateTime: dayjs(appointmentDetails.appointment_date).format(
+  //       'YYYY-MM-DDTHH:mm'
+  //     ),
+  //     duration: appointmentDetails.duration,
+  //     office_location: appointmentDetails.hospital_location,
+  //     reason: appointmentDetails.reason,
+  //     notes: appointmentDetails.notes,
+  //     doctorId: appointmentDetails.preferred_doctor, // Assuming doctor ID is static or passed from props
+  //     patientReSchedule: false
+  //   };
+
+  //   const smsTemplateDetails = {
+  //     patientId: selectedPatient.patient_id,
+  //     patientName: name,
+  //     scheduleDateTime: dayjs(appointmentDetails.appointment_date).format(
+  //       'YYYY-MM-DDTHH:mm'
+  //     ),
+  //     patientPhNum: mobile,
+  //     doctor_PraticeName: doctorPracticeName,
+  //     doctor_phone: officePhone,
+  //     patient_is_new: false,
+  //     doctorId: appointmentDetails.preferred_doctor // Assuming doctor ID is static or passed from props
+  //   };
+
+  //   try {
+  //     // First API Call: Schedule Appointment
+  //     const response = await axios.post(
+  //       `/scheduleAppointment`,
+  //       headersPayload,
+  //       {
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //           Authorization: `Bearer ${token}`
+  //         }
+  //       }
+  //     );
+
+  //     if (response?.data?.status === 201) {
+  //       // Second API Call: Send SMS
+  //       const smsResponse = await axios.post(`/sms`, smsTemplateDetails, {
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //           Authorization: `Bearer ${token}`
+  //         }
+  //       });
+  //       // setSmsTemeplateResponseData(response.data.data.message_template);
+  //       setSmsTemeplateResponseData(smsResponse.data.data.message_template); // Access message_template inside "data"        toast.success('Appointment created successfully!');
+  //       // console.log('SMS Response:', smsResponse.data.data.message_template);
+
+  //       setActiveStep((prevStep) => prevStep + 1); // Move to the next step
+  //     } else if (response.data.status === 409) {
+  //       toast.error(
+  //         response.data.message ||
+  //           'The chosen time slot is unavailable. Please choose another time slot.'
+  //       );
+  //     }
+  //   } catch (error) {
+  //     toast.error(
+  //       error.response?.data?.message ||
+  //         'Something went wrong. Please try again.'
+  //     );
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   // Handle Submit for Appointment Details
   const handleSubmitAppointmentDetails = async () => {
     const validationErrors = validateAppointmentDetails(appointmentDetails);
 
+    // Set all errors if there are validation errors
+    setErrors(validationErrors);
+
     if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
+      return; // Prevent submission if there are errors
     }
 
+    // Proceed with submission if all fields are valid
     setAppointmentDateandTime(
       dayjs(appointmentDetails.appointment_date).format('YYYY-MM-DDTHH:mm')
     );
@@ -1480,7 +1684,7 @@ const PatientIntakeExisting = () => {
       office_location: appointmentDetails.hospital_location,
       reason: appointmentDetails.reason,
       notes: appointmentDetails.notes,
-      doctorId: appointmentDetails.preferred_doctor, // Assuming doctor ID is static or passed from props
+      doctorId: appointmentDetails.preferred_doctor,
       patientReSchedule: false
     };
 
@@ -1494,11 +1698,10 @@ const PatientIntakeExisting = () => {
       doctor_PraticeName: doctorPracticeName,
       doctor_phone: officePhone,
       patient_is_new: false,
-      doctorId: appointmentDetails.preferred_doctor // Assuming doctor ID is static or passed from props
+      doctorId: appointmentDetails.preferred_doctor
     };
 
     try {
-      // First API Call: Schedule Appointment
       const response = await axios.post(
         `/scheduleAppointment`,
         headersPayload,
@@ -1511,18 +1714,15 @@ const PatientIntakeExisting = () => {
       );
 
       if (response?.data?.status === 201) {
-        // Second API Call: Send SMS
         const smsResponse = await axios.post(`/sms`, smsTemplateDetails, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`
           }
         });
-        // setSmsTemeplateResponseData(response.data.data.message_template);
-        setSmsTemeplateResponseData(smsResponse.data.data.message_template); // Access message_template inside "data"        toast.success('Appointment created successfully!');
-        // console.log('SMS Response:', smsResponse.data.data.message_template);
-
-        setActiveStep((prevStep) => prevStep + 1); // Move to the next step
+        setSmsTemeplateResponseData(smsResponse.data.data.message_template);
+        toast.success('Appointment created successfully!');
+        setActiveStep((prevStep) => prevStep + 1);
       } else if (response.data.status === 409) {
         toast.error(
           response.data.message ||
@@ -1632,9 +1832,6 @@ const PatientIntakeExisting = () => {
 
               {activeStep === 0 && (
                 <Box py={3}>
-                  {/* <Typography variant="h6" gutterBottom>
-                    Patient Details
-                  </Typography> */}
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
                       <TextField
@@ -1643,21 +1840,11 @@ const PatientIntakeExisting = () => {
                         name="first_name"
                         value={personalDetails.first_name}
                         onChange={handleChangePersonalDetails}
-                        error={!!errors.first_name}
-                        helperText={errors.first_name}
+                        error={!!errors.first_name} // Show error state if error exists
+                        helperText={errors.first_name} // Show error message
                       />
                     </Grid>
-                    {/* <Grid item xs={12} sm={6}>
-                      <TextField
-                        fullWidth
-                        label="Last Name"
-                        name="last_name"
-                        value={personalDetails.last_name}
-                        onChange={handleChangePersonalDetails}
-                        error={!!errors.last_name}
-                        helperText={errors.last_name}
-                      />
-                    </Grid> */}
+
                     <Grid item xs={12} sm={6}>
                       <TextField
                         fullWidth
@@ -1673,20 +1860,19 @@ const PatientIntakeExisting = () => {
                       />
                     </Grid>
                   </Grid>
-                  <Grid
-                    xs={12}
-                    // md={12}
-                    // sx={{ display: 'flex', justifyContent: 'center' }}
-                  >
+
+                  <Grid xs={12}>
                     <Button
                       variant="contained"
                       onClick={handleSubmitPersonalInfo}
                       sx={{ my: 3 }}
-                      disabled={loading}
-                      // fullWidth
+                      disabled={loading} // Disable the button when loading
                     >
                       Get Patient
-                      {loading && <CircularProgress size={24} sx={{ ml: 2 }} />}
+                      {loading && (
+                        <CircularProgress size={24} sx={{ ml: 2 }} />
+                      )}{' '}
+                      {/* Show loading spinner */}
                     </Button>
                   </Grid>
                 </Box>
@@ -1791,11 +1977,9 @@ const PatientIntakeExisting = () => {
                 </>
               )}
 
-              {activeStep === 1 && (
+              {/* {activeStep === 1 && (
                 <Box py={3}>
-                  {/* <Typography variant="h6" gutterBottom>
-                    Appointment Details
-                  </Typography> */}
+                  
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6} md={6}>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -1907,6 +2091,128 @@ const PatientIntakeExisting = () => {
                     </Button>
                   </Box>
                 </Box>
+              )} */}
+
+              {activeStep === 1 && (
+                <Box py={3}>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sm={6}>
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DesktopDateTimePicker
+                          label="Appointment Date & Time"
+                          disablePast={true}
+                          value={appointmentDetails.appointment_date}
+                          onChange={handleAppointmentDateChange}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              fullWidth
+                              error={!!errors.appointment_date}
+                              helperText={errors.appointment_date}
+                            />
+                          )}
+                        />
+                      </LocalizationProvider>
+                    </Grid>
+
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        select
+                        label="Duration"
+                        name="duration"
+                        value={appointmentDetails.duration}
+                        onChange={handleChangeAppointmentDetails}
+                        error={!!errors.duration}
+                        helperText={errors.duration}
+                      >
+                        <MenuItem value="30">30</MenuItem>
+                        <MenuItem value="60">60</MenuItem>
+                        <MenuItem value="90">90</MenuItem>
+                      </TextField>
+                    </Grid>
+
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        select
+                        label="Hospital Location"
+                        name="hospital_location"
+                        value={appointmentDetails.hospital_location}
+                        onChange={handleChangeAppointmentDetails}
+                        error={!!errors.hospital_location}
+                        helperText={errors.hospital_location}
+                      >
+                        {selectedOffices?.map((office) => (
+                          <MenuItem key={office?.id} value={office?.id}>
+                            {office?.name}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+                    </Grid>
+
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        select
+                        label="Preferred Doctor"
+                        name="preferred_doctor"
+                        value={appointmentDetails.preferred_doctor}
+                        onChange={handleChangeAppointmentDetails}
+                        error={!!errors.preferred_doctor}
+                        helperText={errors.preferred_doctor}
+                      >
+                        {doctors?.map((doctor) => (
+                          <MenuItem key={doctor?.id} value={doctor?.id}>
+                            {doctor?.first_name}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+                    </Grid>
+
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label="Reason"
+                        name="reason"
+                        value={appointmentDetails.reason}
+                        onChange={handleChangeAppointmentDetails}
+                        error={!!errors.reason}
+                        helperText={errors.reason}
+                        multiline
+                        rows={4}
+                      />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label="Additional Notes"
+                        name="notes"
+                        value={appointmentDetails.notes}
+                        onChange={handleChangeAppointmentDetails}
+                        error={!!errors.notes}
+                        helperText={errors.notes}
+                        multiline
+                        rows={4}
+                        // minRows={2}
+                        // maxRows={6} // Specify the maximum number of rows
+                      />
+                    </Grid>
+                  </Grid>
+
+                  <Box sx={{ my: 1 }}>
+                    <Button
+                      variant="contained"
+                      onClick={handleSubmitAppointmentDetails}
+                      sx={{ mt: 3 }}
+                      disabled={loading}
+                    >
+                      Add appointment
+                      {loading && <CircularProgress size={24} sx={{ ml: 2 }} />}
+                    </Button>
+                  </Box>
+                </Box>
               )}
 
               {activeStep === 2 && (
@@ -1932,9 +2238,6 @@ const PatientIntakeExisting = () => {
                           alignItems: 'center'
                         }}
                       >
-                        <Typography component="h1" variant="h5">
-                          Send SMS
-                        </Typography>
                         <Box component="div" noValidate sx={{ mt: 1 }}>
                           <Grid container spacing={2}>
                             {/* Check if smsTemplateResponseData exists and is not empty */}
@@ -1978,25 +2281,19 @@ const PatientIntakeExisting = () => {
                             <Grid item xs={12} sx={{ mt: 2 }}>
                               {smsText && (
                                 <>
-                                  <Button
-                                    variant="contained"
-                                    fullWidth
-                                    onClick={handleCopy}
+                                  <Box
                                     sx={{
-                                      mb: 2
-                                    }}
-                                  >
-                                    <ContentCopyIcon />
-                                    Copy SMS
-                                  </Button>
-                                  <div
-                                    style={{
                                       display: 'flex',
-                                      justifyContent: 'space-between',
+                                      justifyContent: 'center',
                                       gap: '10px'
                                     }}
+                                    // style={{
+                                    //   display: 'flex',
+                                    //   justifyContent: 'space-around',
+                                    //   gap: '10px'
+                                    // }}
                                   >
-                                    <Button
+                                    {/* <Button
                                       onClick={
                                         () => handleCreatePatient()
                                         // isSubmitting?.resetForm
@@ -2004,15 +2301,17 @@ const PatientIntakeExisting = () => {
                                       fullWidth
                                     >
                                       Existing Patient
-                                    </Button>
+                                    </Button> */}
                                     <Button
                                       variant="contained"
                                       color="primary"
                                       type="submit"
                                       onClick={handleSubmitSms}
                                       disabled={loading}
-                                      fullWidth
+                                      // fullWidth
+                                      sx={{ mt: 2 }}
                                     >
+                                      <SendIcon sx={{ padding: '0 5px 0 0' }} />
                                       Send SMS
                                       {loading && (
                                         <CircularProgress
@@ -2021,7 +2320,22 @@ const PatientIntakeExisting = () => {
                                         />
                                       )}
                                     </Button>
-                                  </div>
+                                    <Button
+                                      variant="outlined"
+                                      // fullWidth
+                                      onClick={handleCopy}
+                                      sx={{ mt: 2 }}
+
+                                      // sx={{
+                                      //   mb: 2
+                                      // }}
+                                    >
+                                      <ContentCopyIcon
+                                        sx={{ padding: '0 5px 0 0' }}
+                                      />
+                                      Copy SMS
+                                    </Button>
+                                  </Box>
                                 </>
                               )}
                             </Grid>

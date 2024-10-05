@@ -27,7 +27,7 @@ import {
   DialogContent,
   useMediaQuery,
   useTheme,
-  CardHeader
+  CircularProgress
 } from '@mui/material';
 import toast, { Toaster } from 'react-hot-toast';
 import useAxiosInterceptor from 'src/contexts/Interceptor';
@@ -153,10 +153,12 @@ export default function Settings() {
 
   const [isEditing, setIsEditing] = useState(false);
   const [tabIndex, setTabIndex] = useState(0); // Track current tab
-  const [selectedImage, setSelectedImage] = useState(null); // Selected new image for upload
   const token = localStorage.getItem('token');
   const [errors, setErrors] = useState({}); // State to track validation errors
   const [cursorPosition, setCursorPosition] = useState(0); // To track cursor position
+  const [selectedImage, setSelectedImage] = useState(null); // Selected new image for upload
+  const [selectedImageFile, setSelectedImageFile] = useState(null); // For binary upload
+  const [isLoading, setIsLoading] = useState(false);
 
   // Track the cursor position in the textarea
   const handleCursorPositionChange = (event) => {
@@ -321,23 +323,22 @@ export default function Settings() {
 
   // Submit the new logo to the backend
   const handleLogoSubmit = async () => {
-    // Strip the "data:image/jpeg;base64," part from the base64 string
-    const strippedBase64Image = selectedImage.replace(
-      /^data:image\/[a-z]+;base64,/,
-      ''
-    );
+    if (!selectedImageFile) {
+      toast.error('Please select an image to upload.');
+      return;
+    }
 
-    const logoRequestBody = {
-      logo: strippedBase64Image // Send only the base64 image string without the prefix
-    };
+    const formData = new FormData();
+    formData.append('logo', selectedImageFile); // Append the file as binary data
+    setIsLoading(true);
 
     try {
       const logoResponse = await axios.put(
         '/settings/updateSettingsLogo',
-        logoRequestBody,
+        formData, // Send binary data
         {
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'multipart/form-data', // Set the correct content type
             Authorization: `Bearer ${token}`
           }
         }
@@ -345,30 +346,77 @@ export default function Settings() {
 
       if (logoResponse.status === 200) {
         toast.success('Logo updated successfully!');
-        setSelectedImage(null); // Clear the selected image after upload
+        setSelectedImageFile(null); // Clear the selected file after upload
+        setSelectedImage(null); // Clear base64 preview
         getAdminCustomSetting(); // Refresh settings to display updated logo
+        setIsLoading(false); // Reset loading state
       } else {
         toast.error('Error updating logo');
       }
     } catch (error) {
-      toast.error(`Error: ${error.message}`);
+      toast.error(`${error.message}`);
     }
 
     setIsEditing(false); // Exit editing mode
   };
 
   // Handle image selection
+  // const handleImageChange = (event) => {
+  //   const file = event.target.files[0];
+  //   if (file && file.type.startsWith('image/')) {
+  //     const reader = new FileReader();
+  //     reader.onloadend = () => {
+  //       setSelectedImage(reader.result); // Convert image to base64 and store it
+  //     };
+  //     reader.readAsDataURL(file);
+  //   } else {
+  //     toast.error('Please select a valid image file');
+  //   }
+  // };
+
   const handleImageChange = (event) => {
     const file = event.target.files[0];
-    if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setSelectedImage(reader.result); // Convert image to base64 and store it
-      };
-      reader.readAsDataURL(file);
-    } else {
+
+    if (!file) {
       toast.error('Please select a valid image file');
+      return;
     }
+
+    // Enforce 5MB size limit
+    const maxSizeInMB = 5;
+    const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
+
+    if (file.size > maxSizeInBytes) {
+      toast.error(
+        'File size exceeds 5MB limit. Please select a smaller image.'
+      );
+      return;
+    }
+
+    // Supported file types excluding GIF
+    const supportedFormats = [
+      'image/jpeg',
+      'image/png',
+      'image/webp',
+      'image/heic',
+      'image/heif'
+    ];
+
+    if (!supportedFormats.includes(file.type)) {
+      toast.error(
+        'Unsupported file format. Please select a JPEG, PNG, WebP, HEIC, or HEIF image.'
+      );
+      return;
+    }
+
+    // Use FileReader to convert image for preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setSelectedImage(reader.result); // Base64 preview
+    };
+
+    setSelectedImageFile(file); // Store binary file for upload
+    reader.readAsDataURL(file); // Read the file for display
   };
 
   const handleCancelImageChange = () => {
@@ -895,19 +943,21 @@ export default function Settings() {
                 {selectedImage && (
                   <Box display="flex" gap={2}>
                     <Button
+                      variant="contained"
+                      // color="secondary"
+                      onClick={handleLogoSubmit}
+                    >
+                      Save
+                      {isLoading && (
+                        <CircularProgress size={24} sx={{ ml: 2 }} />
+                      )}
+                    </Button>
+                    <Button
                       variant="outlined"
-                      color="primary"
+                      color="secondary"
                       onClick={handleCancelImageChange}
                     >
                       Cancel
-                    </Button>
-
-                    <Button
-                      variant="contained"
-                      color="secondary"
-                      onClick={handleLogoSubmit}
-                    >
-                      Save Logo
                     </Button>
                   </Box>
                 )}

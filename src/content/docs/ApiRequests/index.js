@@ -70,14 +70,14 @@ mock.onGet('/api/crypto-orders').reply(() => {
   return (
     <>
       <Helmet>
-        <title>Server Requests - Tokyo React Javascript Admin Dashboard</title>
+        {/* <title>Server Requests - Tokyo React Javascript Admin Dashboard</title> */}
       </Helmet>
       <Container maxWidth={false}>
         <Grid container spacing={4}>
           <Grid item xs={12}>
             <PageHeader heading="Server Requests" subheading="" />
           </Grid>
-          <Grid item xs={12}>
+          {/* <Grid item xs={12}>
             <Typography paragraph>
               Throughout Tokyo React Javascript Admin Dashboard you will find a
               few examples of API calls, mocked using Axios.
@@ -106,7 +106,7 @@ mock.onGet('/api/crypto-orders').reply(() => {
             >
               {axiosMock}
             </Prism>
-          </Grid>
+          </Grid> */}
         </Grid>
       </Container>
     </>

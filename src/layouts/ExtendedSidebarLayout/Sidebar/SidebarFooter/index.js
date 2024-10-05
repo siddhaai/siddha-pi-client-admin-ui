@@ -112,6 +112,7 @@ function SidebarFooter() {
       <LightTooltip placement="top" arrow title={t('Logout')}>
         <IconButton
           sx={{
+            display: 'none',
             background: `${theme.colors.alpha.trueWhite[10]}`,
             color: `${theme.colors.alpha.trueWhite[70]}`,
             transition: `${theme.transitions.create(['all'])}`,

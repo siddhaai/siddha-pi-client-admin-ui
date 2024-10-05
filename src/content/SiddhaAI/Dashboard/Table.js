@@ -1,4 +1,5 @@
 import ReplayIcon from '@mui/icons-material/Replay';
+import CloseIcon from '@mui/icons-material/Close';
 import {
   alpha,
   Box,
@@ -15,25 +16,23 @@ import {
   Grid,
   InputLabel,
   MenuItem,
-  Paper,
   Select,
   styled,
   Table,
   TableBody,
   TableCell,
-  // TableContainer,
   TableHead,
   TableRow,
   useMediaQuery,
   useTheme,
-  IconButton
+  IconButton,
+  Pagination // Import Pagination
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useAxiosInterceptor from 'src/contexts/Interceptor';
 import toast, { Toaster } from 'react-hot-toast';
 import ExistingPatientAp from './ExistingPatientAp/TableData';
-import CloseIcon from '@mui/icons-material/Close';
 
 // Define styled components for different status labels
 const LabelSuccess = styled(Box)(
@@ -93,43 +92,51 @@ const DataCard = () => {
   const { t } = useTranslation();
   const theme = useTheme();
 
+  // State Management
   const [openDialog, setOpenDialog] = useState(false);
-  const [data, setData] = useState([]); // Single array of patients
+  const [data, setData] = useState([]); // Now a single array of patients
   const [loading, setLoading] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [status, setStatus] = useState('all');
 
+  // Pagination States
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10); // Default items per page
+
+  // Responsive Design Hooks
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg'));
   const isExtraLargeScreen = useMediaQuery(theme.breakpoints.up('xl'));
 
-  const fetchMonitorPatients = async (status) => {
+  // Fetch Patients Function
+  const fetchMonitorPatients = async (status, page = 1, limit = 10) => {
     setLoading(true);
     const token = localStorage.getItem('token');
     const url = `/monitor-patients`;
 
     try {
-      // Pass status as a query parameter
       const response = await axios.get(`${url}`, {
         headers: {
           Authorization: `Bearer ${token}`
         },
         params: {
-          all_data: status || '' // If status is empty, send an empty value to fetch all
+          all_data: status || 'all', // Default to 'all' if status is empty
+          page,
+          limit
         }
       });
 
       if (response.data.success) {
-        const patientsData = response.data.data;
+        const patientsData = response.data.data; // Flat array
+        const pagination = response.data.pagination;
 
-        // When a status is passed, API should return only the corresponding array
-        // When no status is passed, store all categories from the API response
-        setData({
-          pendingPatientForms: patientsData.pendingPatientForms || [],
-          inProgressPatientForms: patientsData.inProgressPatientForms || [],
-          patientFormSubmit: patientsData.patientFormSubmit || [],
-          expiredPatientForms: patientsData.expiredPatientForms || []
-        });
+        setData(patientsData || []);
+
+        // Set pagination information
+        setTotalPages(pagination.totalPages || 1);
+        setCurrentPage(pagination.currentPage || 1);
+        setItemsPerPage(pagination.itemsPerPage || 10);
       } else {
         toast.error('Invalid data');
       }
@@ -141,63 +148,32 @@ const DataCard = () => {
     }
   };
 
+  // Fetch patients on component mount and when status/page changes
   useEffect(() => {
-    fetchMonitorPatients(); // Fetch all patients on component mount
-  }, []);
+    fetchMonitorPatients(status, currentPage, itemsPerPage);
+  }, [status, currentPage, itemsPerPage]);
 
+  // Handle Re-Schedule Click
   const handleReScheduleClick = (patient) => {
     setSelectedPatient(patient);
     setOpenDialog(true);
   };
 
+  // Handle Dialog Close
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setSelectedPatient(null);
   };
 
-  const renderTableRows = (patientsData, selectedStatus) => {
-    // If a status is selected, access the specific array based on the status
-    let patients = [];
-
-    if (selectedStatus === 'pendingPatientForms') {
-      patients = patientsData?.pendingPatientForms;
-    } else if (selectedStatus === 'inProgressPatientForms') {
-      patients = patientsData?.inProgressPatientForms;
-    } else if (selectedStatus === 'patientFormSubmit') {
-      patients = patientsData?.patientFormSubmit;
-    } else if (selectedStatus === 'expiredPatientForms') {
-      patients = patientsData?.expiredPatientForms;
-    } else {
-      // If no status is selected, combine all arrays to display all patients
-      // If no status is selected, combine all arrays to display all patients
-      patients = [
-        ...(patientsData?.pendingPatientForms || []),
-        ...(patientsData?.inProgressPatientForms || []),
-        ...(patientsData?.patientFormSubmit || []),
-        ...(patientsData?.expiredPatientForms || [])
-      ];
-    }
-
+  // Render Table Rows
+  const renderTableRows = (patients) => {
     if (!patients || patients.length === 0) {
       return (
-        <>
-          {loading ? (
-            <TableRow>
-              <Typography
-                colSpan={5}
-                sx={{ margin: theme.spacing(2), textAlign: 'center' }}
-              >
-                {t('Loading...')}
-              </Typography>
-            </TableRow>
-          ) : (
-            <TableRow>
-              <TableCell colSpan={5} sx={{ textAlign: 'center' }}>
-                {t('No records found')}
-              </TableCell>
-            </TableRow>
-          )}
-        </>
+        <TableRow>
+          <TableCell colSpan={5} sx={{ textAlign: 'center' }}>
+            {loading ? t('Loading...') : t('No records found')}
+          </TableCell>
+        </TableRow>
       );
     }
 
@@ -226,28 +202,25 @@ const DataCard = () => {
             {new Date(patient?.created_at).toLocaleDateString('en-US')}
           </TableCell>
           <TableCell sx={{ textAlign: 'center' }}>{statusLabel}</TableCell>
-          {patient.status === 'Expired' && (
-            <TableCell sx={{ textAlign: 'center' }}>
+          <TableCell sx={{ textAlign: 'center' }}>
+            {patient.status === 'Expired' && (
               <Button onClick={() => handleReScheduleClick(patient)}>
                 <ReplayIcon />
                 {t('Re-Schedule')}
               </Button>
-            </TableCell>
-          )}
+            )}
+          </TableCell>
         </TableRow>
       );
     });
   };
 
+  // Handle Status Change
   const handleStatus = (event) => {
     const selectedStatus = event.target.value;
     setStatus(selectedStatus);
-
-    // Fetch patients based on the selected status
-    fetchMonitorPatients(selectedStatus); // Pass the selected status to the API call
+    setCurrentPage(1); // Reset to first page on status change
   };
-
-  // console.log('selected Patient', selectedPatient);
 
   return (
     <Box>
@@ -273,18 +246,24 @@ const DataCard = () => {
               <FormControl fullWidth>
                 <InputLabel>{t('Status')}</InputLabel>
                 <Select
-                  label="status"
+                  label="Status"
                   value={status}
                   onChange={handleStatus}
                   fullWidth
                 >
-                  <MenuItem value="all">All</MenuItem>
-                  <MenuItem value="pendingPatientForms">Pending</MenuItem>
-                  <MenuItem value="inProgressPatientForms">
-                    In Progress
+                  <MenuItem value="all">{t('All')}</MenuItem>
+                  <MenuItem value="pendingPatientForms">
+                    {t('Pending')}
                   </MenuItem>
-                  <MenuItem value="patientFormSubmit">Submitted</MenuItem>
-                  <MenuItem value="expiredPatientForms">Expired</MenuItem>
+                  <MenuItem value="inProgressPatientForms">
+                    {t('In Progress')}
+                  </MenuItem>
+                  <MenuItem value="patientFormSubmit">
+                    {t('Submitted')}
+                  </MenuItem>
+                  <MenuItem value="expiredPatientForms">
+                    {t('Expired')}
+                  </MenuItem>
                 </Select>
               </FormControl>
             </Grid>
@@ -307,8 +286,23 @@ const DataCard = () => {
               <TableCell sx={{ textAlign: 'center' }}>{t('Action')}</TableCell>
             </TableRow>
           </TableHead>
-          <TableBody>{renderTableRows(data, status)}</TableBody>
+          <TableBody>{renderTableRows(data)}</TableBody>
         </Table>
+
+        {/* Pagination Controls */}
+        <Box display="flex" justifyContent="center" mt={2} sx={{ p: 2 }}>
+          <Pagination
+            count={totalPages}
+            page={currentPage}
+            onChange={(event, page) => {
+              setCurrentPage(page);
+            }}
+            color="primary"
+            variant="outlined"
+          />
+        </Box>
+
+        {/* Dialog for Re-Schedule */}
         <Dialog
           open={openDialog}
           onClose={handleCloseDialog}

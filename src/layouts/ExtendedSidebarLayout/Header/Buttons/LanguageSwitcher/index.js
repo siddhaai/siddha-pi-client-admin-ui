@@ -14,7 +14,6 @@ import {
   styled,
   useTheme
 } from '@mui/material';
-import Text from 'src/components/Text';
 
 // import WarningTwoToneIcon from '@mui/icons-material/WarningTwoTone';
 import internationalization from 'src/i18n/i18n';
@@ -65,7 +64,7 @@ function LanguageSwitcher() {
   };
 
   return (
-    <>
+    <Box sx={{ display: 'none' }}>
       <Tooltip arrow title={t('Language Switcher')}>
         <IconButtonWrapper
           color="secondary"
@@ -250,7 +249,7 @@ function LanguageSwitcher() {
           </Text> */}
         </Box>
       </Popover>
-    </>
+    </Box>
   );
 }
 

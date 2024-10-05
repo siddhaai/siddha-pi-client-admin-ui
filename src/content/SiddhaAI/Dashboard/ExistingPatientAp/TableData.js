@@ -33,6 +33,7 @@ import * as Yup from 'yup';
 // import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import SendIcon from '@mui/icons-material/Send';
 
 const CardIndicatorWrapper = styled(Card)(
   () => `
@@ -93,8 +94,12 @@ const appointmentDetailsSchema = Yup.object({
   // time_Zone: Yup.string().required('Time Zone is required'),
   duration: Yup.string().required('Duration is required'),
   hospital_location: Yup.string().required('Hospital Location is required'),
-  reason: Yup.string().required('Reason is required'),
-  notes: Yup.string().required('notes is required'),
+  reason: Yup.string()
+    .required('Reason is required')
+    .max(100, 'Reason cannot exceed 100 characters'),
+  notes: Yup.string()
+    .required('notes is required')
+    .max(1000, 'Additional notes cannot exceed 1000 characters'),
   preferred_doctor: Yup.string().required('Preferred doctor is required')
 });
 
@@ -114,7 +119,7 @@ const TableData = ({ selectedPatient }) => {
   const handleBack = () => setStep((prevStep) => prevStep - 1);
   const [smsText, setSmsText] = useState('');
   const [appointmentDateandTime, setAppointmentDateandTime] = useState('');
-  const [appointmenttimeZone, setAppointmenttimeZone] = useState('');
+  // const [appointmenttimeZone, setAppointmenttimeZone] = useState('');
   const [officeLocation, setOfficeLocation] = useState('');
   const [stateForSmsApi, setStateForSmsApi] = useState(false);
   const [doctors, setDoctors] = useState([]);
@@ -366,19 +371,11 @@ const TableData = ({ selectedPatient }) => {
       <MainContent>
         <Container sx={{ my: 2 }} maxWidth="md">
           <Card sx={{ mt: -1.5, pt: 4 }}>
-            {/* <Box px={4}>
-              <Typography variant="h2" sx={{ mb: 1 }}>
-                {t('Re-Schedule Existing Patient')}
-                
-              </Typography>
-            </Box> */}
-
             <Formik
               initialValues={{
                 preferred_doctor: '',
                 appointment_date: null,
                 duration: '',
-                // time_Zone: '',
                 hospital_location: '',
                 reason: '',
                 notes: ''
@@ -497,28 +494,7 @@ const TableData = ({ selectedPatient }) => {
                             )}
                           </Field>
                         </Grid>
-                        {/* <Grid item xs={12} md={6}>
-                          <Field name="time_Zone">
-                            {({ field }) => (
-                              <TextField
-                                {...field}
-                                fullWidth
-                                label={t('Time Zone')}
-                                select
-                                error={Boolean(
-                                  touched.time_Zone && errors.time_Zone
-                                )}
-                                helperText={
-                                  touched.time_Zone && errors.time_Zone
-                                }
-                              >
-                                <MenuItem value="CST">CST</MenuItem>
-                                <MenuItem value="EST">EST</MenuItem>
-                                <MenuItem value="PST">PST</MenuItem>
-                              </TextField>
-                            )}
-                          </Field>
-                        </Grid> */}
+
                         <Grid item xs={12} md={6}>
                           <Field name="hospital_location">
                             {({
@@ -592,14 +568,14 @@ const TableData = ({ selectedPatient }) => {
                           </Field>
                         </Grid>
 
-                        <Grid item xs={12} md={6}>
+                        <Grid item xs={12}>
                           <Field name="reason">
                             {({ field }) => (
                               <TextField
                                 {...field}
                                 fullWidth
                                 multiline
-                                rows={4}
+                                rows={1}
                                 label={t('Reason')}
                                 placeholder={t(
                                   'Enter reason for appointment...'
@@ -610,7 +586,7 @@ const TableData = ({ selectedPatient }) => {
                             )}
                           </Field>
                         </Grid>
-                        <Grid item xs={12} md={6}>
+                        <Grid item xs={12}>
                           <Field name="notes">
                             {({ field }) => (
                               <TextField
@@ -618,7 +594,7 @@ const TableData = ({ selectedPatient }) => {
                                 rows={4}
                                 multiline
                                 fullWidth
-                                label={t('Notes')}
+                                label={t('Additional Notes')}
                                 placeholder={t(
                                   'Enter notes for appointment...'
                                 )}
@@ -655,9 +631,6 @@ const TableData = ({ selectedPatient }) => {
                               alignItems: 'center'
                             }}
                           >
-                            <Typography component="h1" variant="h5">
-                              Send SMS
-                            </Typography>
                             <Box component="div" noValidate sx={{ mt: 1 }}>
                               <Grid container spacing={2}>
                                 {/* Check if smsTemplateResponseData exists and is not empty */}
@@ -712,41 +685,23 @@ const TableData = ({ selectedPatient }) => {
                                 <Grid item xs={12} sx={{ mt: 2 }}>
                                   {smsText && (
                                     <>
-                                      <Button
-                                        variant="contained"
-                                        fullWidth
-                                        onClick={handleCopy}
-                                        sx={{
-                                          mb: 2
-                                        }}
-                                      >
-                                        <ContentCopyIcon />
-                                        Copy SMS
-                                      </Button>
                                       <div
                                         style={{
                                           display: 'flex',
-                                          justifyContent: 'space-between',
+                                          justifyContent: 'center',
                                           gap: '10px'
                                         }}
                                       >
                                         <Button
-                                          onClick={
-                                            () => handleCreatePatient()
-                                            // isSubmitting?.resetForm
-                                          }
-                                          fullWidth
-                                        >
-                                          Existing Patient
-                                        </Button>
-                                        <Button
                                           variant="contained"
-                                          color="primary"
                                           type="submit"
                                           onClick={handleSubmit}
                                           disabled={loading}
-                                          fullWidth
+                                          sx={{ height: '45px' }}
                                         >
+                                          <SendIcon
+                                            sx={{ padding: '0 5px 0 0' }}
+                                          />
                                           Send SMS
                                           {loading && (
                                             <CircularProgress
@@ -754,6 +709,18 @@ const TableData = ({ selectedPatient }) => {
                                               sx={{ ml: 2 }}
                                             />
                                           )}
+                                        </Button>
+                                        <Button
+                                          variant="outlined"
+                                          onClick={handleCopy}
+                                          sx={{
+                                            mb: 2
+                                          }}
+                                        >
+                                          <ContentCopyIcon
+                                            sx={{ padding: '0 5px 0 0' }}
+                                          />
+                                          Copy SMS
                                         </Button>
                                       </div>
                                     </>

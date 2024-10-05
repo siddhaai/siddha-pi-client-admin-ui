@@ -18,7 +18,7 @@ function ThemesCustomization() {
   ┗ 📜ThemeProvider.js`;
 
   const themeCustom = `const themeColors = {
-    primary: '#5569ff',
+    primary: '#246c94',
     secondary: '#6E759F',
     success: '#57CA22',
     warning: '#FFA319',
@@ -84,15 +84,13 @@ function ThemesCustomization() {
 
   return (
     <>
-      <Helmet>
-        <title>Themes Customization -</title>
-      </Helmet>
+      <Helmet>{/* <title>Themes Customization -</title> */}</Helmet>
       <Container maxWidth={false}>
         <Grid container spacing={4}>
           <Grid item xs={12}>
             <PageHeader heading="Themes Customization" subheading="" />
           </Grid>
-          <Grid item xs={12}>
+          {/* <Grid item xs={12}>
             <Typography paragraph>color schemes.</Typography>
             <Typography paragraph>
               Three of them are 'light' color schemes: <code>Pure Light</code>,{' '}
@@ -148,7 +146,7 @@ function ThemesCustomization() {
             >
               {themeCustom}
             </Prism>
-          </Grid>
+          </Grid> */}
         </Grid>
       </Container>
     </>

@@ -70,7 +70,7 @@ function HeaderUserbox() {
   return (
     <>
       <Helmet>
-        <title>Authentication - Tokyo React Javascript Admin Dashboard</title>
+        {/* <title>Authentication - Tokyo React Javascript Admin Dashboard</title> */}
       </Helmet>
       <Container maxWidth={false}>
         <Grid container spacing={4}>
@@ -78,13 +78,13 @@ function HeaderUserbox() {
             <PageHeader heading="Authentication" subheading="" />
           </Grid>
           <Grid item xs={12}>
-            <Typography paragraph>
+            {/* <Typography paragraph>
               Tokyo React Javascript Admin Dashboard includes four separate
               authentication methods, that are basic examples to give you a
               starting point. The included auth methotds are:{' '}
               <b>JWT Web Tokens</b>, <b>Firebase</b>, <b>Auth0</b> and{' '}
               <b>AWS Amplify</b>
-            </Typography>
+            </Typography> */}
             <br />
             <Typography
               sx={{
@@ -92,9 +92,9 @@ function HeaderUserbox() {
               }}
               variant="h2"
             >
-              Switching between auth methods
+              {/* Switching between auth methods */}
             </Typography>
-            <Typography paragraph>
+            {/* <Typography paragraph>
               Switching to a different auth method is easy. You just have to
               change an import to point to your designed auth method. By
               default, Tokyo React Javascript Admin Dashboard comes with JWT Web
@@ -105,7 +105,7 @@ function HeaderUserbox() {
               <code>\src\hooks\useAuth.js</code> and import the{' '}
               <code>AuthContext</code> from a different provider, like in the
               example below.
-            </Typography>
+            </Typography> */}
             <Prism
               showLineNumbers
               wrapLines
@@ -115,11 +115,11 @@ function HeaderUserbox() {
               {switchAuth}
             </Prism>
             <br />
-            <Typography paragraph>
+            {/* <Typography paragraph>
               Based on the auth method chosen above, you need to also modify{' '}
               <code>src\App.js</code> to point to the new auth method. You need
               to import the chosen auth provider just like in the example below.
-            </Typography>
+            </Typography> */}
             <Prism
               showLineNumbers
               wrapLines
@@ -129,7 +129,7 @@ function HeaderUserbox() {
               {switchAuthApp}
             </Prism>
             <br />
-            <Typography
+            {/* <Typography
               sx={{
                 mb: 2
               }}
@@ -246,7 +246,7 @@ function HeaderUserbox() {
               order to use these auth methods in a live production application,
               as encoding/decoding the auth tokens needs to happen on server
               side.
-            </Typography>
+            </Typography> */}
           </Grid>
         </Grid>
       </Container>

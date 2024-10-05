@@ -1018,6 +1018,7 @@ import { Helmet } from 'react-helmet-async';
 import useAxiosInterceptor from 'src/contexts/Interceptor';
 import { useTranslation } from 'react-i18next';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import SendIcon from '@mui/icons-material/Send';
 
 const MainContent = styled(Box)`
   height: 100%;
@@ -1054,6 +1055,7 @@ const TextMaskCustom = React.forwardRef(function TextMaskCustom(props, ref) {
 });
 
 // Validation Functions
+
 const validatePersonalDetails = (values) => {
   const errors = {};
   const nameRegex = /^[A-Za-z]+$/;
@@ -1127,6 +1129,39 @@ const validateDateTime = (value) => {
   return null;
 };
 
+// Field-specific validators
+const validateDuration = (value) => {
+  if (!value) {
+    return 'Duration is required.';
+  }
+  return null;
+};
+
+const validateLocation = (value) => {
+  if (!value) {
+    return 'Hospital location is required.';
+  }
+  return null;
+};
+
+// Alpha-numeric validation for Reason
+
+const validateReason = (value) => {
+  if (!value) {
+    return 'Reason for appointment is required.';
+  }
+  return null;
+};
+
+const validateNotes = (value) => {
+  if (!value) {
+    return 'Notes are required.';
+  } else if (value.length > 300) {
+    return 'Notes cannot exceed 300 characters.';
+  }
+  return null;
+};
+
 // Validation for Appointment Details
 const validateAppointmentDetails = (values) => {
   const errors = {};
@@ -1179,6 +1214,7 @@ const PatientIntakeNew = () => {
   const [doctorPracticeName, setDoctorPracticeName] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState('');
   const [smsTemplateResponseData, setSmsTemeplateResponseData] = useState([]);
+  const [genders, SetGenders] = useState([]);
 
   const fetchDoctorOffice = async () => {
     try {
@@ -1199,9 +1235,23 @@ const PatientIntakeNew = () => {
       toast.error('Failed to fetch user data');
     }
   };
+  const fetchGender = async () => {
+    try {
+      const response = await axios.get(`/fieldValues/genders`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      // console.log('res', response.data.data);
+      SetGenders(response.data.data);
+    } catch (error) {
+      console.error('Failed to fetch user data', error);
+    }
+  };
 
   useEffect(() => {
     fetchDoctorOffice();
+    fetchGender();
   }, []);
 
   // console.log(officePhone);
@@ -1232,7 +1282,7 @@ const PatientIntakeNew = () => {
     fetchDoctors();
   }, []);
 
-  // State for Personal Details
+  // State to track personal details and errors
   const [personalDetails, setPersonalDetails] = useState({
     first_name: '',
     last_name: '',
@@ -1241,6 +1291,8 @@ const PatientIntakeNew = () => {
     gender: '',
     preferred_doctor: ''
   });
+
+  const [errors, setErrors] = useState({});
 
   // State for Appointment Details
   const [appointmentDetails, setAppointmentDetails] = useState({
@@ -1256,31 +1308,78 @@ const PatientIntakeNew = () => {
   //   message: ''
   // });
 
-  const [errors, setErrors] = useState({});
-
-  // Handle change for Personal Details
+  // Handle change for Personal Details (validate on change)
   const handleChangePersonalDetails = (e) => {
     const { name, value } = e.target;
     setPersonalDetails({ ...personalDetails, [name]: value });
+
+    // Validate field on change
+    const newErrors = validatePersonalDetails({
+      ...personalDetails,
+      [name]: value
+    });
+    setErrors({ ...errors, [name]: newErrors[name] });
   };
 
   // Handle Date of Birth change
   const handleDateChange = (date) => {
     setPersonalDetails({ ...personalDetails, dob: date });
+
+    // Validate date on change
+    const newErrors = validatePersonalDetails({
+      ...personalDetails,
+      dob: date
+    });
+    setErrors({ ...errors, dob: newErrors.dob });
   };
 
   // Handle change for Appointment Details
   const handleChangeAppointmentDetails = (e) => {
     const { name, value } = e.target;
+
     setAppointmentDetails({ ...appointmentDetails, [name]: value });
+
+    // Field-specific validation
+    let error = null;
+    switch (name) {
+      case 'duration':
+        error = validateDuration(value);
+        break;
+      case 'hospital_location':
+        error = validateLocation(value);
+        break;
+      case 'reason':
+        error = validateReason(value);
+        break;
+      case 'notes':
+        error = validateNotes(value);
+        break;
+      default:
+        break;
+    }
+
+    // Set the error only for the current field
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: error
+    }));
   };
 
-  // Handle Date Change for Appointment
+  // Handle Date Change for Appointment Date and Time
   const handleAppointmentDateChange = (newDateTime) => {
     setAppointmentDetails({
       ...appointmentDetails,
       appointment_date: newDateTime
     });
+
+    // Validate DateTime
+    const dateTimeError = validateDateTime(newDateTime);
+
+    // Set error for the appointment_date field only
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      appointment_date: dateTimeError
+    }));
   };
 
   // Handle Submit for Personal Information
@@ -1320,7 +1419,6 @@ const PatientIntakeNew = () => {
           (doctor) => doctor.id === personalDetails.preferred_doctor
         );
 
-        // Set the phone number and practice name of the selected doctor
         if (selectedDoctor) {
           setDoctorsPhNo(selectedDoctor.cell_phone || '');
           setDoctorPracticeName(selectedDoctor.practice_group_name || '');
@@ -1343,10 +1441,33 @@ const PatientIntakeNew = () => {
 
   // Handle Submit for Appointment Details
   const handleSubmitAppointmentDetails = async () => {
-    const validationErrors = validateAppointmentDetails(appointmentDetails);
+    const dateTimeError = validateDateTime(appointmentDetails.appointment_date);
+    const durationError = validateDuration(appointmentDetails.duration);
+    const locationError = validateLocation(
+      appointmentDetails.hospital_location
+    );
+    const reasonError = validateReason(appointmentDetails.reason);
+    const notesError = validateNotes(appointmentDetails.notes);
 
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
+    const validationErrors = {
+      appointment_date: dateTimeError,
+      duration: durationError,
+      hospital_location: locationError,
+      reason: reasonError,
+      notes: notesError
+    };
+
+    // Filter out fields with no errors
+    const filteredErrors = Object.keys(validationErrors).reduce((acc, key) => {
+      if (validationErrors[key]) {
+        acc[key] = validationErrors[key];
+      }
+      return acc;
+    }, {});
+
+    // If there are any errors, stop the submission
+    if (Object.keys(filteredErrors).length > 0) {
+      setErrors(filteredErrors);
       return;
     }
 
@@ -1402,9 +1523,9 @@ const PatientIntakeNew = () => {
             Authorization: `Bearer ${token}`
           }
         });
-        // setSmsTemeplateResponseData(response.data.data.message_template);
-        setSmsTemeplateResponseData(smsResponse.data.data.message_template); // Access message_template inside "data"        toast.success('Appointment created successfully!');
-        // console.log('SMS Response:', smsResponse.data.data.message_template);
+
+        setSmsTemeplateResponseData(smsResponse.data.data.message_template);
+        toast.success('Appointment created successfully!');
 
         setActiveStep((prevStep) => prevStep + 1); // Move to the next step
       } else if (response.data.status === 409) {
@@ -1433,6 +1554,8 @@ const PatientIntakeNew = () => {
     setSmsText(event.target.value);
   };
 
+  // const [showNavButton, setShowNavButton] = useState(false);
+
   // Handle Submit for SMS Information
   const handleSubmitSms = async () => {
     setLoading(true);
@@ -1456,12 +1579,13 @@ const PatientIntakeNew = () => {
 
       if (response.status === 200) {
         toast.success('SMS sent successfully!');
+        // setShowNavButton(true);
         const delayedAction = () => {
           handleCreatePatient();
           // setIsRegistrationComplete(true); // Set registration complete on success
         };
 
-        setTimeout(delayedAction, 3000); // 3000 milliseconds = 3 seconds
+        setTimeout(delayedAction, 10000); // 10000 milliseconds = 10 seconds
       } else {
         toast.error('Failed to Send SMS');
       }
@@ -1518,9 +1642,6 @@ const PatientIntakeNew = () => {
 
               {activeStep === 0 && (
                 <Box py={3}>
-                  {/* <Typography variant="h6" gutterBottom>
-                    Patient Details
-                  </Typography> */}
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
                       <TextField
@@ -1586,10 +1707,15 @@ const PatientIntakeNew = () => {
                         error={!!errors.gender}
                         helperText={errors.gender}
                       >
-                        <MenuItem value="UNK">Choose not to disclose</MenuItem>
+                        {genders?.map((gender, index) => (
+                          <MenuItem key={index} value={gender?.id}>
+                            {gender?.value}
+                          </MenuItem>
+                        ))}
+                        {/* <MenuItem value="UNK">Choose not to disclose</MenuItem>
                         <MenuItem value="Female">Female</MenuItem>
                         <MenuItem value="Male">Male</MenuItem>
-                        <MenuItem value="Other">Other</MenuItem>
+                        <MenuItem value="Other">Other</MenuItem> */}
                       </TextField>
                     </Grid>
                     <Grid item xs={12} sm={6}>
@@ -1611,17 +1737,12 @@ const PatientIntakeNew = () => {
                       </TextField>
                     </Grid>
                   </Grid>
-                  <Grid
-                    xs={12}
-                    // md={12}
-                    // sx={{ display: 'flex', justifyContent: 'center' }}
-                  >
+                  <Grid xs={12}>
                     <Button
                       variant="contained"
                       onClick={handleSubmitPersonalInfo}
                       sx={{ my: 3 }}
                       disabled={loading}
-                      // fullWidth
                     >
                       Register a patient
                       {loading && <CircularProgress size={24} sx={{ ml: 2 }} />}
@@ -1632,9 +1753,6 @@ const PatientIntakeNew = () => {
 
               {activeStep === 1 && (
                 <Box py={3}>
-                  {/* <Typography variant="h6" gutterBottom>
-                    Appointment Details
-                  </Typography> */}
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6} md={6}>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -1670,7 +1788,6 @@ const PatientIntakeNew = () => {
                         <MenuItem value="90">90</MenuItem>
                       </TextField>
                     </Grid>
-
                     <Grid item xs={12} sm={6} md={6}>
                       <TextField
                         fullWidth
@@ -1681,23 +1798,22 @@ const PatientIntakeNew = () => {
                         error={!!errors.reason}
                         helperText={errors.reason}
                         multiline
-                        rows={4} // Reason is now a textarea with 4 rows
+                        rows={4}
                       />
                     </Grid>
                     <Grid item xs={12} sm={6} md={6}>
                       <TextField
                         fullWidth
-                        label="Notes"
+                        label="Additional Notes"
                         name="notes"
                         value={appointmentDetails.notes}
                         onChange={handleChangeAppointmentDetails}
                         error={!!errors.notes}
                         helperText={errors.notes}
                         multiline
-                        rows={4} // Notes textarea with 4 rows
+                        rows={4}
                       />
                     </Grid>
-
                     <Grid item xs={12} sm={6} md={6}>
                       <TextField
                         fullWidth
@@ -1752,9 +1868,9 @@ const PatientIntakeNew = () => {
                           alignItems: 'center'
                         }}
                       >
-                        <Typography component="h1" variant="h5">
+                        {/* <Typography component="h1" variant="h5">
                           Send SMS
-                        </Typography>
+                        </Typography> */}
                         <Box component="div" noValidate sx={{ mt: 1 }}>
                           <Grid container spacing={2}>
                             {/* Check if smsTemplateResponseData exists and is not empty */}
@@ -1791,48 +1907,29 @@ const PatientIntakeNew = () => {
                               ))
                             ) : (
                               <Typography variant="body1" color="textSecondary">
-                                No templates available.
+                                No SMS Available.
                               </Typography>
                             )}
 
-                            <Grid item xs={12} sx={{ mt: 2 }}>
+                            {/* <>
                               {smsText && (
                                 <>
-                                  <Button
-                                    variant="contained"
-                                    fullWidth
-                                    onClick={handleCopy}
+                                  <Box
                                     sx={{
-                                      mb: 2
-                                    }}
-                                  >
-                                    <ContentCopyIcon />
-                                    Copy SMS
-                                  </Button>
-                                  <div
-                                    style={{
                                       display: 'flex',
-                                      justifyContent: 'space-between',
+                                      justifyContent: 'center',
                                       gap: '10px'
                                     }}
                                   >
-                                    <Button
-                                      onClick={
-                                        () => handleCreatePatient()
-                                        // isSubmitting?.resetForm
-                                      }
-                                      fullWidth
-                                    >
-                                      Create Patient
-                                    </Button>
                                     <Button
                                       variant="contained"
                                       color="primary"
                                       type="submit"
                                       onClick={handleSubmitSms}
                                       disabled={loading}
-                                      fullWidth
+                                      
                                     >
+                                      <SendIcon sx={{ padding: '0 5px 0 0' }} />
                                       Send SMS
                                       {loading && (
                                         <CircularProgress
@@ -1841,7 +1938,65 @@ const PatientIntakeNew = () => {
                                         />
                                       )}
                                     </Button>
-                                  </div>
+
+
+                                    <Button
+                                      variant="outlined"
+                                      onClick={handleCopy}
+                                      sx={{
+                                        flex: '1 1 auto'
+                                        // mb: { xs: 2, sm: 0 }
+                                      }}
+                                    >
+                                      <ContentCopyIcon
+                                        sx={{ padding: '0 5px 0 0' }}
+                                      />
+                                      Copy SMS
+                                    </Button>
+                                  </Box>
+                                 
+                                </>
+                              )}
+                            </> */}
+
+                            <Grid item xs={12} sx={{ mt: 2 }}>
+                              {smsText && (
+                                <>
+                                  <Box
+                                    sx={{
+                                      display: 'flex',
+                                      justifyContent: 'center',
+                                      gap: '10px'
+                                    }}
+                                  >
+                                    <Button
+                                      variant="contained"
+                                      color="primary"
+                                      type="submit"
+                                      onClick={handleSubmitSms}
+                                      disabled={loading}
+                                      sx={{ mt: 2 }}
+                                    >
+                                      <SendIcon sx={{ padding: '0 5px 0 0' }} />
+                                      Send SMS
+                                      {loading && (
+                                        <CircularProgress
+                                          size={24}
+                                          sx={{ ml: 2 }}
+                                        />
+                                      )}
+                                    </Button>
+                                    <Button
+                                      variant="outlined"
+                                      onClick={handleCopy}
+                                      sx={{ mt: 2 }}
+                                    >
+                                      <ContentCopyIcon
+                                        sx={{ padding: '0 5px 0 0' }}
+                                      />
+                                      Copy SMS
+                                    </Button>
+                                  </Box>
                                 </>
                               )}
                             </Grid>

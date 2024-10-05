@@ -121,11 +121,11 @@ function Reports() {
         setChartOptions((prevOptions) => ({
           ...prevOptions,
           labels: [
-            'Patient Created',
-            'SMS Sent',
+            'Patients Created',
             'Existing Patients Retrieved',
             'Appointments Scheduled',
-            'Patient Intake Form Submited'
+            'SMS Sent',
+            'Patient Intake Form Submitted'
           ]
         }));
       } else if (selectedReport === 'weekly') {
@@ -145,10 +145,10 @@ function Reports() {
         setChartOptions((prevOptions) => ({
           ...prevOptions,
           labels: [
-            'Patient Created',
-            'SMS Sent',
+            'Patients Created',
             'Existing Patients Retrieved',
             'Appointments Scheduled',
+            'SMS Sent',
             'Patient Intake Form Submitted'
           ]
         }));
@@ -169,10 +169,10 @@ function Reports() {
         setChartOptions((prevOptions) => ({
           ...prevOptions,
           labels: [
-            'Patient Created',
-            'SMS Sent',
+            'Patients Created',
             'Existing Patients Retrieved',
             'Appointments Scheduled',
+            'SMS Sent',
             'Patient Intake Form Submitted'
           ]
         }));

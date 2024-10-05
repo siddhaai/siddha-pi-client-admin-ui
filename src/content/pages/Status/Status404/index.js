@@ -50,7 +50,7 @@ function Status404() {
       <MainContent>
         <Container maxWidth="md">
           <Box textAlign="center">
-            <img alt="404" height={180} src="/static/images/status/404.svg" />
+            <img alt="404" height={180} src="/static/images/status/NA.svg" />
             <Typography
               variant="h2"
               sx={{
@@ -59,7 +59,7 @@ function Status404() {
             >
               {t("The page you were looking for doesn't exist.")}
             </Typography>
-            <Typography
+            {/* <Typography
               variant="h4"
               color="text.secondary"
               fontWeight="normal"
@@ -70,9 +70,9 @@ function Status404() {
               {t(
                 "It's on us, we moved the content to a different page. The search below should help!"
               )}
-            </Typography>
+            </Typography> */}
           </Box>
-          <Container maxWidth="sm">
+          {/* <Container maxWidth="sm">
             <Card
               sx={{
                 textAlign: 'center',
@@ -109,7 +109,7 @@ function Status404() {
                 {t('Go to homepage')}
               </Button>
             </Card>
-          </Container>
+          </Container> */}
         </Container>
       </MainContent>
     </>
