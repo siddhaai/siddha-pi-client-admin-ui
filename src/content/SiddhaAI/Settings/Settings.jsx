@@ -33,6 +33,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import useAxiosInterceptor from 'src/contexts/Interceptor';
 import { Add, Delete } from '@mui/icons-material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { Helmet } from 'react-helmet-async';
 
 export default function Settings() {
   const { axios } = useAxiosInterceptor();
@@ -521,6 +522,9 @@ export default function Settings() {
   return (
     <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
       {/* Adjust padding for different screen sizes */}
+      <Helmet>
+        <title>Settings</title>
+      </Helmet>
       <Toaster position="bottom-right" />
       {/* Tabs to switch between sections */}
       <Tabs
@@ -641,21 +645,6 @@ export default function Settings() {
                         : 'xs'
                     } // Adjust the width dynamically based on screen size
                   >
-                    {/* <DialogTitle>
-                      <IconButton
-                        aria-label="close"
-                        onClick={handleCloseDialog}
-                        sx={{
-                          position: 'absolute',
-                          right: 8,
-                          top: 8,
-                          color: theme.palette.grey[500]
-                        }}
-                      >
-                        <CloseIcon />
-                      </IconButton>
-                    </DialogTitle> */}
-
                     {/* SMS Template Content */}
                     <DialogContent dividers>
                       <CardContent>
@@ -708,10 +697,6 @@ export default function Settings() {
 
             {/* Text area for SMS template with chips for variables */}
             <Box mt={2}>
-              {/* <Typography variant="caption">
-                Click on the checkboxes to add variables into the text area
-                below.
-              </Typography> */}
               <Box
                 mt={1}
                 p={2}

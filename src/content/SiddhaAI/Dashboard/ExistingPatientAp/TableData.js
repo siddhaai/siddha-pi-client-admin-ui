@@ -134,6 +134,7 @@ const TableData = ({ selectedPatient }) => {
   // State to handle the selected radio button
   const [selectedTemplate, setSelectedTemplate] = useState('');
   const [officePhone, setOfficePhone] = useState();
+  const [showExitingPatient, setShowExitingPatient] = useState(false);
 
   // Function to handle radio button change
   const handleTemplateChange = (event) => {
@@ -234,12 +235,13 @@ const TableData = ({ selectedPatient }) => {
 
       if (response.status === 200) {
         toast.success('SMS sent successfully!');
-        const delayedAction = () => {
-          handleCreatePatient();
-          // setIsRegistrationComplete(true); // Set registration complete on success
-        };
+        setShowExitingPatient(true);
+        // const delayedAction = () => {
+        //   handleCreatePatient();
+        //   // setIsRegistrationComplete(true); // Set registration complete on success
+        // };
 
-        setTimeout(delayedAction, 3000); // 3000 milliseconds = 3 seconds
+        // setTimeout(delayedAction, 3000); // 3000 milliseconds = 3 seconds
       } else {
         toast.error('Failed to Send SMS');
       }
@@ -682,7 +684,7 @@ const TableData = ({ selectedPatient }) => {
                                   </Typography>
                                 )}
 
-                                <Grid item xs={12} sx={{ mt: 2 }}>
+                                {/* <Grid item xs={12} sx={{ mt: 2 }}>
                                   {smsText && (
                                     <>
                                       <div
@@ -724,6 +726,67 @@ const TableData = ({ selectedPatient }) => {
                                         </Button>
                                       </div>
                                     </>
+                                  )}
+                                </Grid> */}
+
+                                <Grid item xs={12} sx={{ mt: 2 }}>
+                                  {smsText && !showExitingPatient && (
+                                    <>
+                                      <Box
+                                        sx={{
+                                          display: 'flex',
+                                          justifyContent: 'center',
+                                          gap: '10px'
+                                        }}
+                                      >
+                                        <Button
+                                          variant="contained"
+                                          color="primary"
+                                          onClick={handleSubmit}
+                                          disabled={loading}
+                                          sx={{ mt: 2 }}
+                                        >
+                                          <SendIcon
+                                            sx={{ padding: '0 5px 0 0' }}
+                                          />
+                                          Send SMS
+                                          {loading && (
+                                            <CircularProgress
+                                              size={24}
+                                              sx={{ ml: 2 }}
+                                            />
+                                          )}
+                                        </Button>
+                                        <Button
+                                          variant="outlined"
+                                          onClick={handleCopy}
+                                          sx={{ mt: 2 }}
+                                        >
+                                          <ContentCopyIcon
+                                            sx={{ padding: '0 5px 0 0' }}
+                                          />
+                                          Copy SMS
+                                        </Button>
+                                      </Box>
+                                    </>
+                                  )}
+
+                                  {showExitingPatient && (
+                                    <Box
+                                      sx={{
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        mt: 2
+                                      }}
+                                    >
+                                      <Button
+                                        variant="contained"
+                                        color="primary"
+                                        onClick={handleCreatePatient}
+                                      >
+                                        Dashboard
+                                      </Button>
+                                    </Box>
                                   )}
                                 </Grid>
                               </Grid>

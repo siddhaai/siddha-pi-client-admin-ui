@@ -9,9 +9,14 @@ const Loader = () => (
   //   <div className="loader" />
   // </div>
 
-  /* Circle loader */
-  <div className="loader-container">
-    <div class="loader"></div>
+  // /* Circle loader */
+  // <div className="loader-container">
+  //   <div class="loader"></div>
+  // </div>
+  <div class="loader-wrapper">
+    <div class="loader-body">
+      <span class="loader"></span>
+    </div>
   </div>
 );
 

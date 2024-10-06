@@ -1215,6 +1215,7 @@ const PatientIntakeNew = () => {
   const [selectedTemplate, setSelectedTemplate] = useState('');
   const [smsTemplateResponseData, setSmsTemeplateResponseData] = useState([]);
   const [genders, SetGenders] = useState([]);
+  const [showCreatePatient, setShowCreatePatient] = useState(false);
 
   const fetchDoctorOffice = async () => {
     try {
@@ -1579,13 +1580,15 @@ const PatientIntakeNew = () => {
 
       if (response.status === 200) {
         toast.success('SMS sent successfully!');
-        // setShowNavButton(true);
-        const delayedAction = () => {
-          handleCreatePatient();
-          // setIsRegistrationComplete(true); // Set registration complete on success
-        };
+        // Show the "Create Patient" button and hide SMS buttons
+        setShowCreatePatient(true);
+        // // setShowNavButton(true);
+        // const delayedAction = () => {
+        //   handleCreatePatient();
+        //   // setIsRegistrationComplete(true); // Set registration complete on success
+        // };
 
-        setTimeout(delayedAction, 10000); // 10000 milliseconds = 10 seconds
+        // setTimeout(delayedAction, 10000); // 10000 milliseconds = 10 seconds
       } else {
         toast.error('Failed to Send SMS');
       }
@@ -1791,6 +1794,24 @@ const PatientIntakeNew = () => {
                     <Grid item xs={12} sm={6} md={6}>
                       <TextField
                         fullWidth
+                        select
+                        label="Hospital Location"
+                        name="hospital_location"
+                        value={appointmentDetails.hospital_location}
+                        onChange={handleChangeAppointmentDetails}
+                        error={!!errors.hospital_location}
+                        helperText={errors.hospital_location}
+                      >
+                        {selectedOffices?.map((office) => (
+                          <MenuItem key={office?.id} value={office?.id}>
+                            {office?.name}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={6}>
+                      <TextField
+                        fullWidth
                         label="Reason"
                         name="reason"
                         value={appointmentDetails.reason}
@@ -1813,24 +1834,6 @@ const PatientIntakeNew = () => {
                         multiline
                         rows={4}
                       />
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={6}>
-                      <TextField
-                        fullWidth
-                        select
-                        label="Hospital Location"
-                        name="hospital_location"
-                        value={appointmentDetails.hospital_location}
-                        onChange={handleChangeAppointmentDetails}
-                        error={!!errors.hospital_location}
-                        helperText={errors.hospital_location}
-                      >
-                        {selectedOffices?.map((office) => (
-                          <MenuItem key={office?.id} value={office?.id}>
-                            {office?.name}
-                          </MenuItem>
-                        ))}
-                      </TextField>
                     </Grid>
                   </Grid>
                   <Button
@@ -1868,9 +1871,6 @@ const PatientIntakeNew = () => {
                           alignItems: 'center'
                         }}
                       >
-                        {/* <Typography component="h1" variant="h5">
-                          Send SMS
-                        </Typography> */}
                         <Box component="div" noValidate sx={{ mt: 1 }}>
                           <Grid container spacing={2}>
                             {/* Check if smsTemplateResponseData exists and is not empty */}
@@ -1911,8 +1911,8 @@ const PatientIntakeNew = () => {
                               </Typography>
                             )}
 
-                            {/* <>
-                              {smsText && (
+                            <Grid item xs={12} sx={{ mt: 2 }}>
+                              {smsText && !showCreatePatient && (
                                 <>
                                   <Box
                                     sx={{
@@ -1924,10 +1924,9 @@ const PatientIntakeNew = () => {
                                     <Button
                                       variant="contained"
                                       color="primary"
-                                      type="submit"
                                       onClick={handleSubmitSms}
                                       disabled={loading}
-                                      
+                                      sx={{ mt: 2 }}
                                     >
                                       <SendIcon sx={{ padding: '0 5px 0 0' }} />
                                       Send SMS
@@ -1938,15 +1937,10 @@ const PatientIntakeNew = () => {
                                         />
                                       )}
                                     </Button>
-
-
                                     <Button
                                       variant="outlined"
                                       onClick={handleCopy}
-                                      sx={{
-                                        flex: '1 1 auto'
-                                        // mb: { xs: 2, sm: 0 }
-                                      }}
+                                      sx={{ mt: 2 }}
                                     >
                                       <ContentCopyIcon
                                         sx={{ padding: '0 5px 0 0' }}
@@ -1954,50 +1948,25 @@ const PatientIntakeNew = () => {
                                       Copy SMS
                                     </Button>
                                   </Box>
-                                 
                                 </>
                               )}
-                            </> */}
 
-                            <Grid item xs={12} sx={{ mt: 2 }}>
-                              {smsText && (
-                                <>
-                                  <Box
-                                    sx={{
-                                      display: 'flex',
-                                      justifyContent: 'center',
-                                      gap: '10px'
-                                    }}
+                              {showCreatePatient && (
+                                <Box
+                                  sx={{
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    mt: 2
+                                  }}
+                                >
+                                  <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={handleCreatePatient}
                                   >
-                                    <Button
-                                      variant="contained"
-                                      color="primary"
-                                      type="submit"
-                                      onClick={handleSubmitSms}
-                                      disabled={loading}
-                                      sx={{ mt: 2 }}
-                                    >
-                                      <SendIcon sx={{ padding: '0 5px 0 0' }} />
-                                      Send SMS
-                                      {loading && (
-                                        <CircularProgress
-                                          size={24}
-                                          sx={{ ml: 2 }}
-                                        />
-                                      )}
-                                    </Button>
-                                    <Button
-                                      variant="outlined"
-                                      onClick={handleCopy}
-                                      sx={{ mt: 2 }}
-                                    >
-                                      <ContentCopyIcon
-                                        sx={{ padding: '0 5px 0 0' }}
-                                      />
-                                      Copy SMS
-                                    </Button>
-                                  </Box>
-                                </>
+                                    Create Patient
+                                  </Button>
+                                </Box>
                               )}
                             </Grid>
                           </Grid>

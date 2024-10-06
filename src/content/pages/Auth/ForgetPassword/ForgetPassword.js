@@ -13,7 +13,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 // import axios from 'axios';
 // import { ApiUrl } from 'src/content/SiddhaAI/ApiUrl';
-import Loader from '../../../SiddhaAI/Loader/Loader';
+import Loader from '../Loader/Loader';
 import useAxiosInterceptor from 'src/contexts/Interceptor';
 
 /* Validation schema */

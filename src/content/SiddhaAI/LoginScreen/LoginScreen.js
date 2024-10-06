@@ -12,10 +12,8 @@ import Typography from '@mui/material/Typography';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate } from 'react-router-dom';
-import AuthContext from 'src/contexts/AuthContext';
 import toast, { Toaster } from 'react-hot-toast';
-import axios from 'axios';
-import { ApiUrl } from '../ApiUrl';
+
 import Loader from '../Loader/Loader';
 
 // Import necessary components for the eye icon
@@ -134,7 +132,7 @@ export default function Login() {
           // localStorage.setItem('RoleIdForSideBar', response.user.roleId);
           // navigate('src/content/SiddhaAI/DashBoard/DashBoard');
           navigate(
-            '/extended-sidebar/src/content/SiddhaAI/DashBoard/DashBoard'
+            '/extended-sidebar/src/content/SiddhaAI/Dashboard/Dashboard'
           );
         }
       } else {

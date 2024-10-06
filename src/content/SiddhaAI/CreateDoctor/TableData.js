@@ -13,6 +13,7 @@ import {
   TextField
 } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import useAxiosInterceptor from 'src/contexts/Interceptor';
@@ -71,6 +72,9 @@ function TableData() {
 
   return (
     <>
+      <Helmet>
+        <title>Doctor's List</title>
+      </Helmet>
       <Card sx={{ mb: 3 }}>
         <CardHeader
           title={

@@ -1,5 +1,143 @@
+/* From Uiverse.io by adamgiebl */
+/* .dots-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+  }
+  
+  .dot {
+    height: 20px;
+    width: 20px;
+    margin-right: 10px;
+    border-radius: 10px;
+    background-color: #b3d4fc;
+    animation: pulse 1.5s infinite ease-in-out;
+  }
+  
+  .dot:last-child {
+    margin-right: 0;
+  }
+  
+  .dot:nth-child(1) {
+    animation-delay: -0.3s;
+  }
+  
+  .dot:nth-child(2) {
+    animation-delay: -0.1s;
+  }
+  
+  .dot:nth-child(3) {
+    animation-delay: 0.1s;
+  }
+  
+  @keyframes pulse {
+    0% {
+      transform: scale(0.8);
+      background-color: #b3d4fc;
+      box-shadow: 0 0 0 0 rgba(178, 212, 252, 0.7);
+    }
+  
+    50% {
+      transform: scale(1.2);
+      background-color: #6793fb;
+      box-shadow: 0 0 0 10px rgba(178, 212, 252, 0);
+    }
+  
+    100% {
+      transform: scale(0.8);
+      background-color: #b3d4fc;
+      box-shadow: 0 0 0 0 rgba(178, 212, 252, 0.7);
+    }
+  } */
+
+/* plus loader css */
+/* .loader {
+  width: 40px;
+  height: 40px;
+  position: relative;
+  --c: no-repeat linear-gradient(#2d88b9 0 0);
+  background: var(--c) center/100% 10px, var(--c) center/10px 100%;
+}
+
+.loader:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: var(--c) 0 0, var(--c) 100% 0, var(--c) 0 100%, var(--c) 100% 100%;
+  background-size: 15.5px 15.5px;
+  animation: l16 1.5s infinite cubic-bezier(0.3, 1, 0, 1);
+}
+
+@-webkit-keyframes l16 {
+  33% {
+    top: -10px;
+    right: -10px;
+    bottom: -10px;
+    left: -10px;
+    transform: rotate(0deg);
+  }
+  66% {
+    top: -10px;
+    right: -10px;
+    bottom: -10px;
+    left: -10px;
+    transform: rotate(90deg);
+  }
+  100% {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: rotate(90deg);
+  }
+}
+
+@keyframes l16 {
+  33% {
+    top: -10px;
+    right: -10px;
+    bottom: -10px;
+    left: -10px;
+    transform: rotate(0deg);
+  }
+  66% {
+    top: -10px;
+    right: -10px;
+    bottom: -10px;
+    left: -10px;
+    transform: rotate(90deg);
+  }
+  100% {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: rotate(90deg);
+  }
+}
+
+.loader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+} */
+
+/* circle loader */
+/* From Uiverse.io by Fernando-sv */
 /* Loader.css */
-.loader-container {
+.loader-wrapper {
   position: fixed;
   top: 0;
   left: 0;
@@ -8,20 +146,28 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgba(0, 0, 0, 0.5); /* Lightly blurred background */
+  background-color: rgba(0, 0, 0, 0.5); /* Optional: to dim the background */
   z-index: 9999;
 }
 
-.loader {
-  border: 10px solid #f3f3f3; /* Light grey */
-  border-top: 10px solid #3498db; /* Blue */
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  animation: spin 2s linear infinite;
+.loader-body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-@keyframes spin {
+.loader {
+  width: 60px;
+  height: 60px;
+  border: 5px solid #2d88b9;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
   0% {
     transform: rotate(0deg);
   }

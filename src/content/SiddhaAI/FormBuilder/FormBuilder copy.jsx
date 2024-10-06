@@ -150,6 +150,41 @@ const FormBuilder = () => {
   const [isDefaultSelected, setIsDefaultSelected] = useState(true); // To toggle between showing the default form
   const [isCustomSelected, setIsCustomSelected] = useState(false); // To toggle between showing the default form
 
+  const fieldLabels = {
+    firstName: 'First Name',
+    lastName: 'Last Name',
+    middleName: 'Middle Name',
+    dob: 'Date of Birth',
+    phoneNumber: 'Phone Number',
+    email: 'Email',
+    gender: 'Gender',
+    language: 'Language',
+    street: 'Street',
+    city: 'City',
+    state: 'State',
+    zipCode: 'Zip Code',
+    payerName: 'Payer Name',
+    groupNumber: 'Group Number',
+    MemberId: 'Member ID',
+    patientsubscriberFirstName: 'Subscriber First Name',
+    patientsubscriberLastName: 'Subscriber Last Name',
+    patientsubscriberDOB: 'Subscriber DOB',
+    patientsubscriberRelationShip: 'Relationship to Subscriber',
+    emergencyContactFirstName: 'Emergency Contact First Name',
+    emergencyContactLastName: 'Emergency Contact Last Name',
+    emergencyContactPhNum: 'Emergency Contact Phone Number',
+    emergencyContactRelationshipToPatient: 'Emergency Contact Relationship',
+    PrimaryCareDoctorFirstName: 'Primary Care Doctor First Name',
+    PrimaryCareDoctorLastName: 'Primary Care Doctor Last Name',
+    PrimaryCarePhoneNumber: 'Primary Care Phone Number',
+    PrimaryCareFaxNumber: 'Primary Care Fax Number',
+    ReferralName: 'Referral Name'
+  };
+
+  // const renderFieldLabel = (field) => {
+  //   return fieldLabels[field.field] || field.field; // Fallback to field name if label is not defined
+  // };
+
   // Fetch form data from the API
   useEffect(() => {
     setIsLoading(true);
@@ -324,13 +359,13 @@ const FormBuilder = () => {
       <Grid container spacing={2}>
         {fields.map(
           (field, index) =>
-            field.visibility && (
+            field.visibility && ( // Only render visible fields
               <Grid item xs={12} sm={6} key={index}>
-                {' '}
-                {/* 2-column layout */}
+                {/* Render label and field */}
+                {renderFieldLabel(field, sectionName)}
                 <TextField
                   fullWidth
-                  label={field.field.replace(/([A-Z])/g, ' $1').trim()} // Convert field name to label
+                  label={renderFieldLabel(field, sectionName)} // Dynamically render label with required info
                   variant="outlined"
                 />
               </Grid>
@@ -434,12 +469,28 @@ const FormBuilder = () => {
     }));
   };
 
-  const renderFieldLabel = (field) => {
-    const isRequired = requiredFields[field.section]?.includes(field.name);
+  // const renderFieldLabel = (field) => {
+  //   const isRequired = requiredFields[field.section]?.includes(field.name);
+  //   return (
+  //     <Typography>
+  //       {field.label}{' '}
+  //       {isRequired ? <span style={{ color: 'red' }}>*</span> : null}
+  //     </Typography>
+  //   );
+  // };
+
+  // Function to render the label dynamically
+  const renderFieldLabel = (field, sectionName) => {
+    // Check if the field is required based on sectionName
+    const isRequired = requiredFields[sectionName]?.includes(field.field);
+
+    // Use the fieldLabels map or default to the field name
+    const fieldLabel =
+      fieldLabels[field.field] || field.field.replace(/([A-Z])/g, ' $1').trim();
+
     return (
       <Typography>
-        {field.label}{' '}
-        {isRequired ? <span style={{ color: 'red' }}>*</span> : null}
+        {fieldLabel} {isRequired && <span style={{ color: 'red' }}>*</span>}
       </Typography>
     );
   };
@@ -451,7 +502,7 @@ const FormBuilder = () => {
         {sectionData
           .filter((field) => field.visibility) // Only show visible fields
           .map((field, index) => (
-            <Grid item xs={12} sm={6} md={4} key={index}>
+            <Grid item xs={12} sm={6} key={index}>
               <TextField
                 fullWidth
                 label={field.field.replace(/([A-Z])/g, ' $1').trim()} // Display field name with spaces between words
@@ -469,15 +520,28 @@ const FormBuilder = () => {
 
   // Function to render content inside the Stepper
   const renderStepperContent = (step) => {
+    if (!viewFormData) return null; // If no custom form data, return null
+
     const sectionName = Object.keys(viewFormData[step])[0];
     const sectionFields = viewFormData[step][sectionName];
 
     return (
-      <div>
-        <form>{renderSectionFields(sectionFields)}</form>
-      </div>
+      <Grid container spacing={2}>
+        {sectionFields.map((field, index) => (
+          <Grid item xs={12} sm={6} key={index}>
+            {/* Render label and field */}
+            {renderFieldLabel(field, sectionName)}
+            <TextField
+              fullWidth
+              label={renderFieldLabel(field, sectionName)} // Dynamically render label with required info
+              variant="outlined"
+            />
+          </Grid>
+        ))}
+      </Grid>
     );
   };
+
   return (
     <>
       <Helmet>
@@ -498,7 +562,7 @@ const FormBuilder = () => {
           <Form>
             <Toaster position="bottom-right" />
             <Box sx={{ m: 2, p: 2 }}>
-              <Grid item xs={12} sm={6} md={4}>
+              <Grid item xs={12}>
                 <Stack direction="row" spacing={1}>
                   <Tooltip title="The default form includes the mandatory fields from Siddha-Pi and its integrated EMR system. These fields are fixed and cannot be modified by the admin user">
                     <Chip

@@ -1279,6 +1279,7 @@ const PatientIntakeExisting = () => {
   const [selectedPatient, setSelectedPatient] = useState(false);
   const [patients, setPatients] = useState(); // State to hold the list of patients
   const [selectedPatientId, setSelectedPatientId] = useState(''); // ID of the selected patient for radio button selection
+  const [showExitingPatient, setShowExitingPatient] = useState(false);
 
   const fetchDoctorOffice = async () => {
     try {
@@ -1772,12 +1773,13 @@ const PatientIntakeExisting = () => {
 
       if (response.status === 200) {
         toast.success('SMS sent successfully!');
-        const delayedAction = () => {
-          handleCreatePatient();
-          // setIsRegistrationComplete(true); // Set registration complete on success
-        };
+        setShowExitingPatient(true);
+        // const delayedAction = () => {
+        //   handleCreatePatient();
+        //   // setIsRegistrationComplete(true); // Set registration complete on success
+        // };
 
-        setTimeout(delayedAction, 3000); // 3000 milliseconds = 3 seconds
+        // setTimeout(delayedAction, 3000); // 3000 milliseconds = 3 seconds
       } else {
         toast.error('Failed to Send SMS');
       }
@@ -2279,7 +2281,7 @@ const PatientIntakeExisting = () => {
                             )}
 
                             <Grid item xs={12} sx={{ mt: 2 }}>
-                              {smsText && (
+                              {smsText && !showExitingPatient && (
                                 <>
                                   <Box
                                     sx={{
@@ -2287,28 +2289,12 @@ const PatientIntakeExisting = () => {
                                       justifyContent: 'center',
                                       gap: '10px'
                                     }}
-                                    // style={{
-                                    //   display: 'flex',
-                                    //   justifyContent: 'space-around',
-                                    //   gap: '10px'
-                                    // }}
                                   >
-                                    {/* <Button
-                                      onClick={
-                                        () => handleCreatePatient()
-                                        // isSubmitting?.resetForm
-                                      }
-                                      fullWidth
-                                    >
-                                      Existing Patient
-                                    </Button> */}
                                     <Button
                                       variant="contained"
                                       color="primary"
-                                      type="submit"
                                       onClick={handleSubmitSms}
                                       disabled={loading}
-                                      // fullWidth
                                       sx={{ mt: 2 }}
                                     >
                                       <SendIcon sx={{ padding: '0 5px 0 0' }} />
@@ -2322,13 +2308,8 @@ const PatientIntakeExisting = () => {
                                     </Button>
                                     <Button
                                       variant="outlined"
-                                      // fullWidth
                                       onClick={handleCopy}
                                       sx={{ mt: 2 }}
-
-                                      // sx={{
-                                      //   mb: 2
-                                      // }}
                                     >
                                       <ContentCopyIcon
                                         sx={{ padding: '0 5px 0 0' }}
@@ -2337,6 +2318,24 @@ const PatientIntakeExisting = () => {
                                     </Button>
                                   </Box>
                                 </>
+                              )}
+
+                              {showExitingPatient && (
+                                <Box
+                                  sx={{
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    mt: 2
+                                  }}
+                                >
+                                  <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={handleCreatePatient}
+                                  >
+                                    Existing Patient
+                                  </Button>
+                                </Box>
                               )}
                             </Grid>
                           </Grid>

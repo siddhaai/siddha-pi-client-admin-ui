@@ -17,7 +17,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 // import { ApiUrl } from '../ApiUrl';
 // import { ApiUrl } from 'src/content/SiddhaAI/ApiUrl';
-import Loader from '../../../SiddhaAI/Loader/Loader';
+import Loader from '../Loader/Loader';
 import useAxiosInterceptor from 'src/contexts/Interceptor';
 
 /* Validation schema */
