@@ -2,7 +2,6 @@ import CloseTwoToneIcon from '@mui/icons-material/CloseTwoTone';
 import CloudUploadTwoToneIcon from '@mui/icons-material/CloudUploadTwoTone';
 import PersonIcon from '@mui/icons-material/Person'; // Default avatar icon
 import {
-  // Divider,
   Avatar,
   Box,
   Button,
@@ -26,7 +25,6 @@ import { useEffect, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import useAxiosInterceptor from 'src/contexts/Interceptor';
-// import { ApiUrl } from '../ApiUrl';
 
 const Input = muiStyled('input')({
   display: 'none'
@@ -174,7 +172,7 @@ function PageHeader() {
       );
 
       if (response.status === 200) {
-        toast.success('Profile updated successfully!');
+        toast.success(t('Profile updated successfully!'));
         fetchUserData(); // Refresh user data to update the image
         setIsEditing(false);
         window.location.reload(); // Reload the entire page
@@ -220,7 +218,7 @@ function PageHeader() {
                 >
                   {!image && !getUserImage && <PersonIcon />}
                 </Avatar>
-                <Tooltip title="Edit Image" arrow>
+                <Tooltip title={t('Edit Image')} arrow>
                   <ButtonUploadWrapper>
                     <Input
                       accept="image/*"
@@ -237,7 +235,7 @@ function PageHeader() {
                   </ButtonUploadWrapper>
                 </Tooltip>
               </AvatarWrapper>
-              <Tooltip title="Edit Name" arrow>
+              <Tooltip title={t('Edit Name')} arrow>
                 <Box ml={3} flex="1">
                   {isEditing ? (
                     <TextField
@@ -246,7 +244,7 @@ function PageHeader() {
                       value={userFullName}
                       onChange={handleProfileNameChange}
                       autoFocus
-                      placeholder="Enter your full name"
+                      placeholder={t('Enter your full name')}
                     />
                   ) : (
                     <Typography
@@ -380,7 +378,7 @@ function PageHeader() {
               {selectedOffices?.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={8} align="center">
-                    Loading...
+                    {t('Loading...')}
                   </TableCell>
                 </TableRow>
               ) : (

@@ -16,6 +16,7 @@ import Chart from 'react-apexcharts';
 import useAxiosInterceptor from 'src/contexts/Interceptor';
 import { Helmet } from 'react-helmet-async';
 import { DatePicker } from '@mui/x-date-pickers';
+import { useTranslation } from 'react-i18next';
 
 function Reports() {
   const { axios } = useAxiosInterceptor();
@@ -27,6 +28,7 @@ function Reports() {
   const [subtitle, setSubtitle] = useState('Last 30 days'); // Subtitle only for monthly and weekly
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
+  const { t } = useTranslation();
 
   const [chartOptions, setChartOptions] = useState({
     chart: {
@@ -64,11 +66,17 @@ function Reports() {
     },
     labels: [], // Labels for pie chart
     colors: [
-      theme.colors.primary.main,
-      theme.colors.info.main,
-      theme.colors.warning.main,
-      theme.colors.success.main,
-      theme.colors.error.main
+      '#fd7f6f',
+      '#7eb0d5',
+      '#b2e061',
+      '#bd7ebe',
+      '#ffb55a'
+
+      // theme.colors.primary.main,
+      // theme.colors.info.main,
+      // theme.colors.warning.main,
+      // theme.colors.success.main,
+      // theme.colors.error.main
     ],
     legend: {
       position: 'bottom'
@@ -115,17 +123,17 @@ function Reports() {
           totalUpdatePatientPiForm
         ];
 
-        setChartTitle('Monthly Summary Report');
-        setSubtitle('Last 30 days'); // Set subtitle for monthly report
+        setChartTitle(t('Monthly Summary Report'));
+        setSubtitle(t('Last 30 days')); // Set subtitle for monthly report
         setChartData(data);
         setChartOptions((prevOptions) => ({
           ...prevOptions,
           labels: [
-            'Patients Created',
-            'Existing Patients Retrieved',
-            'Appointments Scheduled',
-            'SMS Sent',
-            'Patient Intake Form Submitted'
+            t('Patients Created'),
+            t('Existing Patients Retrieved'),
+            t('Appointments Scheduled'),
+            t('SMS Sent'),
+            t('Patient Intake Form Submitted')
           ]
         }));
       } else if (selectedReport === 'weekly') {
@@ -139,17 +147,17 @@ function Reports() {
           weeklySummary.totalUpdatePatientPiForm || 0
         ];
 
-        setChartTitle('Weekly Summary Report');
-        setSubtitle('Last 7 days'); // Set subtitle for weekly report
+        setChartTitle(t('Weekly Summary Report'));
+        setSubtitle(t('Last 7 days')); // Set subtitle for weekly report
         setChartData(data);
         setChartOptions((prevOptions) => ({
           ...prevOptions,
           labels: [
-            'Patients Created',
-            'Existing Patients Retrieved',
-            'Appointments Scheduled',
-            'SMS Sent',
-            'Patient Intake Form Submitted'
+            t('Patients Created'),
+            t('Existing Patients Retrieved'),
+            t('Appointments Scheduled'),
+            t('SMS Sent'),
+            t('Patient Intake Form Submitted')
           ]
         }));
       } else if (selectedReport === 'custom') {
@@ -163,17 +171,17 @@ function Reports() {
           customReport.totalUpdatePatientPiForm || 0
         ];
 
-        setChartTitle('Custom Date Range Report');
+        setChartTitle(t('Custom Date Range Report'));
         setSubtitle(''); // Clear subtitle for custom report
         setChartData(data);
         setChartOptions((prevOptions) => ({
           ...prevOptions,
           labels: [
-            'Patients Created',
-            'Existing Patients Retrieved',
-            'Appointments Scheduled',
-            'SMS Sent',
-            'Patient Intake Form Submitted'
+            t('Patients Created'),
+            t('Existing Patients Retrieved'),
+            t('Appointments Scheduled'),
+            t('SMS Sent'),
+            t('Patient Intake Form Submitted')
           ]
         }));
       }
@@ -209,7 +217,7 @@ function Reports() {
           >
             <CircularProgress />
             <Typography variant="h6" sx={{ marginLeft: 2 }}>
-              Loading...
+              {t('Loading...')}
             </Typography>
           </Box>
         ) : (
@@ -231,21 +239,21 @@ function Reports() {
               <Grid item>
                 <FormControl>
                   <InputLabel id="report-type-select-label">
-                    Report Type
+                    {t('Report Type')}
                   </InputLabel>
                   <Select
                     labelId="report-type-select-label"
                     value={selectedReport}
-                    label="Report Type"
+                    label={t('Report Type')}
                     onChange={(e) => {
                       setSelectedReport(e.target.value);
                       setFromDate(null);
                       setToDate(null);
                     }}
                   >
-                    <MenuItem value="monthly">Monthly Report</MenuItem>
-                    <MenuItem value="weekly">Weekly Report</MenuItem>
-                    <MenuItem value="custom">Custom Date Range</MenuItem>
+                    <MenuItem value="monthly">{t('Monthly Report')}</MenuItem>
+                    <MenuItem value="weekly">{t('Weekly Report')}</MenuItem>
+                    <MenuItem value="custom">{t('Custom Date Range')}</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
@@ -255,7 +263,7 @@ function Reports() {
               <Grid container spacing={2} mb={2}>
                 <Grid item>
                   <DatePicker
-                    label="From Date"
+                    label={t('From Date')}
                     value={fromDate}
                     onChange={(newValue) => setFromDate(newValue)}
                     format="MM/DD/YYYY"
@@ -264,7 +272,7 @@ function Reports() {
                 </Grid>
                 <Grid item>
                   <DatePicker
-                    label="To Date"
+                    label={t('To Date')}
                     value={toDate}
                     onChange={(newValue) => setToDate(newValue)}
                     format="MM/DD/YYYY"

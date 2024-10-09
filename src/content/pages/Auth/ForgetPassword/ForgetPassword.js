@@ -15,15 +15,17 @@ import { useNavigate } from 'react-router-dom';
 // import { ApiUrl } from 'src/content/SiddhaAI/ApiUrl';
 import Loader from '../Loader/Loader';
 import useAxiosInterceptor from 'src/contexts/Interceptor';
+import { useTranslation } from 'react-i18next';
 
 /* Validation schema */
 const validationSchema = Yup.object({
   email: Yup.string().email('Invalid email').required('Email is required'),
-  otp: Yup.string().required('OTP is required').max(6, 'maximum 6 number')
+  otp: Yup.string().required('OTP is required').max(6, 'Maximum 6 number')
 });
 
 export default function ForgetPasswordEmail() {
   const { axios } = useAxiosInterceptor();
+  const { t } = useTranslation();
 
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -48,7 +50,7 @@ export default function ForgetPasswordEmail() {
   // Handle sending OTP
   const handleSendOtp = async (email) => {
     if (!email) {
-      toast.error('Please enter your email.');
+      toast.error(t('Please enter your email'));
       return;
     }
     setLoading(true);
@@ -58,15 +60,15 @@ export default function ForgetPasswordEmail() {
       });
 
       if (response.status === 200) {
-        toast.success('OTP sent successfully');
+        toast.success(t('OTP sent successfully'));
         setOtpSent(true);
         setOtpExpired(false);
         setTimer(60); // Start 1-minute countdown
       } else {
-        toast.error('Failed to send OTP, please try again');
+        toast.error(t('Failed to send OTP, please try again'));
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Something went wrong');
+      toast.error(error.response?.data?.message || t('Something went wrong'));
     } finally {
       setLoading(false);
     }
@@ -82,17 +84,17 @@ export default function ForgetPasswordEmail() {
       });
 
       if (response.status === 200) {
-        toast.success('OTP is Validate Successfully!', { duration: 3000 });
+        toast.success(t('OTP is Validate Successfully!'), { duration: 3000 });
         setTimeout(() => {
           navigate('/account/password-reset', {
             state: { email: values.email }
           });
         }, 1000);
       } else {
-        toast.error('Invalid OTP, please try again');
+        toast.error(t('Invalid OTP, please try again'));
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Something went wrong');
+      toast.error(error.response?.data?.message || t('Something went wrong'));
     } finally {
       setLoading(false);
       setSubmitting(false);
@@ -154,12 +156,14 @@ export default function ForgetPasswordEmail() {
                 >
                   <Box>
                     <Typography component="h1" variant="h5">
-                      Forget Password
+                      {t('Forget Password')}
                     </Typography>
                     <Typography component="span" variant="subtitle1">
-                      Please enter your registered Email for verification.
+                      {t('Please enter your registered Email for verification')}
                       <br />
-                      We will send a One-Time Password (OTP) to your Email.
+                      {t(
+                        'We will send a One-Time Password (OTP) to your Email'
+                      )}
                     </Typography>
                   </Box>
                   <Box component="div" noValidate sx={{ mt: 1 }}>
@@ -168,7 +172,7 @@ export default function ForgetPasswordEmail() {
                       id="email"
                       name="email"
                       type="email"
-                      label="Email"
+                      label={t('Email')}
                       onChange={handleChange}
                       onBlur={handleBlur}
                       value={values.email}
@@ -187,15 +191,10 @@ export default function ForgetPasswordEmail() {
                         sx={{
                           mt: 3,
                           mb: 2
-                          // backgroundColor: '#407bff',
-                          // '&:hover': {
-                          //   backgroundColor: '#12171e',
-                          //   transition: 'background-color 0.3s ease'
-                          // }
                         }}
                         disabled={loading || isSubmitting}
                       >
-                        Send OTP
+                        {t('Send OTP')}
                       </Button>
                     )}
 
@@ -217,14 +216,14 @@ export default function ForgetPasswordEmail() {
                             }}
                             disabled={loading || isSubmitting}
                           >
-                            Resend OTP
+                            {t('Resend OTP')}
                           </Button>
                         ) : (
                           <Typography
                             variant="body2"
                             sx={{ display: 'none', mt: 2, mb: 2 }}
                           >
-                            Resend OTP in {timer} seconds
+                            {t('Resend OTP in', { timer })}
                           </Typography>
                         )}
 
@@ -233,7 +232,7 @@ export default function ForgetPasswordEmail() {
                           id="otp"
                           name="otp"
                           type="text"
-                          label="OTP"
+                          label={t('OTP')}
                           onChange={handleChange}
                           onBlur={handleBlur}
                           value={values.otp}
@@ -252,15 +251,10 @@ export default function ForgetPasswordEmail() {
                           sx={{
                             mt: 3,
                             mb: 2
-                            // backgroundColor: '#407bff',
-                            // '&:hover': {
-                            //   backgroundColor: '#12171e',
-                            //   transition: 'background-color 0.3s ease'
-                            // }
                           }}
                           disabled={isSubmitting || loading}
                         >
-                          Verify OTP
+                          {t('Verify OTP')}
                         </Button>
                       </>
                     )}

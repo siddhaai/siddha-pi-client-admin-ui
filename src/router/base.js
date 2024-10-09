@@ -32,10 +32,6 @@ const StatusMaintenance = Loader(
 );
 
 const baseRoutes = [
-  // {
-  //   path: '/',
-  //   element: <Overview />
-  // },
   {
     path: '/',
     element: <SiddhaLogin />

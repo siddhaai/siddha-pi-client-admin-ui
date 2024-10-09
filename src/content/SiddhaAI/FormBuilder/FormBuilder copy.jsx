@@ -547,6 +547,67 @@ const FormBuilder = () => {
       <Helmet>
         <title>Intake Form Customize</title>
       </Helmet>
+      {/* <Paper elevation={3} sx={{ padding: 2, height: '100%' }}>
+                      <Typography variant="h6" align="center">
+                        Patient Intake Form
+                      </Typography>
+                      {Object.values(selectedFields).some(
+                        (section) => section.length > 0
+                      ) &&
+                        [
+                          'PersonalDetails',
+                          'AddressDetails',
+                          'InsuranceDetails',
+                          'EmergencyDetails',
+                          'PrimaryCarePhysician'
+                        ].map(
+                          (section) =>
+                            selectedFields[section].length > 0 && (
+                              <Box key={section} sx={{ mt: 2 }}>
+                                <Typography variant="subtitle1">
+                                  {section.replace(/([A-Z])/g, ' $1').trim()}
+                                </Typography>
+                                {selectedFields[section].map((fieldName) => {
+                                  const field = [
+                                    ...PersonalDetailsFields,
+                                    ...AddressDetailsFields,
+                                    ...InsuranceDetailsFields,
+                                    ...EmergencyDetailsFields,
+                                    ...PrimaryCarePhysicianDetailsFields
+                                  ].find((f) => f.name === fieldName);
+                                  return (
+                                    <Box
+                                      key={fieldName}
+                                      sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        mt: 2
+                                      }}
+                                    >
+                                      <Field
+                                        as={TextField}
+                                        fullWidth
+                                        name={fieldName}
+                                        label={renderFieldLabel(field)}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        value={values[fieldName]}
+                                        variant="outlined"
+                                      />
+                                      <IconButton
+                                        onClick={() =>
+                                          handleFieldToggle(section, fieldName)
+                                        }
+                                      >
+                                        <CloseIcon />
+                                      </IconButton>
+                                    </Box>
+                                  );
+                                })}
+                              </Box>
+                            )
+                        )}
+                    </Paper> */}
       <Formik
         initialValues={Object.fromEntries(
           Object.entries(selectedFields).flatMap(([section, fields]) =>

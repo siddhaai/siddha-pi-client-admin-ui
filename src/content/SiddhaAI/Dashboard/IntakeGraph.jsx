@@ -363,7 +363,7 @@ import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import Chart from 'react-apexcharts';
-import toast from 'react-hot-toast';
+// import toast from 'react-hot-toast';
 import useAxiosInterceptor from 'src/contexts/Interceptor';
 
 function PatientIntakeSuccessCount() {
@@ -423,7 +423,7 @@ function PatientIntakeSuccessCount() {
         setDateRange(dateRangeString); // Set the date range
       }
     } catch (error) {
-      toast.error('Failed to fetch daily report');
+      console.error('Failed to fetch daily report');
     }
   };
 
@@ -455,7 +455,12 @@ function PatientIntakeSuccessCount() {
         enabled: false
       }
     },
-    colors: [theme.colors.success.main, theme.colors.info.main],
+    colors: [
+      '#4A90E2',
+      '#50E3C2'
+      // theme.colors.success.main,
+      // theme.colors.info.main
+    ],
     dataLabels: {
       enabled: false
     },
@@ -521,7 +526,7 @@ function PatientIntakeSuccessCount() {
       onClick={handleCardClick}
     >
       <Tooltip
-        title="Click here to view Patients Intake Status in bar chart"
+        title={t('Click here to view Patients Intake Status in bar chart')}
         placement="top"
         arrow
       >
@@ -538,7 +543,7 @@ function PatientIntakeSuccessCount() {
         />
       </Tooltip>
       <Tooltip
-        title="Click here to view Patients Intake Status in bar chart"
+        title={t('Click here to view Patients Intake Status in bar chart')}
         arrow
       >
         <CardContent
@@ -571,7 +576,7 @@ function PatientIntakeSuccessCount() {
               variant="dot"
               overlap="circular"
             >
-              Today: {dailyTotalSmsCount}
+              {t('Today :')} {dailyTotalSmsCount}
             </Badge>
           </Typography>
         </CardContent>
@@ -590,7 +595,7 @@ function PatientIntakeSuccessCount() {
             >
               <CircularProgress />
               <Typography variant="h6" sx={{ marginLeft: 2 }}>
-                Loading...
+                {t(' Loading...')}
               </Typography>
             </Box>
           ) : (
@@ -600,7 +605,7 @@ function PatientIntakeSuccessCount() {
                 onClick={handleClose}
                 color="error"
               >
-                Close
+                {t('Close')}
               </Button>
 
               <Typography variant="h4" mt={3}>
@@ -619,11 +624,11 @@ function PatientIntakeSuccessCount() {
                 options={chartOptions}
                 series={[
                   {
-                    name: 'SMS Sent',
+                    name: t('SMS Sent'),
                     data: chartData.smsCounts // SMS counts for all dates
                   },
                   {
-                    name: 'Patient Intake Form Submitted',
+                    name: t('Patient Intake Form Submitted'),
                     data: chartData.formSubmited // Form submissions for all dates
                   }
                 ]}

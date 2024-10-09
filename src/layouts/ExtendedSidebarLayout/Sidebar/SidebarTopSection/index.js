@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 // import { useLocation, useNavigate } from 'react-router-dom';
-import useAuth from 'src/hooks/useAuth';
+// import useAuth from 'src/hooks/useAuth';
 import useAxiosInterceptor from 'src/contexts/Interceptor';
 
 import { Avatar, Box, Typography, useTheme } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 // import { useTranslation } from 'react-i18next';
 
 // const MenuUserBox = styled(Box)(
@@ -43,14 +44,14 @@ import { Avatar, Box, Typography, useTheme } from '@mui/material';
 // );
 
 function SidebarTopSection() {
-  // const { t } = useTranslation();
+  const { t } = useTranslation();
   const theme = useTheme();
 
   const { axios } = useAxiosInterceptor();
 
   // const navigate = useNavigate();
   // const location = useLocation();
-  const { user, logout } = useAuth();
+  // const { user, logout } = useAuth();
 
   // const ref = useRef(null);
   // const [isOpen, setOpen] = useState(false);
@@ -73,7 +74,7 @@ function SidebarTopSection() {
         : '';
       SetGetUserImage(imageUrl);
     } catch (error) {
-      console.log(user);
+      // console.log(user);
       console.error('Failed to fetch user data');
     }
   };

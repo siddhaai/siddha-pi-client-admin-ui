@@ -1,29 +1,18 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import CssBaseline from '@mui/material/CssBaseline';
 import Grid from '@mui/material/Grid';
-// import Link from '@mui/material/Link';
 import { Link, Link as RouterLink } from 'react-router-dom';
-
-// import Paper from "@mui/material/Paper";
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-// import Signin from '../../../static/images/SiddhaAI/signin.svg';
-// import ClientLogo from '../../../static/images/SiddhaAI/clientLogo.png';
-
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate } from 'react-router-dom';
-import AuthContext from 'src/contexts/AuthContext';
 import toast, { Toaster } from 'react-hot-toast';
-// import axios from 'axios';
-// import { ApiUrl } from 'src/content/SiddhaAI/ApiUrl';
 import Loader from '../Loader/Loader';
-
-// Import necessary components for the eye icon
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import Visibility from '@mui/icons-material/Visibility';
@@ -35,30 +24,32 @@ import useAuth from 'src/hooks/useAuth';
 import useAxiosInterceptor from 'src/contexts/Interceptor';
 import { Copyright } from '@mui/icons-material';
 import Doctors from '../../../../assets/Doctors.svg';
+import { useTranslation } from 'react-i18next';
 
 // Validation Schema
 const validationSchema = Yup.object({
   email: Yup.string()
     .matches(
       /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-      'Invalid email address'
+      t('Invalid email address')
     )
-    .required('Email is required'),
+    .required(t('Email is required')),
   password: Yup.string()
-    .required('Password is required')
-    .min(8, 'Password is too short - should be 8 chars minimum.')
-    .max(13, 'Password is too long - should be 13 chars maximum')
-    .matches(/[a-zA-Z]/, 'Password can only contain Latin letters.')
-    .matches(/[A-Z]/, 'Password must contain at least one uppercase letter.')
-    .matches(/[a-z]/, 'Password must contain at least one lowercase letter.')
-    .matches(/[0-9]+/, 'Password must contain at least one number.')
+    .required(t('Password is required'))
+    .min(8, t('Password is too short - should be 8 chars minimum'))
+    .max(13, t('Password is too long - should be 13 chars maximum'))
+    .matches(/[a-zA-Z]/, t('Password can only contain Latin letters'))
+    .matches(/[A-Z]/, t('Password must contain at least one uppercase letter'))
+    .matches(/[a-z]/, t('Password must contain at least one lowercase letter'))
+    .matches(/[0-9]+/, t('Password must contain at least one number'))
     .matches(
       /[!@#$%^&*()\-_"=+{}; :,<.>]/,
-      'Password must contain at least one special character.'
+      t('Password must contain at least one special character')
     )
 });
 
 export default function Login() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const isMountedRef = useRefMounted();
   const { axios } = useAxiosInterceptor();
@@ -67,8 +58,6 @@ export default function Login() {
   const { login } = useAuth();
 
   const setSession = (accessToken) => {
-    // console.log(accessToken, 'inside setsession');
-
     if (accessToken) {
       localStorage.setItem('accessToken', accessToken);
       axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
@@ -97,43 +86,6 @@ export default function Login() {
     }
   }, []);
 
-  // const handleSubmit = async (values) => {
-  //   setLoading(true);
-  //   try {
-  //     const response = await axios.post(
-  //       `${ApiUrl}/adminLogin`,
-  //       {},
-  //       {
-  //         headers: {
-  //           username: values.email,
-  //           password: values.password
-  //         }
-  //       }
-  //     );
-  //     if (response.status === 200) {
-  //       const { token } = response.data;
-  //       toast.success('Login successful!');
-  //       localStorage.setItem('token', token);
-
-  //       if (rememberMe) {
-  //         localStorage.setItem('rememberedEmail', values.email);
-  //         localStorage.setItem('rememberedPassword', values.password);
-  //       } else {
-  //         localStorage.removeItem('rememberedEmail');
-  //         localStorage.removeItem('rememberedPassword');
-  //       }
-
-  //       login();
-  //       navigate('/extended-sidebar/SiddhaAI/DashBoard/DashBoard');
-  //     }
-  //   } catch (error) {
-  //     console.error('Error during login:', error.message);
-  //     toast.error(error.response?.data?.message || 'Login failed');
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
   useEffect(() => {
     // Disable back button on the login page
     window.history.pushState(null, null, window.location.href);
@@ -147,41 +99,23 @@ export default function Login() {
   }, []);
 
   const handleSubmit = async (values, setSubmitting) => {
-    // console.log('inside handleSubmit', values);
-
-    setLoading(true);
+    setLoading(true); // Show loading spinner
     try {
-      // console.log('inside try');
-
-      const response = await login(
-        values.email,
-        values.password
-        // rememberMe
-        // {},
-        // {
-        //   headers: {
-        //     username: values.email,
-        //     password: values.password,
-        //     'Content-Type': 'application/json'
-        //   }
-        // }
-      );
-      // console.log('response inside try', response);
+      // Attempt login with provided credentials
+      const response = await login(values.email, values.password);
 
       if (response.success && response.user) {
-        // console.log('inside if');
-
         const token = response.user;
-        // console.log('token inside if', token);
-
         let accessToken = token;
-        if (accessToken && verify(accessToken)) {
-          // console.log('inside if if accessToken', accessToken);
 
-          toast.success('Login successful!');
+        // Verify token and ensure it's valid before proceeding
+        if (accessToken && verify(accessToken)) {
+          // Successful login, navigate to dashboard
+          toast.success(t('Login successful!'));
           setSession(accessToken);
-          // localStorage.setItem('RoleIdForSideBar', response.user.roleId);
           navigate('/extended-sidebar/SiddhaAI/Dashboard/Dashboard');
+
+          // Store credentials if 'Remember Me' is checked
           if (rememberMe) {
             localStorage.setItem('rememberedEmail', values.email);
             localStorage.setItem('rememberedPassword', values.password);
@@ -191,15 +125,21 @@ export default function Login() {
           }
         }
       } else {
+        // Handle case where response does not indicate success
+        toast.error(t('Invalid email or password')); // Show error message
         if (isMountedRef.current) {
-          setSubmitting(false);
+          setSubmitting(false); // Stop the form submission process
         }
       }
     } catch (error) {
-      // console.error('Error during login:', error.message);
-      toast.error(error.response?.data?.message || 'Login failed');
+      // Handle the error from the login attempt (like 401 Unauthorized)
+      console.error('Login failed:', error);
+      toast.error(error.response?.data?.message || t('Login failed'));
+      if (isMountedRef.current) {
+        setSubmitting(false); // Ensure form stops submitting
+      }
     } finally {
-      setLoading(false);
+      setLoading(false); // Hide loading spinner
     }
   };
 
@@ -234,7 +174,6 @@ export default function Login() {
                 sm={4}
                 md={6}
                 sx={{
-                  // backgroundImage: 'url(/static/images/SiddhaAI/signin.svg)',
                   backgroundImage: `url(${Doctors})`,
                   backgroundSize: 'contain',
                   backgroundRepeat: 'no-repeat',
@@ -244,7 +183,10 @@ export default function Login() {
               <Grid item xs={12} sm={10} md={6} elevation={6} square>
                 <Grid
                   item
-                  xs={12}
+                  mt={4}
+                  xs={4}
+                  sm={4}
+                  md={6}
                   sx={{
                     height: '70px',
                     ml: 15,
@@ -252,7 +194,8 @@ export default function Login() {
                     backgroundImage:
                       'url(/static/images/SiddhaAI/clientLogo.png)',
                     backgroundSize: 'contain',
-                    backgroundRepeat: 'no-repeat'
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'center center'
                   }}
                 />
                 <Box
@@ -279,7 +222,7 @@ export default function Login() {
                       margin="normal"
                       fullWidth
                       id="email"
-                      label="Email"
+                      label={t('Email')}
                       name="email"
                       autoComplete="email"
                       onChange={handleChange}
@@ -294,7 +237,7 @@ export default function Login() {
                       margin="normal"
                       fullWidth
                       name="password"
-                      label="Password"
+                      label={t('Password')}
                       type={showPassword ? 'text' : 'password'} // Toggle between text and password
                       id="password"
                       onChange={handleChange}
@@ -331,7 +274,7 @@ export default function Login() {
                           color="primary"
                         />
                       }
-                      label="Remember me"
+                      label={t('Remember me')}
                     />
                     <Button
                       type="submit"
@@ -340,14 +283,9 @@ export default function Login() {
                       sx={{
                         mt: 3,
                         mb: 2
-                        // backgroundColor: '#407bff',
-                        // '&:hover': {
-                        //   backgroundColor: '#12171e',
-                        //   transition: 'background-color 0.3s ease'
-                        // }
                       }}
                     >
-                      Sign In
+                      {t('Sign In')}
                     </Button>
                     <Grid container>
                       <Grid item xs>
@@ -368,7 +306,7 @@ export default function Login() {
                       }}
                     >
                       <Copyright sx={{ mt: 0 }} />
-                      Siddha AI {new Date().getFullYear()}
+                      {t('Siddha AI')} {new Date().getFullYear()}
                     </Box>
 
                     <Box
@@ -379,7 +317,9 @@ export default function Login() {
                         alignItems: 'center'
                       }}
                     >
-                      <Typography color="secondary">Version 0.0.3</Typography>
+                      <Typography color="secondary">
+                        {t('Version')} 0.0.3
+                      </Typography>
                     </Box>
                   </Box>
                 </Box>

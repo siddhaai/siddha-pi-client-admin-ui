@@ -1,17 +1,5 @@
-import {
-  Box,
-  Card,
-  Typography,
-  Container,
-  Divider,
-  Button,
-  FormControl,
-  OutlinedInput,
-  InputAdornment,
-  styled
-} from '@mui/material';
+import { Box, Typography, Container, styled } from '@mui/material';
 import { Helmet } from 'react-helmet-async';
-import SearchTwoToneIcon from '@mui/icons-material/SearchTwoTone';
 
 import { useTranslation } from 'react-i18next';
 
@@ -27,17 +15,17 @@ const MainContent = styled(Box)(
 `
 );
 
-const OutlinedInputWrapper = styled(OutlinedInput)(
-  ({ theme }) => `
-    background-color: ${theme.colors.alpha.white[100]};
-`
-);
+// const OutlinedInputWrapper = styled(OutlinedInput)(
+//   ({ theme }) => `
+//     background-color: ${theme.colors.alpha.white[100]};
+// `
+// );
 
-const ButtonSearch = styled(Button)(
-  ({ theme }) => `
-    margin-right: -${theme.spacing(1)};
-`
-);
+// const ButtonSearch = styled(Button)(
+//   ({ theme }) => `
+//     margin-right: -${theme.spacing(1)};
+// `
+// );
 
 function Status404() {
   const { t } = useTranslation();

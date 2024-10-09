@@ -166,7 +166,9 @@ function HeaderUserbox() {
         >
           <Avatar variant="rounded" alt={userFullName} src={getUserImage} />
           <UserBoxText>
-            <UserBoxLabel variant="body1">{userFullName}</UserBoxLabel>
+            <UserBoxLabel variant="body1" sx={{ mt: 1 }}>
+              {userFullName}
+            </UserBoxLabel>
             <UserBoxDescription variant="body2">
               {/* {user.jobtitle} */}
             </UserBoxDescription>

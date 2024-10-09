@@ -1007,7 +1007,6 @@ import {
 import { IMaskInput } from 'react-imask';
 import {
   LocalizationProvider,
-  // DateTimePicker,
   DatePicker,
   DesktopDateTimePicker
 } from '@mui/x-date-pickers';
@@ -1019,6 +1018,7 @@ import useAxiosInterceptor from 'src/contexts/Interceptor';
 import { useTranslation } from 'react-i18next';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import SendIcon from '@mui/icons-material/Send';
+import { t } from 'i18next';
 
 const MainContent = styled(Box)`
   height: 100%;
@@ -1062,42 +1062,42 @@ const validatePersonalDetails = (values) => {
   const phoneRegex = /^\(\d{3}\) \d{3}-\d{4}$/; // US phone format (XXX) XXX-XXXX
 
   if (!values.first_name) {
-    errors.first_name = 'First name is required.';
+    errors.first_name = t('First name is required');
   } else if (values.first_name.length < 3) {
-    errors.first_name = 'First name must be at least 3 characters.';
+    errors.first_name = t('First name must be at least 3 characters');
   } else if (!nameRegex.test(values.first_name)) {
-    errors.first_name = 'First name must contain only letters.';
+    errors.first_name = t('First name must contain only letters');
   }
 
   if (!values.last_name) {
-    errors.last_name = 'Last name is required.';
+    errors.last_name = t('Last name is required');
   } else if (values.last_name.length < 3) {
-    errors.last_name = 'Last name must be at least 3 characters.';
+    errors.last_name = t('Last name must be at least 3 characters');
   } else if (!nameRegex.test(values.last_name)) {
-    errors.last_name = 'Last name must contain only letters.';
+    errors.last_name = t('Last name must contain only letters');
   }
 
   // Phone number validation
   if (!values.phone) {
-    errors.phone = 'Phone number is required.';
+    errors.phone = t('Phone number is required');
   } else if (!phoneRegex.test(values.phone)) {
-    errors.phone = 'Phone number must be in the format (XXX) XXX-XXXX.';
+    errors.phone = t('Phone number must be in the format (XXX) XXX-XXXX');
   } else if (['0', '1'].includes(values.phone[1])) {
-    errors.phone = 'Phone number cannot start with 0 or 1 in the area code.';
+    errors.phone = t('Phone number cannot start with 0 or 1 in the area code');
   }
 
   if (!values.gender) {
-    errors.gender = 'Gender is required.';
+    errors.gender = t('Gender is required');
   }
 
   if (!values.preferred_doctor) {
-    errors.preferred_doctor = 'Preferred doctor is required.';
+    errors.preferred_doctor = t('Preferred doctor is required');
   }
 
   if (!values.dob) {
-    errors.dob = 'Date of birth is required.';
+    errors.dob = t('Date of birth is require');
   } else if (dayjs(values.dob).isAfter(dayjs())) {
-    errors.dob = 'Date of birth cannot be in the future.';
+    errors.dob = t('Date of birth cannot be in the future');
   }
 
   return errors;
@@ -1112,19 +1112,21 @@ const validateDateTime = (value) => {
   const isSameDay = currentDate.isSame(selectedDate, 'day');
 
   if (!value) {
-    return 'Date and time are required.';
+    return t('Date and time are required');
   }
   if (selectedDate.isBefore(currentDate, 'minute')) {
-    return 'Select a current or future date and a valid time.';
+    return t('Select a current or future date and a valid time');
   }
   if (selectedTime < 8 || selectedTime >= 18) {
-    return 'Please select a time between 8:00 AM and 6:00 PM.';
+    return t('Please select a time between 8:00 AM and 6:00 PM');
   }
   if (currentHour >= 18 && isSameDay) {
-    return 'Please choose a time between 8:00 AM and 6:00 PM on a future date.';
+    return t(
+      'Please choose a time between 8:00 AM and 6:00 PM on a future date'
+    );
   }
   if (isSameDay && selectedTime < currentHour) {
-    return "Times are not available for today's date.";
+    return t("Times are not available for today's date");
   }
   return null;
 };
@@ -1132,14 +1134,14 @@ const validateDateTime = (value) => {
 // Field-specific validators
 const validateDuration = (value) => {
   if (!value) {
-    return 'Duration is required.';
+    return t('Duration is required');
   }
   return null;
 };
 
 const validateLocation = (value) => {
   if (!value) {
-    return 'Hospital location is required.';
+    return t('Hospital location is required');
   }
   return null;
 };
@@ -1147,17 +1149,22 @@ const validateLocation = (value) => {
 // Alpha-numeric validation for Reason
 
 const validateReason = (value) => {
+  const reasonRegex = /^[a-zA-Z0-9\s]*$/; // Allows only alphanumeric characters and spaces
   if (!value) {
-    return 'Reason for appointment is required.';
+    return t('Reason for appointment is required');
+  } else if (!reasonRegex.test(value)) {
+    return t('Reason can only contain letters and numbers');
+  } else if (value.length > 100) {
+    return t('Reason cannot exceed 100 characters');
   }
   return null;
 };
 
 const validateNotes = (value) => {
   if (!value) {
-    return 'Notes are required.';
-  } else if (value.length > 300) {
-    return 'Notes cannot exceed 300 characters.';
+    return t('Additional notes are required');
+  } else if (value.length > 1000) {
+    return t('Additional notes cannot exceed 1000 characters');
   }
   return null;
 };
@@ -1270,11 +1277,11 @@ const PatientIntakeNew = () => {
         setDoctors(drchronoDoctoresDetail.results);
       } else {
         setDoctors([]); // In case of unexpected data structure
-        toast.error('Unexpected data structure from API');
+        console.error('Unexpected data structure from API');
       }
     } catch (error) {
       console.error('Error fetching doctors:', error);
-      toast.error(t('Error fetching doctors'));
+      // console.error(t('Error fetching doctors'));
       setDoctors([]); // Reset doctors state on error
     }
   }, []);
@@ -1414,7 +1421,7 @@ const PatientIntakeNew = () => {
       });
 
       if (response.status === 201) {
-        toast.success('Patient created successfully!');
+        toast.success(t('Patient created successfully!'));
         setId(response.data.data.id);
         const selectedDoctor = doctors.find(
           (doctor) => doctor.id === personalDetails.preferred_doctor
@@ -1427,13 +1434,13 @@ const PatientIntakeNew = () => {
         setActiveStep((prevStep) => prevStep + 1); // Move to the next step
       } else {
         toast.error(
-          response.data.message || 'Failed to validate personal information.'
+          response.data.message || t('Failed to validate personal information')
         );
       }
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
-          'Something went wrong. Please try again.'
+          t('Something went wrong. Please try again')
       );
     } finally {
       setLoading(false);
@@ -1526,19 +1533,21 @@ const PatientIntakeNew = () => {
         });
 
         setSmsTemeplateResponseData(smsResponse.data.data.message_template);
-        toast.success('Appointment created successfully!');
+        toast.success(t('Appointment created successfully!'));
 
         setActiveStep((prevStep) => prevStep + 1); // Move to the next step
       } else if (response.data.status === 409) {
         toast.error(
           response.data.message ||
-            'The chosen time slot is unavailable. Please choose another time slot.'
+            t(
+              'The chosen time slot is unavailable. Please choose another time slot'
+            )
         );
       }
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
-          'Something went wrong. Please try again.'
+          t('Something went wrong. Please try again.')
       );
     } finally {
       setLoading(false);
@@ -1547,7 +1556,7 @@ const PatientIntakeNew = () => {
 
   const handleCopy = () => {
     navigator.clipboard.writeText(selectedTemplate);
-    toast.success('SMS copied Successfully');
+    toast.success(t('SMS copied Successfully'));
   };
 
   const handleTemplateChange = (event) => {
@@ -1579,7 +1588,7 @@ const PatientIntakeNew = () => {
       );
 
       if (response.status === 200) {
-        toast.success('SMS sent successfully!');
+        toast.success(t('SMS sent successfully!'));
         // Show the "Create Patient" button and hide SMS buttons
         setShowCreatePatient(true);
         // // setShowNavButton(true);
@@ -1590,15 +1599,16 @@ const PatientIntakeNew = () => {
 
         // setTimeout(delayedAction, 10000); // 10000 milliseconds = 10 seconds
       } else {
-        toast.error('Failed to Send SMS');
+        toast.error(t('Failed to Send SMS'));
       }
     } catch (error) {
       if (error.response) {
         toast.error(
-          error.response.data.detail || 'SMS sending failed. Please try again.'
+          error.response.data.detail ||
+            t('SMS sending failed. Please try again.')
         );
       } else {
-        toast.error('Something went wrong. Please try again.');
+        toast.error(t('Something went wrong. Please try again'));
       }
     } finally {
       setLoading(false);
@@ -1633,9 +1643,9 @@ const PatientIntakeNew = () => {
             <Box px={4}>
               <Stepper activeStep={activeStep} alternativeLabel>
                 {[
-                  'Personal Information',
-                  'Appointment Details',
-                  'Send SMS'
+                  t('Personal Information'),
+                  t('Appointment Details'),
+                  t('Send SMS')
                 ].map((label) => (
                   <Step key={label}>
                     <StepLabel>{label}</StepLabel>
@@ -1649,7 +1659,7 @@ const PatientIntakeNew = () => {
                     <Grid item xs={12} sm={6}>
                       <TextField
                         fullWidth
-                        label="First Name"
+                        label={t('First Name')}
                         name="first_name"
                         value={personalDetails.first_name}
                         onChange={handleChangePersonalDetails}
@@ -1660,7 +1670,7 @@ const PatientIntakeNew = () => {
                     <Grid item xs={12} sm={6}>
                       <TextField
                         fullWidth
-                        label="Last Name"
+                        label={t('Last Name')}
                         name="last_name"
                         value={personalDetails.last_name}
                         onChange={handleChangePersonalDetails}
@@ -1671,7 +1681,7 @@ const PatientIntakeNew = () => {
                     <Grid item xs={12} sm={6}>
                       <TextField
                         fullWidth
-                        label="Phone"
+                        label={t('Phone')}
                         name="phone"
                         value={personalDetails.phone}
                         onChange={handleChangePersonalDetails}
@@ -1685,7 +1695,7 @@ const PatientIntakeNew = () => {
                     <Grid item xs={12} sm={6}>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
-                          label="Date of Birth"
+                          label={t('Date of Birth')}
                           value={personalDetails.dob}
                           onChange={handleDateChange}
                           renderInput={(params) => (
@@ -1703,7 +1713,7 @@ const PatientIntakeNew = () => {
                       <TextField
                         fullWidth
                         select
-                        label="Gender"
+                        label={t('Gender')}
                         name="gender"
                         value={personalDetails.gender}
                         onChange={handleChangePersonalDetails}
@@ -1725,7 +1735,7 @@ const PatientIntakeNew = () => {
                       <TextField
                         fullWidth
                         select
-                        label="Preferred Doctor"
+                        label={t('Preferred Doctor')}
                         name="preferred_doctor"
                         value={personalDetails.preferred_doctor}
                         onChange={handleChangePersonalDetails}
@@ -1747,7 +1757,7 @@ const PatientIntakeNew = () => {
                       sx={{ my: 3 }}
                       disabled={loading}
                     >
-                      Register a patient
+                      {t('Register a patient')}
                       {loading && <CircularProgress size={24} sx={{ ml: 2 }} />}
                     </Button>
                   </Grid>
@@ -1760,7 +1770,7 @@ const PatientIntakeNew = () => {
                     <Grid item xs={12} sm={6} md={6}>
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DesktopDateTimePicker
-                          label="Appointment Date & Time"
+                          label={t('Appointment Date & Time')}
                           disablePast={true}
                           value={appointmentDetails.appointment_date}
                           onChange={handleAppointmentDateChange}
@@ -1779,7 +1789,7 @@ const PatientIntakeNew = () => {
                       <TextField
                         fullWidth
                         select
-                        label="Duration"
+                        label={t('Duration')}
                         name="duration"
                         value={appointmentDetails.duration}
                         onChange={handleChangeAppointmentDetails}
@@ -1795,7 +1805,7 @@ const PatientIntakeNew = () => {
                       <TextField
                         fullWidth
                         select
-                        label="Hospital Location"
+                        label={t('Hospital Location')}
                         name="hospital_location"
                         value={appointmentDetails.hospital_location}
                         onChange={handleChangeAppointmentDetails}
@@ -1812,7 +1822,7 @@ const PatientIntakeNew = () => {
                     <Grid item xs={12} sm={6} md={6}>
                       <TextField
                         fullWidth
-                        label="Reason"
+                        label={t('Reason')}
                         name="reason"
                         value={appointmentDetails.reason}
                         onChange={handleChangeAppointmentDetails}
@@ -1825,7 +1835,7 @@ const PatientIntakeNew = () => {
                     <Grid item xs={12} sm={6} md={6}>
                       <TextField
                         fullWidth
-                        label="Additional Notes"
+                        label={t('Additional Notes')}
                         name="notes"
                         value={appointmentDetails.notes}
                         onChange={handleChangeAppointmentDetails}
@@ -1842,7 +1852,7 @@ const PatientIntakeNew = () => {
                     sx={{ mt: 3 }}
                     disabled={loading}
                   >
-                    Add appointment
+                    {t('Add appointment')}
                     {loading && <CircularProgress size={24} sx={{ ml: 2 }} />}
                   </Button>
                 </Box>
@@ -1907,7 +1917,7 @@ const PatientIntakeNew = () => {
                               ))
                             ) : (
                               <Typography variant="body1" color="textSecondary">
-                                No SMS Available.
+                                {t('No SMS Available')}
                               </Typography>
                             )}
 
@@ -1929,7 +1939,7 @@ const PatientIntakeNew = () => {
                                       sx={{ mt: 2 }}
                                     >
                                       <SendIcon sx={{ padding: '0 5px 0 0' }} />
-                                      Send SMS
+                                      {t('Send SMS')}
                                       {loading && (
                                         <CircularProgress
                                           size={24}
@@ -1945,7 +1955,7 @@ const PatientIntakeNew = () => {
                                       <ContentCopyIcon
                                         sx={{ padding: '0 5px 0 0' }}
                                       />
-                                      Copy SMS
+                                      {t('Copy SMS')}
                                     </Button>
                                   </Box>
                                 </>
@@ -1964,7 +1974,7 @@ const PatientIntakeNew = () => {
                                     color="primary"
                                     onClick={handleCreatePatient}
                                   >
-                                    Create Patient
+                                    {t('Create Patient')}
                                   </Button>
                                 </Box>
                               )}

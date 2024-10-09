@@ -26,6 +26,7 @@ function TableData() {
   const [doctors, setDoctors] = useState([]); // Initialize as an empty array
   const [alertShow, setAlertShow] = useState(false);
   const [searchInput, setSearchInput] = useState('');
+  const token = localStorage.getItem('token');
 
   useEffect(() => {
     // Set a timeout to hide the alert after 2 seconds
@@ -51,7 +52,6 @@ function TableData() {
   // Fetch doctors from the API
   const fetchDoctors = useCallback(async () => {
     try {
-      const token = localStorage.getItem('token');
       const response = await axios.get(`/drchronoDoctorDetails`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -88,7 +88,7 @@ function TableData() {
                   fullWidth
                   id="outlined-search"
                   type="search"
-                  placeholder="Search by name..."
+                  placeholder={t('Search by name...')}
                   style={{
                     display: 'none',
                     justifyContent: 'flex-start',
@@ -186,7 +186,7 @@ function TableData() {
               {doctors.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={8} align="center">
-                    Loading...
+                    {t('Loading...')}
                   </TableCell>
                 </TableRow>
               ) : (

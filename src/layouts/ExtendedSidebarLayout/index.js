@@ -1,6 +1,5 @@
 import { Box, alpha, lighten, useTheme } from '@mui/material';
 import { Outlet } from 'react-router-dom';
-import ThemeSettings from 'src/components/ThemeSettings';
 
 import Sidebar from './Sidebar';
 import Header from './Header';

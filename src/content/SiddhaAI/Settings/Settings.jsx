@@ -34,6 +34,8 @@ import useAxiosInterceptor from 'src/contexts/Interceptor';
 import { Add, Delete } from '@mui/icons-material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { Helmet } from 'react-helmet-async';
+import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 export default function Settings() {
   const { axios } = useAxiosInterceptor();
@@ -41,6 +43,7 @@ export default function Settings() {
   const [smsCard, setSmsCard] = useState(false);
   const [smsTemplateView, setSmsTemplateView] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
+  const { t } = useTranslation();
 
   // Initialize the states
   const [formData, setFormData] = useState({
@@ -234,7 +237,7 @@ export default function Settings() {
     // Check for validation
     const newErrors = { ...errors };
     if (!validateEmail(value)) {
-      newErrors[index] = 'Invalid email format';
+      newErrors[index] = t('Invalid email format');
     } else {
       delete newErrors[index]; // Remove error if valid
     }
@@ -325,7 +328,7 @@ export default function Settings() {
   // Submit the new logo to the backend
   const handleLogoSubmit = async () => {
     if (!selectedImageFile) {
-      toast.error('Please select an image to upload.');
+      toast.error(t('Please select an image to upload'));
       return;
     }
 
@@ -346,13 +349,13 @@ export default function Settings() {
       );
 
       if (logoResponse.status === 200) {
-        toast.success('Logo updated successfully!');
+        toast.success(t('Logo updated successfully!'));
         setSelectedImageFile(null); // Clear the selected file after upload
         setSelectedImage(null); // Clear base64 preview
         getAdminCustomSetting(); // Refresh settings to display updated logo
         setIsLoading(false); // Reset loading state
       } else {
-        toast.error('Error updating logo');
+        toast.error(t('Error updating logo'));
       }
     } catch (error) {
       toast.error(`${error.message}`);
@@ -379,7 +382,7 @@ export default function Settings() {
     const file = event.target.files[0];
 
     if (!file) {
-      toast.error('Please select a valid image file');
+      toast.error(t('Please select a valid image file'));
       return;
     }
 
@@ -389,7 +392,7 @@ export default function Settings() {
 
     if (file.size > maxSizeInBytes) {
       toast.error(
-        'File size exceeds 5MB limit. Please select a smaller image.'
+        t('File size exceeds 5MB limit. Please select a smaller image.')
       );
       return;
     }
@@ -404,9 +407,7 @@ export default function Settings() {
     ];
 
     if (!supportedFormats.includes(file.type)) {
-      toast.error(
-        'Unsupported file format. Please select a JPEG, PNG, WebP, HEIC, or HEIF image.'
-      );
+      toast.error(t('Unsupported file format'));
       return;
     }
 
@@ -491,15 +492,15 @@ export default function Settings() {
       });
 
       if (response?.status === 200) {
-        console.log('sms templ', response?.data[0]?.messageContent);
+        // console.log('sms templ', response?.data[0]?.messageContent);
         setSmsTemplateView(response?.data[0]?.messageContent);
         setOpenDialog(true);
         setSmsCard(true);
       } else {
-        toast.error('Error fetching SMS template');
+        console.error('Error fetching SMS template');
       }
     } catch (error) {
-      toast.error(`${error.message}`);
+      console.error(`${error.message}`);
     }
   };
 
@@ -534,16 +535,16 @@ export default function Settings() {
         sx={{ mb: 3 }}
         variant="scrollable"
       >
-        <Tab label="Patient Intake Form" />
-        <Tab label="Admin" />
-        <Tab label="Notification" />
-        <Tab label="Hospital" />
+        <Tab label={t('Patient Intake Form')} />
+        <Tab label={t('Admin')} />
+        <Tab label={t('Notification')} />
+        <Tab label={t('Hospital')} />
       </Tabs>
       {/* Tab Panels */}
       {tabIndex === 0 && (
         <Box>
           <Typography variant="h5" gutterBottom>
-            Patient Intake Form
+            {t('Patient Intake Form')}
           </Typography>
           <Grid container alignItems="center" spacing={2}>
             <Grid item xs={12} md={6} lg={2}>
@@ -560,14 +561,14 @@ export default function Settings() {
             </Grid>
             <Grid item sx={{ mt: 1.5 }}>
               <Typography variant="caption">
-                {formData.expiry > 1 ? "Day's" : 'Day'}
+                {formData.expiry > 1 ? t("Day's") : t('Day')}
               </Typography>
             </Grid>
           </Grid>
 
           <Divider sx={{ my: 3 }} />
           <Typography variant="h5" gutterBottom>
-            Patient Intake Form Type
+            {t('Patient Intake Form Type')}
           </Typography>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6} md={2}>
@@ -579,7 +580,7 @@ export default function Settings() {
                     name="default"
                   />
                 }
-                label="Default"
+                label={t('Default')}
                 disabled={!isEditing}
               />
             </Grid>
@@ -592,7 +593,7 @@ export default function Settings() {
                     name="custom"
                   />
                 }
-                label="Custom"
+                label={t('Custom')}
                 disabled={!isEditing}
               />
             </Grid>
@@ -601,7 +602,7 @@ export default function Settings() {
 
           <Box>
             <Typography variant="h5" gutterBottom>
-              Custom SMS
+              {t('Custom SMS')}
             </Typography>
 
             {/* Text Field for the SMS Template Name */}
@@ -609,22 +610,22 @@ export default function Settings() {
               {/* Template Name Input Field */}
               <TextField
                 disabled={!isEditing}
-                label="SMS Template Title"
+                label={t('SMS Template Title')}
                 value={smsData.templateName}
                 onChange={handleTemplateNameChange}
-                placeholder="Enter SMS Template Title"
+                placeholder={t('Enter SMS Template Title')}
               />
 
               {/* View Button */}
 
-              <Tooltip title="Click here to view sample sms">
+              <Tooltip title={t('Click here to view sample sms')}>
                 <Button
                   disabled={!isEditing}
                   variant="outlined"
                   onClick={getAdminCustomSms}
                   sx={{ ml: 2, mt: 1 }}
                 >
-                  Preview
+                  {t('Preview')}
                 </Button>
               </Tooltip>
 
@@ -654,7 +655,7 @@ export default function Settings() {
                           sx={{ padding: '20px 0' }}
                           color="secondary"
                         >
-                          Sample SMS
+                          {t('Sample SMS')}
                         </Typography>
                         {/* </CardHeader> */}
                         {/* <Divider /> */}
@@ -667,7 +668,7 @@ export default function Settings() {
                     {/* Dialog Actions */}
                     <DialogActions>
                       <Button onClick={handleCloseDialog} color="secondary">
-                        Cancel
+                        {t('Cancel')}
                       </Button>
                     </DialogActions>
                   </Dialog>
@@ -737,7 +738,7 @@ export default function Settings() {
                     resize: 'none'
                   }}
                   rows={6}
-                  placeholder="Type your sms content here..."
+                  placeholder={t('Type your sms content here...')}
                 />
               </Box>
             </Box>
@@ -747,7 +748,7 @@ export default function Settings() {
       {tabIndex === 1 && (
         <Box>
           <Typography variant="h5" gutterBottom>
-            Admin Panel Session
+            {t('Admin Panel Session')}
           </Typography>
           <Grid container alignItems="center" spacing={2}>
             <Grid item xs={12} md={6} lg={2}>
@@ -764,7 +765,7 @@ export default function Settings() {
             </Grid>
             <Grid item sx={{ mt: 1.5 }}>
               <Typography variant="caption">
-                {formData.sessionTimeout > 1 ? "Hour's" : 'Hour'}
+                {formData.sessionTimeout > 1 ? t("Hour's") : t('Hour')}
               </Typography>
             </Grid>
           </Grid>
@@ -776,7 +777,9 @@ export default function Settings() {
                 <Table>
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={{ textAlign: 'center' }}>Email</TableCell>
+                      <TableCell sx={{ textAlign: 'center' }}>
+                        {t('Email')}
+                      </TableCell>
                       {isEditing && (
                         <TableCell sx={{ textAlign: 'center' }}>
                           <Button
@@ -786,7 +789,7 @@ export default function Settings() {
                               !isEditing || Object.keys(errors).length > 0
                             } // Disable if there are errors
                           >
-                            <Add /> Add
+                            <Add /> {t('Add')}
                           </Button>
                         </TableCell>
                       )}
@@ -811,7 +814,7 @@ export default function Settings() {
                         {isEditing && (
                           <TableCell sx={{ textAlign: 'center' }}>
                             <Button onClick={() => deleteEmailField(index)}>
-                              <Tooltip title="Delete">
+                              <Tooltip title={t('Delete')}>
                                 <Delete color="error" />
                               </Tooltip>
                             </Button>
@@ -829,7 +832,7 @@ export default function Settings() {
       {tabIndex === 2 && (
         <Box>
           <Typography variant="h5" gutterBottom>
-            Form Submit Reminder
+            {t('Form Submit Reminder')}
           </Typography>
           <Grid container alignItems="center" spacing={2}>
             <Grid item xs={12} md={6} lg={2}>
@@ -846,7 +849,7 @@ export default function Settings() {
             </Grid>
             <Grid item sx={{ mt: 1.5 }}>
               <Typography variant="caption">
-                {formData.remainderTitle > 1 ? "Day's" : 'Day'}
+                {formData.remainderTitle > 1 ? t("Day's") : t('Day')}
               </Typography>
             </Grid>
           </Grid>
@@ -854,7 +857,7 @@ export default function Settings() {
           <Box>
             <Divider sx={{ my: 3 }} />
             <Typography variant="h5" gutterBottom>
-              Send Email Report To Admin
+              {t('Send Email Report To Admin')}
             </Typography>
             <Grid container spacing={2}>
               <Grid item xs={12} sm={12} md={2}>
@@ -866,7 +869,7 @@ export default function Settings() {
                       name="reportWeekly"
                     />
                   }
-                  label="Weekly"
+                  label={t('Weekly')}
                   disabled={!isEditing}
                 />
               </Grid>
@@ -879,7 +882,7 @@ export default function Settings() {
                       name="reportMonthly"
                     />
                   }
-                  label="Monthly"
+                  label={t('Monthly')}
                   disabled={!isEditing}
                 />
               </Grid>
@@ -889,7 +892,7 @@ export default function Settings() {
                 variant="outlined"
                 disabled={!isEditing}
               >
-                Both
+                {t('Both')}
               </Button>
             </Grid>
           </Box>
@@ -898,7 +901,7 @@ export default function Settings() {
       {tabIndex === 3 && (
         <Box mt={3}>
           <Typography variant="h5" gutterBottom>
-            Healthcare organization logo
+            {t('Healthcare organization logo')}
           </Typography>
           <Box display="flex" alignItems="center" gap={2}>
             {/* Display current or selected logo */}
@@ -919,7 +922,7 @@ export default function Settings() {
                     type="file"
                     onChange={handleImageChange}
                   />
-                  <Tooltip title="Upload new picture">
+                  <Tooltip title={t('Upload new picture')}>
                     <CloudUploadIcon sx={{ width: '50px', height: '50px' }} />
                   </Tooltip>
                 </IconButton>
@@ -932,7 +935,7 @@ export default function Settings() {
                       // color="secondary"
                       onClick={handleLogoSubmit}
                     >
-                      Save
+                      {t('Save')}
                       {isLoading && (
                         <CircularProgress size={24} sx={{ ml: 2 }} />
                       )}
@@ -942,7 +945,7 @@ export default function Settings() {
                       color="secondary"
                       onClick={handleCancelImageChange}
                     >
-                      Cancel
+                      {t('Cancel')}
                     </Button>
                   </Box>
                 )}
@@ -953,7 +956,7 @@ export default function Settings() {
                 onClick={() => setIsEditing(true)}
                 variant="contained"
               >
-                Change Picture
+                {t('Change Picture')}
               </Button>
             )}
           </Box>
@@ -965,9 +968,11 @@ export default function Settings() {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ textAlign: 'center' }}>Select</TableCell>
                     <TableCell sx={{ textAlign: 'center' }}>
-                      Time Zone
+                      {t('Select')}
+                    </TableCell>
+                    <TableCell sx={{ textAlign: 'center' }}>
+                      {t('Time Zone')}
                     </TableCell>
                     {isEditing && (
                       <TableCell sx={{ textAlign: 'center' }}>
@@ -977,7 +982,7 @@ export default function Settings() {
                           variant="outlined"
                           disabled={!isEditing}
                         >
-                          <Add /> Add
+                          <Add /> {t('Add')}
                         </Button>
                       </TableCell>
                     )}
@@ -1006,7 +1011,7 @@ export default function Settings() {
                       {isEditing && (
                         <TableCell sx={{ textAlign: 'center' }}>
                           <Button onClick={() => deleteTimeZoneField(index)}>
-                            <Tooltip title="Delete">
+                            <Tooltip title={t('Delete')}>
                               <Delete color="error" />
                             </Tooltip>
                           </Button>
@@ -1049,12 +1054,12 @@ export default function Settings() {
       <Box mt={3}>
         {!isEditing ? (
           <Button variant="contained" onClick={() => setIsEditing(true)}>
-            Change Settings
+            {t('Change Settings')}
           </Button>
         ) : (
           <>
             <Button variant="contained" onClick={handleSubmit}>
-              Save Settings
+              {t('Save Settings')}
             </Button>
             <Button
               variant="outlined"
@@ -1062,7 +1067,7 @@ export default function Settings() {
               sx={{ ml: 2 }}
               onClick={handleCancel} // Clicking "Cancel" will exit edit mode
             >
-              Cancel
+              {t('Cancel')}
             </Button>
           </>
         )}

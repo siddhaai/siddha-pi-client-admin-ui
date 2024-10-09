@@ -1,39 +1,15 @@
-import { useRef, useState } from 'react';
-
+import { useState } from 'react';
 import {
   IconButton,
   Box,
-  List,
-  ListItem,
-  Divider,
-  Typography,
-  ListItemText,
-  alpha,
-  Popover,
+  Menu,
+  MenuItem,
   Tooltip,
   styled,
   useTheme
 } from '@mui/material';
-
-// import WarningTwoToneIcon from '@mui/icons-material/WarningTwoTone';
-import internationalization from 'src/i18n/i18n';
 import { useTranslation } from 'react-i18next';
-
-import { DE } from 'country-flag-icons/react/3x2';
-import { US } from 'country-flag-icons/react/3x2';
-import { ES } from 'country-flag-icons/react/3x2';
-import { FR } from 'country-flag-icons/react/3x2';
-import { CN } from 'country-flag-icons/react/3x2';
-import { AE } from 'country-flag-icons/react/3x2';
-
-const SectionHeading = styled(Typography)(
-  ({ theme }) => `
-        font-weight: ${theme.typography.fontWeightBold};
-        color: ${theme.palette.secondary.main};
-        display: block;
-        padding: ${theme.spacing(2, 2, 0)};
-`
-);
+import ReactCountryFlag from 'react-country-flag';
 
 const IconButtonWrapper = styled(IconButton)(
   ({ theme }) => `
@@ -44,211 +20,82 @@ const IconButtonWrapper = styled(IconButton)(
 );
 
 function LanguageSwitcher() {
-  const { i18n } = useTranslation();
-  const { t } = useTranslation();
-  const getLanguage = i18n.language;
+  const { i18n, t } = useTranslation();
+  const currentLanguage = i18n.language;
   const theme = useTheme();
 
-  const switchLanguage = ({ lng }) => {
-    internationalization.changeLanguage(lng);
-  };
-  const ref = useRef(null);
-  const [isOpen, setOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
 
-  const handleOpen = () => {
-    setOpen(true);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
   };
 
   const handleClose = () => {
-    setOpen(false);
+    setAnchorEl(null);
   };
 
+  const changeLanguage = (lang) => {
+    i18n.changeLanguage(lang);
+    localStorage.setItem('language', lang); // Save language in local storage
+    handleClose();
+  };
+
+  const flags = [
+    { code: 'US', label: 'English', lang: 'en' },
+    { code: 'ES', label: 'Spanish', lang: 'es' },
+    { code: 'FR', label: 'French', lang: 'fr' },
+    { code: 'CN', label: 'Chinese', lang: 'zh' },
+    { code: 'PH', label: 'Tagalog', lang: 'tl' },
+    { code: 'VN', label: 'Vietnamese', lang: 'vi' },
+    { code: 'AE', label: 'Arabic', lang: 'ar' }
+  ];
+
   return (
-    <Box sx={{ display: 'none' }}>
+    <Box>
       <Tooltip arrow title={t('Language Switcher')}>
         <IconButtonWrapper
           color="secondary"
-          ref={ref}
-          onClick={handleOpen}
+          onClick={handleClick}
           sx={{
             mx: 1,
-            background: alpha(theme.colors.error.main, 0.1),
+            background: theme.palette.background.default,
             transition: `${theme.transitions.create(['background'])}`,
-            color: theme.colors.error.main,
-
+            color: theme.palette.text.primary,
             '&:hover': {
-              background: alpha(theme.colors.error.main, 0.2)
+              background: theme.palette.background.paper
             }
           }}
         >
-          {getLanguage === 'de' && <DE title="German" />}
-          {getLanguage === 'en' && <US title="English" />}
-          {getLanguage === 'en-US' && <US title="English" />}
-          {getLanguage === 'en-GB' && <US title="English" />}
-          {getLanguage === 'es' && <ES title="Spanish" />}
-          {getLanguage === 'fr' && <FR title="French" />}
-          {getLanguage === 'cn' && <CN title="Chinese" />}
-          {getLanguage === 'ae' && <AE title="Arabic" />}
+          {flags.map(
+            ({ code, lang }) =>
+              currentLanguage === lang && (
+                <ReactCountryFlag
+                  key={code} // Ensure unique key prop
+                  countryCode={code}
+                  svg
+                  title={code}
+                />
+              )
+          )}
         </IconButtonWrapper>
       </Tooltip>
-      <Popover
-        disableScrollLock
-        anchorEl={ref.current}
-        onClose={handleClose}
-        open={isOpen}
-        anchorOrigin={{
-          vertical: 'top',
-          horizontal: 'right'
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right'
-        }}
-      >
-        <Box
-          sx={{
-            maxWidth: 240
-          }}
-        >
-          <SectionHeading variant="body2" color="text.primary">
-            {t('Language Switcher')}
-          </SectionHeading>
-          <List
-            sx={{
-              p: 2,
-              svg: {
-                width: 26,
-                mr: 1
-              }
-            }}
-            component="nav"
+
+      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
+        {flags.map(({ code, label, lang }) => (
+          <MenuItem
+            key={lang} // Use lang as a unique key
+            onClick={() => changeLanguage(lang)}
+            sx={{ display: 'flex', alignItems: 'center' }}
           >
-            <ListItem
-              className={
-                getLanguage === 'en' || getLanguage === 'en-US' ? 'active' : ''
-              }
-              button
-              onClick={() => {
-                switchLanguage({ lng: 'en' });
-                handleClose();
-              }}
-            >
-              <US title="English" />
-              <ListItemText
-                sx={{
-                  pl: 1
-                }}
-                primary="English"
-              />
-            </ListItem>
-            <ListItem
-              className={getLanguage === 'de' ? 'active' : ''}
-              button
-              onClick={() => {
-                switchLanguage({ lng: 'de' });
-                handleClose();
-              }}
-            >
-              <DE title="German" />
-              <ListItemText
-                sx={{
-                  pl: 1
-                }}
-                primary="German"
-              />
-            </ListItem>
-            <ListItem
-              className={getLanguage === 'es' ? 'active' : ''}
-              button
-              onClick={() => {
-                switchLanguage({ lng: 'es' });
-                handleClose();
-              }}
-            >
-              <ES title="Spanish" />
-              <ListItemText
-                sx={{
-                  pl: 1
-                }}
-                primary="Spanish"
-              />
-            </ListItem>
-            <ListItem
-              className={getLanguage === 'fr' ? 'active' : ''}
-              button
-              onClick={() => {
-                switchLanguage({ lng: 'fr' });
-                handleClose();
-              }}
-            >
-              <FR title="French" />
-              <ListItemText
-                sx={{
-                  pl: 1
-                }}
-                primary="French"
-              />
-            </ListItem>
-            <ListItem
-              className={getLanguage === 'cn' ? 'active' : ''}
-              button
-              onClick={() => {
-                switchLanguage({ lng: 'cn' });
-                handleClose();
-              }}
-            >
-              <CN title="Chinese" />
-              <ListItemText
-                sx={{
-                  pl: 1
-                }}
-                primary="Chinese"
-              />
-            </ListItem>
-            <ListItem
-              className={getLanguage === 'ae' ? 'active' : ''}
-              button
-              onClick={() => {
-                switchLanguage({ lng: 'ae' });
-                handleClose();
-              }}
-            >
-              <AE title="Arabic" />
-              <ListItemText
-                sx={{
-                  pl: 1
-                }}
-                primary="Arabic"
-              />
-            </ListItem>
-          </List>
-          <Divider />
-          {/* <Text color="warning">
-            <Box
-              p={1.5}
-              display="flex"
-              alignItems="flex-start"
-              sx={{
-                maxWidth: 340
-              }}
-            >
-              <WarningTwoToneIcon fontSize="small" />
-              <Typography
-                variant="body1"
-                sx={{
-                  pl: 1,
-                  fontSize: theme.typography.pxToRem(12)
-                }}
-              >
-                {t(
-                  'We only translated a small part of the template, for demonstration purposes'
-                )}
-                !
-              </Typography>
-            </Box>
-          </Text> */}
-        </Box>
-      </Popover>
+            <ReactCountryFlag
+              countryCode={code}
+              svg
+              style={{ width: '1.5em', height: '1.5em', marginRight: '10px' }}
+            />
+            {label}
+          </MenuItem>
+        ))}
+      </Menu>
     </Box>
   );
 }

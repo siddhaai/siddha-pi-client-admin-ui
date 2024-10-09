@@ -11,11 +11,11 @@ import CollapsedSidebarLayout from 'src/layouts/CollapsedSidebarLayout';
 import BottomNavigationLayout from 'src/layouts/BottomNavigationLayout';
 import TopNavigationLayout from 'src/layouts/TopNavigationLayout';
 
-import dashboardsRoutes from './dashboards';
-import blocksRoutes from './blocks';
-import applicationsRoutes from './applications';
-import managementRoutes from './management';
-import documentationRoutes from './documentation';
+// import dashboardsRoutes from './dashboards';
+// import blocksRoutes from './blocks';
+// import applicationsRoutes from './applications';
+// import managementRoutes from './management';
+// import documentationRoutes from './documentation';
 import accountRoutes from './account';
 import baseRoutes from './base';
 import SiddhaAIRoutes from './SiddhaAI';
@@ -33,11 +33,11 @@ const router = [
 
   // Documentation
 
-  {
-    path: 'docs',
-    element: <DocsLayout />,
-    children: documentationRoutes
-  },
+  // {
+  //   path: 'docs',
+  //   element: <DocsLayout />,
+  //   children: documentationRoutes
+  // },
 
   // Boxed Sidebar Layout
 
@@ -52,23 +52,23 @@ const router = [
       {
         path: '',
         element: <Navigate to="dashboards" replace />
-      },
-      {
-        path: 'dashboards',
-        children: dashboardsRoutes
-      },
-      {
-        path: 'blocks',
-        children: blocksRoutes
-      },
-      {
-        path: 'applications',
-        children: applicationsRoutes
-      },
-      {
-        path: 'management',
-        children: managementRoutes
       }
+      // {
+      //   path: 'dashboards',
+      //   children: dashboardsRoutes
+      // },
+      // {
+      //   path: 'blocks',
+      //   children: blocksRoutes
+      // },
+      // {
+      //   path: 'applications',
+      //   children: applicationsRoutes
+      // },
+      // {
+      //   path: 'management',
+      //   children: managementRoutes
+      // }
     ]
   },
 
@@ -85,23 +85,23 @@ const router = [
       {
         path: '',
         element: <Navigate to="dashboards" replace />
-      },
-      {
-        path: 'dashboards',
-        children: dashboardsRoutes
-      },
-      {
-        path: 'blocks',
-        children: blocksRoutes
-      },
-      {
-        path: 'applications',
-        children: applicationsRoutes
-      },
-      {
-        path: 'management',
-        children: managementRoutes
       }
+      // {
+      //   path: 'dashboards',
+      //   children: dashboardsRoutes
+      // },
+      // {
+      //   path: 'blocks',
+      //   children: blocksRoutes
+      // },
+      // {
+      //   path: 'applications',
+      //   children: applicationsRoutes
+      // },
+      // {
+      //   path: 'management',
+      //   children: managementRoutes
+      // }
     ]
   },
 
@@ -118,23 +118,23 @@ const router = [
       {
         path: '',
         element: <Navigate to="dashboards" replace />
-      },
-      {
-        path: 'dashboards',
-        children: dashboardsRoutes
-      },
-      {
-        path: 'blocks',
-        children: blocksRoutes
-      },
-      {
-        path: 'applications',
-        children: applicationsRoutes
-      },
-      {
-        path: 'management',
-        children: managementRoutes
       }
+      // {
+      //   path: 'dashboards',
+      //   children: dashboardsRoutes
+      // },
+      // {
+      //   path: 'blocks',
+      //   children: blocksRoutes
+      // },
+      // {
+      //   path: 'applications',
+      //   children: applicationsRoutes
+      // },
+      // {
+      //   path: 'management',
+      //   children: managementRoutes
+      // }
     ]
   },
 
@@ -151,23 +151,23 @@ const router = [
       {
         path: '',
         element: <Navigate to="dashboards" replace />
-      },
-      {
-        path: 'dashboards',
-        children: dashboardsRoutes
-      },
-      {
-        path: 'blocks',
-        children: blocksRoutes
-      },
-      {
-        path: 'applications',
-        children: applicationsRoutes
-      },
-      {
-        path: 'management',
-        children: managementRoutes
       }
+      // {
+      //   path: 'dashboards',
+      //   children: dashboardsRoutes
+      // },
+      // {
+      //   path: 'blocks',
+      //   children: blocksRoutes
+      // },
+      // {
+      //   path: 'applications',
+      //   children: applicationsRoutes
+      // },
+      // {
+      //   path: 'management',
+      //   children: managementRoutes
+      // }
     ]
   },
 
@@ -184,23 +184,23 @@ const router = [
       {
         path: '',
         element: <Navigate to="dashboards" replace />
-      },
-      {
-        path: 'dashboards',
-        children: dashboardsRoutes
-      },
-      {
-        path: 'blocks',
-        children: blocksRoutes
-      },
-      {
-        path: 'applications',
-        children: applicationsRoutes
-      },
-      {
-        path: 'management',
-        children: managementRoutes
       }
+      // {
+      //   path: 'dashboards',
+      //   children: dashboardsRoutes
+      // },
+      // {
+      //   path: 'blocks',
+      //   children: blocksRoutes
+      // },
+      // {
+      //   path: 'applications',
+      //   children: applicationsRoutes
+      // },
+      // {
+      //   path: 'management',
+      //   children: managementRoutes
+      // }
     ]
   },
 
@@ -217,23 +217,23 @@ const router = [
       {
         path: '',
         element: <Navigate to="dashboards" replace />
-      },
-      {
-        path: 'dashboards',
-        children: dashboardsRoutes
-      },
-      {
-        path: 'blocks',
-        children: blocksRoutes
-      },
-      {
-        path: 'applications',
-        children: applicationsRoutes
-      },
-      {
-        path: 'management',
-        children: managementRoutes
       }
+      // {
+      //   path: 'dashboards',
+      //   children: dashboardsRoutes
+      // },
+      // {
+      //   path: 'blocks',
+      //   children: blocksRoutes
+      // },
+      // {
+      //   path: 'applications',
+      //   children: applicationsRoutes
+      // },
+      // {
+      //   path: 'management',
+      //   children: managementRoutes
+      // }
     ]
   },
 
@@ -247,22 +247,22 @@ const router = [
       </Authenticated>
     ),
     children: [
-      {
-        path: 'dashboards',
-        children: dashboardsRoutes
-      },
-      {
-        path: 'blocks',
-        children: blocksRoutes
-      },
-      {
-        path: 'applications',
-        children: applicationsRoutes
-      },
-      {
-        path: 'management',
-        children: managementRoutes
-      },
+      // {
+      //   path: 'dashboards',
+      //   children: dashboardsRoutes
+      // },
+      // {
+      //   path: 'blocks',
+      //   children: blocksRoutes
+      // },
+      // {
+      //   path: 'applications',
+      //   children: applicationsRoutes
+      // },
+      // {
+      //   path: 'management',
+      //   children: managementRoutes
+      // },
       {
         path: 'SiddhaAI',
         children: SiddhaAIRoutes

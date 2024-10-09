@@ -13,7 +13,7 @@ function PageHeader() {
       </Grid>
       <Grid item>
         <Typography variant="h3" component="h3" gutterBottom>
-          {t('Existing Patient')}
+          {t('Re-schedule Existing Patient')}
         </Typography>
         {/* <Typography variant="subtitle2">
           {t('You can add patient details here!')}

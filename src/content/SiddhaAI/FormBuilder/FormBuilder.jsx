@@ -34,43 +34,48 @@ import { toast, Toaster } from 'react-hot-toast';
 import useAxiosInterceptor from 'src/contexts/Interceptor';
 import NotificationImportantTwoToneIcon from '@mui/icons-material/NotificationImportantTwoTone';
 import { Helmet } from 'react-helmet-async';
+import { t } from 'i18next';
 
 // Define fields and required fields
 const PersonalDetailsFields = [
-  { name: 'firstName', label: 'First Name', visibility: false },
-  { name: 'lastName', label: 'Last Name', visibility: false },
-  { name: 'middleName', label: 'Middle Name', visibility: false },
-  { name: 'dob', label: 'DOB', type: 'date', visibility: false },
-  { name: 'phoneNumber', label: 'Phone Number', visibility: false },
-  { name: 'email', label: 'Email', type: 'email', visibility: false },
-  { name: 'gender', label: 'Gender', type: 'select', visibility: false },
-  { name: 'language', label: 'Language', type: 'select', visibility: false }
+  { name: 'firstName', label: t('First Name'), visibility: false },
+  { name: 'lastName', label: t('Last Name'), visibility: false },
+  { name: 'middleName', label: t('Middle Name'), visibility: false },
+  { name: 'dob', label: t('DOB'), type: 'date', visibility: false },
+  { name: 'phoneNumber', label: t('Phone Number'), visibility: false },
+  { name: 'email', label: t('Email'), type: 'email', visibility: false },
+  { name: 'gender', label: t('Gender'), type: 'select', visibility: false },
+  { name: 'language', label: t('Language'), type: 'select', visibility: false }
 ];
 const AddressDetailsFields = [
-  { name: 'street', label: 'Street Name', visibility: false },
-  { name: 'city', label: 'City', visibility: false },
-  { name: 'state', label: 'State', visibility: false },
-  { name: 'zipCode', label: 'Zip Code', visibility: false }
+  { name: 'street', label: t('Street Name'), visibility: false },
+  { name: 'city', label: t('City'), visibility: false },
+  { name: 'state', label: t('State'), visibility: false },
+  { name: 'zipCode', label: t('Zip Code'), visibility: false }
 ];
 
 const InsuranceDetailsFields = [
-  { name: 'payerName', label: 'Payer Name', visibility: false },
-  { name: 'groupNumber', label: 'Group Number', visibility: false },
-  { name: 'MemberId', label: 'Member Id', visibility: false },
+  { name: 'payerName', label: t('Payer Name'), visibility: false },
+  { name: 'groupNumber', label: t('Group Number'), visibility: false },
+  { name: 'MemberId', label: t('Member Id'), visibility: false },
   {
     name: 'patientsubscriberFirstName',
-    label: 'subscriber First Name',
+    label: t('Subscriber First Name'),
     visibility: false
   },
   {
     name: 'patientsubscriberLastName',
-    label: 'subscriber Last Name',
+    label: t('Subscriber Last Name'),
     visibility: false
   },
-  { name: 'patientsubscriberDOB', label: 'subscriber DOB', visibility: false },
+  {
+    name: 'patientsubscriberDOB',
+    label: t('Subscriber DOB'),
+    visibility: false
+  },
   {
     name: 'patientsubscriberRelationShip',
-    label: 'subscriber RelationShip',
+    label: t('Subscriber RelationShip'),
     visibility: false
   }
 ];
@@ -78,22 +83,22 @@ const InsuranceDetailsFields = [
 const EmergencyDetailsFields = [
   {
     name: 'emergencyContactFirstName',
-    label: 'Emergency Contact First Name',
+    label: t('Emergency Contact First Name'),
     visibility: false
   },
   {
     name: 'emergencyContactLastName',
-    label: 'Emergency Contact Last Name',
+    label: t('Emergency Contact Last Name'),
     visibility: false
   },
   {
     name: 'emergencyContactPhNum',
-    label: 'Emergency Contact Phone Number',
+    label: t('Emergency Contact Phone Number'),
     visibility: false
   },
   {
     name: 'emergencyContactRelationshipToPatient',
-    label: 'Emergency Contact Relationship To Patient',
+    label: t('Emergency Contact Relationship To Patient'),
     visibility: false
   }
 ];
@@ -101,25 +106,25 @@ const EmergencyDetailsFields = [
 const PrimaryCarePhysicianDetailsFields = [
   {
     name: 'PrimaryCareDoctorFirstName',
-    label: 'Primary Care Doctor First Name',
+    label: t('Primary Care Doctor First Name'),
     visibility: false
   },
   {
     name: 'PrimaryCareDoctorLastName',
-    label: 'Primary Care Doctor Last Name',
+    label: t('Primary Care Doctor Last Name'),
     visibility: false
   },
   {
     name: 'PrimaryCarePhoneNumber',
-    label: 'Primary Care Phone Number',
+    label: t('Primary Care Phone Number'),
     visibility: false
   },
   {
     name: 'PrimaryCareFaxNumber',
-    label: 'Primary Care Fax Number',
+    label: t('Primary Care Fax Number'),
     visibility: false
   },
-  { name: 'ReferralName', label: 'Referral Name', visibility: false }
+  { name: 'ReferralName', label: t('Referral Name'), visibility: false }
 ];
 // Define required fields
 const requiredFields = {
@@ -201,23 +206,23 @@ const FormBuilder = () => {
           );
 
           if (validSections.length > 0) {
-            toast.success('Successfully fetched the form');
+            toast.success(t('Successfully fetched the form'));
             setViewFormData(validSections); // Store only valid sections
             setDialogOpen(true); // Open the dialog to show form data
           } else {
             toast.error(
-              'You don’t have any valid sections in the Patient intake form'
+              t('You don’t have any valid sections in the Patient intake form')
             );
           }
         } else {
-          toast.error('You don’t have a Patient intake form');
+          toast.error(t('You don’t have a Patient intake form'));
         }
       })
       .catch((error) => {
-        console.log('err', error);
+        // console.log('err', error);
 
         setIsLoading(false); // Hide loading animation
-        toast.error('Failed to fetch form data');
+        console.error('Failed to fetch form data');
       });
   };
   const handleCustomFormSelect = () => {
@@ -278,10 +283,13 @@ const FormBuilder = () => {
       return fields.every((requiredField) => {
         if (!selectedFields[section].includes(requiredField)) {
           toast.error(
-            `Please select the ${requiredField} in ${section
-              .replace(/([A-Z])/g, ' $1')
-              .trim()}`
+            t(
+              `Please select the ${requiredField} in ${section
+                .replace(/([A-Z])/g, ' $1')
+                .trim()}`
+            )
           );
+
           hasError = true;
           return false; // Indicate that validation failed
         }
@@ -392,21 +400,21 @@ const FormBuilder = () => {
       .then((response) => {
         if (response.status === 201 || response.status === 200) {
           // Form successfully saved
-          toast.success('Form configuration saved successfully');
+          toast.success(t('Form configuration saved successfully'));
           setIsFormBuilt(true); // Allow viewing the form after it's built
           // toast.success('Form configuration saved successfully');
         } else if (response.status === 409) {
           // Form already exists
-          toast.error('A form with this client account already exists');
+          toast.error(t('A form with this client account already exists'));
         }
       })
       .catch((error) => {
         if (error.response && error.response.status === 409) {
           // Conflict - Form already exists
-          toast.error('A form with this client account already exists');
+          toast.error(t('A form with this client account already exists'));
         } else {
           // Any other errors - default message
-          toast.error('Failed to save form configuration');
+          toast.error(t('Failed to save form configuration'));
         }
       })
       .finally(() => {
@@ -500,16 +508,24 @@ const FormBuilder = () => {
             <Box sx={{ m: 2, p: 2 }}>
               <Grid item xs={12} sm={6} md={4}>
                 <Stack direction="row" spacing={1}>
-                  <Tooltip title="The default form includes the mandatory fields from Siddha-Pi and its integrated EMR system. These fields are fixed and cannot be modified by the admin user">
+                  <Tooltip
+                    title={t(
+                      'The default form includes the mandatory fields from Siddha-Pi and its integrated EMR system. These fields are fixed and cannot be modified by the admin user'
+                    )}
+                  >
                     <Chip
-                      label="Default"
+                      label={t('Default')}
                       onClick={handleDefaultFormSelect}
                       color={isDefaultSelected ? 'primary' : 'secondary'}
                     />
                   </Tooltip>
-                  <Tooltip title="The custom form is dynamically created by the admin user. It can be modified at any time for the provider's convenience, with a preview option available for the built form">
+                  <Tooltip
+                    title={t(
+                      "The custom form is dynamically created by the admin user. It can be modified at any time for the provider's convenience, with a preview option available for the built form"
+                    )}
+                  >
                     <Chip
-                      label="Custom"
+                      label={t('Custom')}
                       onClick={handleCustomFormSelect}
                       color={isCustomSelected ? 'primary' : 'secondary'}
                     />
@@ -541,7 +557,7 @@ const FormBuilder = () => {
                         }}
                         gutterBottom
                       >
-                        Note :
+                        {t('Note :')}
                       </Typography>
                       <Typography
                         variant="subtitle1"
@@ -549,9 +565,9 @@ const FormBuilder = () => {
                           fontSize: theme.typography.pxToRem(13)
                         }}
                       >
-                        To change the mode of the patient intake form, navigate
-                        to the admin panel settings: Settings → Patient Intake
-                        Form → Patient Intake Form Type
+                        {t(
+                          'To change the mode of the patient intake form, navigate to the admin panel settings: Settings → Patient Intake Form → Patient Intake Form Type'
+                        )}
                       </Typography>
                     </Box>
                   </Card>
@@ -596,7 +612,7 @@ const FormBuilder = () => {
                               disabled={activeStep === 0}
                               onClick={handleBack}
                             >
-                              Back
+                              {t('Back')}
                             </Button>
                             <Button
                               disabled={
@@ -605,7 +621,7 @@ const FormBuilder = () => {
                               }
                               onClick={handleNext}
                             >
-                              Next
+                              {t('Next')}
                             </Button>
                           </Box>
                         </Box>
@@ -631,7 +647,7 @@ const FormBuilder = () => {
                     fullWidth
                     maxWidth="md"
                   >
-                    <DialogTitle>Patient Intake Form</DialogTitle>
+                    <DialogTitle>{t('Patient Intake Form')}</DialogTitle>
                     <DialogContent>
                       <Stepper activeStep={activeStep}>
                         {viewFormData.map((section, index) => (
@@ -655,13 +671,13 @@ const FormBuilder = () => {
                         disabled={activeStep === 0}
                         onClick={() => setActiveStep((prev) => prev - 1)}
                       >
-                        Back
+                        {t('Back')}
                       </Button>
                       <Button
                         disabled={activeStep === viewFormData.length - 1}
                         onClick={() => setActiveStep((prev) => prev + 1)}
                       >
-                        Next
+                        {t('Next')}
                       </Button>
                     </DialogActions>
                   </Dialog>
@@ -673,9 +689,17 @@ const FormBuilder = () => {
               <Box sx={{ p: 3, mt: -6, ml: 1 }}>
                 <Grid container spacing={2}>
                   <Grid item xs={12} md={5}>
-                    <Paper elevation={3} sx={{ padding: 2, height: '100%' }}>
+                    <Paper
+                      elevation={3}
+                      sx={{
+                        padding: 2,
+                        height: '100%',
+                        overflow: 'auto',
+                        maxHeight: '80vh'
+                      }}
+                    >
                       <Typography variant="h6" align="center">
-                        Patient Intake Form
+                        {t('Patient Intake Form')}
                       </Typography>
                       {Object.values(selectedFields).some(
                         (section) => section.length > 0
@@ -744,10 +768,13 @@ const FormBuilder = () => {
                           alignItems: 'center'
                         }}
                       >
-                        <Typography variant="h6">Add Form Fields</Typography>
+                        <Typography variant="h6">
+                          {t('Add Form Fields')}
+                        </Typography>
                         <Typography variant="span">
-                          Fields marked with{' '}
-                          <span style={{ color: 'red' }}>*</span> are required
+                          {t('Fields marked with')}{' '}
+                          <span style={{ color: 'red' }}>*</span>{' '}
+                          {t('are required')}
                         </Typography>
                       </Box>
 
@@ -787,7 +814,7 @@ const FormBuilder = () => {
                                   onClick={() => handleSelectAll(section)}
                                   size="small"
                                 >
-                                  Select All
+                                  {t('Select All')}
                                 </Button>
                               </Grid>
                             </Grid>
@@ -937,7 +964,7 @@ const FormBuilder = () => {
                                 ? EmergencyDetailsFields
                                 : PrimaryCarePhysicianDetailsFields
                               ).length && (
-                              <Typography>No more fields</Typography>
+                              <Typography>{t('No more fields')}</Typography>
                             )}
                           </AccordionDetails>
                         </Accordion>
@@ -957,7 +984,9 @@ const FormBuilder = () => {
                       }}
                     >
                       {/* {isLoading ? 'Loading...' : 'Build Form'} */}
-                      {formCustomLength === 1 ? 'Update Form' : 'Build Form'}
+                      {formCustomLength === 1
+                        ? t('Update Form')
+                        : t('Build Form')}
                     </Button>
 
                     <Button
@@ -971,7 +1000,7 @@ const FormBuilder = () => {
                         mr: 2
                       }}
                     >
-                      {isLoading ? 'Loading...' : 'view Form'}
+                      {isLoading ? t('Loading...') : t('view Form')}
                     </Button>
                   </Grid>
                 </Grid>

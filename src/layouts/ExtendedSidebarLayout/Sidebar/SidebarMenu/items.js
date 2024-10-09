@@ -5,52 +5,53 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ArticleIcon from '@mui/icons-material/Article';
+import { t } from 'i18next';
 
 const menuItems = [
   {
     heading: '',
     items: [
       {
-        name: 'Dashboard',
+        name: t('Dashboard'),
         icon: DashboardIcon,
         link: 'SiddhaAI/Dashboard/Dashboard'
       },
       {
-        name: 'Patient Intake',
+        name: t('Patient Intake'),
         icon: AssignmentIndTwoToneIcon,
         items: [
           {
-            name: 'New Patient',
+            name: t('New Patient'),
             link: 'SiddhaAI/NewPatient/NewPatient'
           },
           {
-            name: 'Existing Patient',
+            name: t('Existing Patient'),
             link: 'SiddhaAI/ExistingPatient/ExistingPatient'
           }
         ]
       },
       {
-        name: 'Intake Form Customize',
+        name: t('Intake Form Customize'),
         icon: DynamicFormIcon,
         link: 'SiddhaAI/FormBuilder/FormBuilder'
       },
       {
-        name: `Doctor's List`,
+        name: t(`Doctors List`),
         icon: AccountTreeTwoToneIcon,
         link: 'SiddhaAI/CreateDoctor/CreateDoctor'
       },
       {
-        name: `Agreement`,
+        name: t(`Agreement`),
         icon: ArticleIcon,
         link: 'SiddhaAI/TC/TC'
       },
       {
-        name: `Reports`,
+        name: t(`Reports`),
         icon: AssessmentIcon,
         link: 'SiddhaAI/Reports/Reports'
       },
       {
-        name: `Settings`,
+        name: t(`Settings`),
         icon: SettingsIcon,
         link: 'SiddhaAI/Settings/Settings'
       }

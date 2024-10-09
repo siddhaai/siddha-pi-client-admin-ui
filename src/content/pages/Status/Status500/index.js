@@ -37,11 +37,11 @@ const TypographyPrimary = styled(Typography)(
 `
 );
 
-const TypographySecondary = styled(Typography)(
-  ({ theme }) => `
-      color: ${theme.colors.alpha.trueWhite[70]};
-`
-);
+// const TypographySecondary = styled(Typography)(
+//   ({ theme }) => `
+//       color: ${theme.colors.alpha.trueWhite[70]};
+// `
+// );
 
 function Status500() {
   const { t } = useTranslation();
@@ -141,22 +141,8 @@ function Status500() {
                     my: 2
                   }}
                 >
-                  {t('Tokyo React Javascript Admin Dashboard')}
+                  {t('Siddha Ai Admin Dashboard')}
                 </TypographyPrimary>
-                <TypographySecondary
-                  variant="h4"
-                  fontWeight="normal"
-                  sx={{
-                    mb: 4
-                  }}
-                >
-                  {t(
-                    'High performance React template built with lots of powerful MUI (Material-UI) components across multiple product niches for fast & perfect apps development processes.'
-                  )}
-                </TypographySecondary>
-                <Button href="/overview" size="large" variant="contained">
-                  {t('Overview')}
-                </Button>
               </Box>
             </Container>
           </GridWrapper>

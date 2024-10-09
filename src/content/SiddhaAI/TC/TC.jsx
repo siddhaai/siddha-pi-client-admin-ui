@@ -22,6 +22,8 @@ import jsPDF from 'jspdf';
 import useAxiosInterceptor from 'src/contexts/Interceptor';
 import { styled } from '@mui/material/styles'; // For hover effects
 import { Helmet } from 'react-helmet-async';
+// import { useTranslation } from 'react-i18next';
+import { t } from 'i18next';
 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
   '&:hover': {
@@ -100,11 +102,11 @@ const TC = () => {
       if (drchronoDoctoresDetail && drchronoDoctoresDetail.results) {
         setDoctors(drchronoDoctoresDetail.results);
       } else {
-        toast.error('Unexpected data structure from API');
+        console.error('Unexpected data structure from API');
       }
     } catch (error) {
       console.error('Error fetching doctors:', error);
-      toast.error('Error fetching doctors');
+      // toast.error('Error fetching doctors');
     }
   }, [axios, token]);
 
@@ -143,7 +145,7 @@ const TC = () => {
 
   const handleSubmit = async () => {
     if (!selectedDoctor) {
-      toast.error('Please select a doctor');
+      toast.error(t('Please select a doctor'));
       return;
     }
 
@@ -167,7 +169,7 @@ const TC = () => {
         );
 
         if (response.status === 200) {
-          toast.success('Agreement updated successfully');
+          toast.success(t('Agreement updated successfully'));
           fetchAgreements();
           setEditMode(false);
           setCurrentAgreementId(null);
@@ -192,7 +194,7 @@ const TC = () => {
         );
 
         if (response.status === 201) {
-          toast.success('Agreement created successfully');
+          toast.success(t('Agreement created successfully'));
           fetchAgreements();
           setTitle('');
           setContent('');
@@ -201,7 +203,7 @@ const TC = () => {
       }
     } catch (error) {
       console.error('Error submitting the content:', error);
-      toast.error('Error creating or updating agreement');
+      // toast.error('Error creating or updating agreement');
     } finally {
       setIsLoading(false);
     }
@@ -269,7 +271,6 @@ const TC = () => {
           });
           currentY += 5;
           break;
-
         case 'ol': // Ordered list
           listCounter = 1; // Reset list counter
           node.childNodes.forEach((liNode) => {
@@ -411,7 +412,9 @@ const TC = () => {
       <Grid container spacing={2}>
         <Grid item xs={12}>
           <Typography variant="h5" gutterBottom>
-            {editMode ? 'Edit Agreement' : 'Select Doctor and Create Agreement'}
+            {editMode
+              ? t('Edit Agreement')
+              : t('Select Doctor and Create Agreement')}
           </Typography>
         </Grid>
 
@@ -420,10 +423,10 @@ const TC = () => {
           <TextField
             select
             fullWidth
-            label="Preferred Doctor"
+            label={t('Preferred Doctor')}
             value={selectedDoctor}
             onChange={(event) => setSelectedDoctor(event.target.value)}
-            placeholder="Select a doctor"
+            placeholder={t('Select a doctor')}
             variant="outlined"
           >
             {doctors?.map((doctor) => (
@@ -440,8 +443,8 @@ const TC = () => {
             fullWidth
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Enter title"
-            label="Agreement Title"
+            placeholder={t('Enter title')}
+            label={t('Agreement Title')}
             variant="outlined"
             disabled={!selectedDoctor}
           />
@@ -474,11 +477,11 @@ const TC = () => {
           >
             {isLoading
               ? editMode
-                ? 'Updating...'
-                : 'Submitting...'
+                ? t('Updating...')
+                : t('Submitting...')
               : editMode
-              ? 'Update'
-              : 'Submit'}
+              ? t('Update')
+              : t('Submit')}
           </Button>
         </Grid>
       </Grid>
@@ -496,9 +499,9 @@ const TC = () => {
               <Table sx={{ minWidth: 450 }}>
                 <TableHead>
                   <TableRow>
-                    <TableCell align="center">S.no</TableCell>
-                    <TableCell align="center">Agreement Title</TableCell>
-                    <TableCell align="center">Actions</TableCell>
+                    <TableCell align="center">{t('S.no')}</TableCell>
+                    <TableCell align="center">{t('Agreement Title')}</TableCell>
+                    <TableCell align="center">{t('Actions')}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -514,7 +517,7 @@ const TC = () => {
                             handleViewPdf(agreement.title, agreement.body)
                           }
                         >
-                          View
+                          {t('View')}
                         </Button>
                         <Button
                           variant="contained"
@@ -522,7 +525,7 @@ const TC = () => {
                           onClick={() => handleEditAgreement(agreement)}
                           style={{ marginLeft: '8px' }} // Add spacing
                         >
-                          Edit
+                          {t('Edit')}
                         </Button>
                       </TableCell>
                     </StyledTableRow>

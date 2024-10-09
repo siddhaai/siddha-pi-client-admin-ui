@@ -74,48 +74,6 @@ export const AuthProvider = (props) => {
     }
   };
 
-  // useEffect(() => {
-  //   const initialize = async () => {
-  //     try {
-  //       const accessToken = window.localStorage.getItem('accessToken');
-
-  //       if (accessToken && verify(accessToken, JWT_SECRET)) {
-  //         setSession(accessToken);
-
-  //         const response = await axios.get('/api/account/personal');
-  //         const { user } = response.data;
-
-  //         dispatch({
-  //           type: 'INITIALIZE',
-  //           payload: {
-  //             isAuthenticated: true,
-  //             user
-  //           }
-  //         });
-  //       } else {
-  //         dispatch({
-  //           type: 'INITIALIZE',
-  //           payload: {
-  //             isAuthenticated: false,
-  //             user: null
-  //           }
-  //         });
-  //       }
-  //     } catch (err) {
-  //       console.error(err);
-  //       dispatch({
-  //         type: 'INITIALIZE',
-  //         payload: {
-  //           isAuthenticated: false,
-  //           user: null
-  //         }
-  //       });
-  //     }
-  //   };
-
-  //   initialize();
-  // }, []);
-
   const initialize = async () => {
     try {
       const accessToken = window?.localStorage?.getItem('accessToken');
@@ -194,6 +152,7 @@ export const AuthProvider = (props) => {
       });
       return { success: true, user };
     } catch (error) {
+      console.error('Login error:', error.response?.data);
       return { success: false, token: null };
     }
   };
