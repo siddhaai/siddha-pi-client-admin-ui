@@ -280,5 +280,9 @@
   "No SMS Available": "无可用短信",
   "Last name is required": "姓氏是必填项",
   "Last name must be at least 3 characters": "姓氏必须至少3个字符",
-  "Last name must contain only letters": "姓氏只能包含字母"
+  "Last name must contain only letters": "姓氏只能包含字母",
+  "Template Name": "模板名称",
+  "Content": "内容",
+  "Add New SMS Template": "添加新短信模板",
+  "Custom SMS Template": "自定义短信模板"
 }

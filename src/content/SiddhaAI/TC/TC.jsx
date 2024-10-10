@@ -122,11 +122,11 @@ const TC = () => {
         setAgreements(response.data.data);
         setShowTable(response.data.data.length > 0);
       } else {
-        toast.error('Failed to fetch agreements');
+        console.error('Failed to fetch agreements');
       }
     } catch (error) {
       console.error('Error fetching agreements:', error);
-      toast.error('Error fetching agreements');
+      // toast.error('Error fetching agreements');
     }
   }, [axios, token]);
 
@@ -477,8 +477,8 @@ const TC = () => {
           >
             {isLoading
               ? editMode
-                ? t('Updating...')
-                : t('Submitting...')
+                ? t('Update')
+                : t('Submit')
               : editMode
               ? t('Update')
               : t('Submit')}

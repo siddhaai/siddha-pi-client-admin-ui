@@ -280,5 +280,9 @@
   "No SMS Available": "Walang magagamit na SMS",
   "Last name is required": "Kinakailangan ang apelyido",
   "Last name must be at least 3 characters": "Ang apelyido ay dapat na hindi bababa sa 3 karakter",
-  "Last name must contain only letters": "Ang apelyido ay dapat maglaman lamang ng mga titik"
+  "Last name must contain only letters": "Ang apelyido ay dapat maglaman lamang ng mga titik",
+  "Template Name": "Pangalan ng Template",
+  "Content": "Nilalaman",
+  "Add New SMS Template": "Magdagdag ng Bagong Template ng SMS",
+  "Custom SMS Template": "Pasadyang Template ng SMS"
 }

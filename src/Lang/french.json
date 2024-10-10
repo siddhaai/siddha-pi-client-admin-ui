@@ -280,5 +280,9 @@
   "No SMS Available": "Aucun SMS disponible",
   "Last name is required": "Le nom de famille est requis",
   "Last name must be at least 3 characters": "Le nom de famille doit comporter au moins 3 caractères",
-  "Last name must contain only letters": "Le nom de famille doit uniquement contenir des lettres"
+  "Last name must contain only letters": "Le nom de famille doit uniquement contenir des lettres",
+  "Template Name": "Nom du Modèle",
+  "Content": "Contenu",
+  "Add New SMS Template": "Ajouter un Nouveau Modèle de SMS",
+  "Custom SMS Template": "Modèle de SMS Personnalisé"
 }

@@ -281,5 +281,9 @@
   "No SMS Available": "Không có SMS",
   "Last name is required": "Họ là bắt buộc",
   "Last name must be at least 3 characters": "Họ phải có ít nhất 3 ký tự",
-  "Last name must contain only letters": "Họ chỉ được chứa chữ cái"
+  "Last name must contain only letters": "Họ chỉ được chứa chữ cái",
+  "Template Name": "Tên Mẫu",
+  "Content": "Nội Dung",
+  "Add New SMS Template": "Thêm Mẫu SMS Mới",
+  "Custom SMS Template": "Mẫu SMS Tùy Chỉnh"
 }

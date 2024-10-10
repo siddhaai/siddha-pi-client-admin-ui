@@ -21,20 +21,20 @@ import {
   Avatar,
   Card,
   Chip,
-  CardContent,
   Dialog,
   DialogActions,
   DialogContent,
   useMediaQuery,
   useTheme,
-  CircularProgress
+  CircularProgress,
+  TableContainer,
+  Paper
 } from '@mui/material';
 import toast, { Toaster } from 'react-hot-toast';
 import useAxiosInterceptor from 'src/contexts/Interceptor';
 import { Add, Delete } from '@mui/icons-material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { Helmet } from 'react-helmet-async';
-import { t } from 'i18next';
 import { useTranslation } from 'react-i18next';
 
 export default function Settings() {
@@ -43,6 +43,8 @@ export default function Settings() {
   const [smsCard, setSmsCard] = useState(false);
   const [smsTemplateView, setSmsTemplateView] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
+  const [showAddTemplate, setShowAddTemplate] = useState(false); // To toggle the add template section
+
   const { t } = useTranslation();
 
   // Initialize the states
@@ -64,42 +66,140 @@ export default function Settings() {
     return emailRegex.test(email);
   };
 
+  // const [smsData, setSmsData] = useState({
+  //   templateName: '',
+  //   templateText: '', // The SMS template content, pre-filled with required variable
+  //   selectedVariables: ['WEB_APP_URL'] // 'WEB_APP_URL' is always selected and cannot be removed
+  // });
+
   const [smsData, setSmsData] = useState({
     templateName: '',
-    templateText: '', // The SMS template content, pre-filled with required variable
-    selectedVariables: ['WEB_APP_URL'] // 'WEB_APP_URL' is always selected and cannot be removed
+    templateText: '',
+    selectedVariables: ['WEB_APP_URL'],
+    smsTemplates: [], // Store all templates
+    selectedTemplateIndex: null, // Selected template index for radio button
+    newTemplateName: '', // New template name
+    newTemplateText: '', // New template content
+    newSelectedVariables: [] // Variables for new template
   });
+
+  // Function to handle deleting a template
+  const handleDeleteTemplate = (indexToDelete) => {
+    setSmsData((prevData) => {
+      const updatedTemplates = prevData.smsTemplates.filter(
+        (template, index) => index !== indexToDelete
+      );
+      return {
+        ...prevData,
+        smsTemplates: updatedTemplates
+      };
+    });
+    console.success('Template deleted successfully!');
+  };
+
+  // Get settings from API
+  const getAdminCustomSetting = async () => {
+    try {
+      const response = await axios.get('/settings/getSettings', {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      const {
+        client_admin_session_time,
+        siddha_pi_form_session_time,
+        Patient_reminder_sms_alert,
+        mail_send_email_ids,
+        timeZones,
+        weekly_report,
+        monthly_report,
+        select_pi_form_send_to_patient_default,
+        select_pi_form_send_to_patient_custom,
+        logo,
+        sms_template
+      } = response.data.settings;
+
+      setFormData({
+        expiry: siddha_pi_form_session_time,
+        emailNotification: '',
+        sessionTimeout: client_admin_session_time,
+        emails: mail_send_email_ids || [],
+        timeZones: timeZones || [],
+        reportWeekly: weekly_report,
+        reportMonthly: monthly_report,
+        remainderTitle: Patient_reminder_sms_alert,
+        default: select_pi_form_send_to_patient_default,
+        custom: select_pi_form_send_to_patient_custom,
+        logo
+      });
+
+      // Set SMS templates and pre-selected variables
+      if (sms_template && sms_template.length > 0) {
+        const selectedTemplateIndex = sms_template.findIndex(
+          (template) => template.selected
+        ); // Find selected template
+
+        setSmsData((prevData) => ({
+          ...prevData,
+          smsTemplates: sms_template, // Store all templates
+          selectedTemplateIndex // Mark the selected template index
+        }));
+      }
+    } catch (error) {
+      toast.error(`${error.message}`);
+    }
+  };
+
+  // Handle Template Name Change
+  const handleTemplateNameChange = (e) => {
+    setSmsData({ ...smsData, templateName: e.target.value });
+  };
+
+  // Handle Text Change for the SMS template
+  const handleTextChange = (e) => {
+    setSmsData({ ...smsData, templateText: e.target.value });
+  };
+
+  // Handle Variable Selection
+  // const handleVariableSelect = (variable) => {
+  //   const selectedVariables = smsData.selectedVariables.includes(variable)
+  //     ? smsData.selectedVariables.filter((v) => v !== variable)
+  //     : [...smsData.selectedVariables, variable];
+
+  //   setSmsData({ ...smsData, selectedVariables });
+  // };
+
+  // Add New Template to the List
+  const handleAddTemplate = () => {
+    if (smsData.templateName && smsData.templateText) {
+      const newTemplate = {
+        templateName: smsData.templateName,
+        smsTemplateContant: smsData.templateText,
+        selected: false
+      };
+
+      setSmsData((prevData) => ({
+        ...prevData,
+        smsTemplates: [...prevData.smsTemplates, newTemplate], // Add the new template
+        templateName: '',
+        templateText: '',
+        selectedVariables: []
+      }));
+      setShowAddTemplate(false); // Hide add template section after adding
+      toast.success('New SMS template added successfully!');
+    } else {
+      console.error('Please fill out the template name and content.');
+    }
+  };
 
   const variables = [
     { label: 'Patient First Name', value: 'patientName' },
     { label: 'Appointment Date & Time', value: 'scheduleDateTime' },
     { label: 'Time Zone', value: 'timeZone' },
-    // { label: 'Doctor Phone Number', value: 'doctor_phone' },
     { label: 'Patient Intake Form Url', value: 'WEB_APP_URL', required: true } // Required checkbox
   ];
-
-  // Handle variable selection (checkbox toggle)
-  // const handleVariableSelect = (variable) => {
-  //   const isSelected = smsData.selectedVariables.includes(variable);
-
-  //   if (isSelected) {
-  //     // Remove variable from selectedVariables and templateText
-  //     setSmsData((prevData) => ({
-  //       ...prevData,
-  //       selectedVariables: prevData.selectedVariables.filter(
-  //         (v) => v !== variable
-  //       ),
-  //       templateText: prevData.templateText.replace(`{{${variable}}}`, '')
-  //     }));
-  //   } else {
-  //     // Add variable to selectedVariables and insert it into templateText
-  //     setSmsData((prevData) => ({
-  //       ...prevData,
-  //       selectedVariables: [...prevData.selectedVariables, variable],
-  //       templateText: `${prevData.templateText} {{${variable}}}`
-  //     }));
-  //   }
-  // };
 
   const handleVariableSelect = (variable) => {
     const textarea = document.getElementById('smsTemplateTextarea');
@@ -145,14 +245,63 @@ export default function Settings() {
     }
   };
 
-  // Handle changes in the textarea
-  const handleTextChange = (e) => {
-    setSmsData({ ...smsData, templateText: e.target.value });
-  };
+  // Submit function for saving settings, including selected template
+  const handleSubmit = async () => {
+    // if (!smsData.selectedVariables.includes('WEB_APP_URL')) {
+    //   toast.error('Please select "Patient Intake Form Url" field');
+    //   return;
+    // }
 
-  // Handle template name input
-  const handleTemplateNameChange = (e) => {
-    setSmsData({ ...smsData, templateName: e.target.value });
+    // Check if a template has been selected
+    if (
+      smsData.selectedTemplateIndex === null ||
+      smsData.selectedTemplateIndex === undefined
+    ) {
+      toast.error('Please select an SMS template to proceed.');
+      return; // Exit the function early if no template is selected
+    }
+
+    // Prepare the SMS templates for PUT request, ensuring the selected template is marked
+    const smsTemplatesWithSelection = smsData.smsTemplates.map(
+      (template, index) => ({
+        ...template,
+        selected: index === smsData.selectedTemplateIndex // Mark the selected template in PUT request
+      })
+    );
+
+    const requestBody = {
+      client_admin_session_time: formData.sessionTimeout,
+      siddha_pi_form_session_time: formData.expiry,
+      Patient_reminder_sms_alert: formData.remainderTitle,
+      mail_send_email_ids: formData.emails,
+      timeZones: formData.timeZones,
+      weekly_report: formData.reportWeekly,
+      monthly_report: formData.reportMonthly,
+      select_pi_form_send_to_patient_default: formData.default,
+      select_pi_form_send_to_patient_custom: formData.custom,
+      sms_template: smsTemplatesWithSelection // Include the updated SMS templates with selected template
+    };
+
+    try {
+      const response = await axios.put(
+        '/settings/updateSettings',
+        requestBody,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      if (response.status === 200) {
+        toast.success('Settings updated successfully!');
+        setIsEditing(false);
+        setShowAddTemplate(false); // Hide the add section after saving
+      }
+    } catch (error) {
+      toast.error(`${error.message}`);
+    }
   };
 
   const [isEditing, setIsEditing] = useState(false);
@@ -227,7 +376,6 @@ export default function Settings() {
     });
   };
 
-  // Handle email field change
   // Handle email change with validation
   const handleEmailChange = (index, value) => {
     const updatedEmails = [...formData.emails];
@@ -262,7 +410,6 @@ export default function Settings() {
   };
 
   // Delete email field
-  // Delete email field
   const deleteEmailField = (index) => {
     const updatedEmails = formData.emails.filter((_, i) => i !== index);
     setFormData({ ...formData, emails: updatedEmails });
@@ -279,51 +426,122 @@ export default function Settings() {
     setFormData({ ...formData, timeZones: updatedTimeZones });
   };
 
-  // Handle form submission
-  const handleSubmit = async () => {
-    if (!smsData.selectedVariables.includes('WEB_APP_URL')) {
-      toast.error('Please select "Patient Intake Form Url" field');
-      return; // Prevent form submission
-    }
+  // // Handle form submission
+  // const handleSubmit = async () => {
+  //   if (!smsData.selectedVariables.includes('WEB_APP_URL')) {
+  //     toast.error('Please select "Patient Intake Form Url" field');
+  //     return; // Prevent form submission
+  //   }
 
-    const requestBody = {
-      client_admin_session_time: formData.sessionTimeout,
-      siddha_pi_form_session_time: formData.expiry,
-      Patient_reminder_sms_alert: formData.remainderTitle,
-      mail_send_email_ids: formData.emails,
-      timeZones: formData.timeZones,
-      weekly_report: formData.reportWeekly,
-      monthly_report: formData.reportMonthly,
-      select_pi_form_send_to_patient_default: formData.default,
-      select_pi_form_send_to_patient_custom: formData.custom,
-      sms_template: [
-        {
-          templateName: smsData.templateName, // The template name entered by the user
-          smsTemplateContant: smsData.templateText // The template content with placeholders
-        }
-      ]
-    };
+  //   const requestBody = {
+  //     client_admin_session_time: formData.sessionTimeout,
+  //     siddha_pi_form_session_time: formData.expiry,
+  //     Patient_reminder_sms_alert: formData.remainderTitle,
+  //     mail_send_email_ids: formData.emails,
+  //     timeZones: formData.timeZones,
+  //     weekly_report: formData.reportWeekly,
+  //     monthly_report: formData.reportMonthly,
+  //     select_pi_form_send_to_patient_default: formData.default,
+  //     select_pi_form_send_to_patient_custom: formData.custom,
+  //     sms_template: [
+  //       {
+  //         templateName: smsData.templateName, // The template name entered by the user
+  //         smsTemplateContant: smsData.templateText // The template content with placeholders
+  //       }
+  //     ]
+  //   };
 
-    try {
-      const response = await axios.put(
-        '/settings/updateSettings',
-        requestBody,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
+  //   try {
+  //     const response = await axios.put(
+  //       '/settings/updateSettings',
+  //       requestBody,
+  //       {
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //           Authorization: `Bearer ${token}`
+  //         }
+  //       }
+  //     );
 
-      if (response.status === 200) {
-        toast.success('Settings updated successfully!');
-        setIsEditing(false);
-      }
-    } catch (error) {
-      toast.error(`${error.message}`);
-    }
+  //     if (response.status === 200) {
+  //       toast.success('Settings updated successfully!');
+  //       setIsEditing(false);
+  //     }
+  //   } catch (error) {
+  //     toast.error(`${error.message}`);
+  //   }
+  // };
+
+  // Handle submit function for saving settings, including selected template
+  //  const handleSubmit = async () => {
+  //   if (!smsData.selectedVariables.includes('WEB_APP_URL')) {
+  //     toast.error('Please select "Patient Intake Form Url" field');
+  //     return;
+  //   }
+
+  //   // Prepare templates for the PUT request
+  //   const smsTemplatesWithSelection = smsData.smsTemplates.map((template, index) => ({
+  //     ...template,
+  //     selected: index === smsData.selectedTemplateIndex // Mark the selected template in PUT request
+  //   }));
+
+  //   const requestBody = {
+  //     client_admin_session_time: formData.sessionTimeout,
+  //     siddha_pi_form_session_time: formData.expiry,
+  //     Patient_reminder_sms_alert: formData.remainderTitle,
+  //     mail_send_email_ids: formData.emails,
+  //     timeZones: formData.timeZones,
+  //     weekly_report: formData.reportWeekly,
+  //     monthly_report: formData.reportMonthly,
+  //     select_pi_form_send_to_patient_default: formData.default,
+  //     select_pi_form_send_to_patient_custom: formData.custom,
+  //     sms_template: smsTemplatesWithSelection // Include the updated SMS templates with selected template
+  //   };
+
+  //   try {
+  //     const response = await axios.put('/settings/updateSettings', requestBody, {
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         Authorization: `Bearer ${token}`
+  //       }
+  //     });
+
+  //     if (response.status === 200) {
+  //       toast.success('Settings updated successfully!');
+  //       setIsEditing(false);
+  //       setShowAddTemplate(false); // Hide the add section after saving
+  //     }
+  //   } catch (error) {
+  //     toast.error(`${error.message}`);
+  //   }
+  // };
+
+  // Handle radio button selection
+  const handleTemplateSelect = (index) => {
+    setSmsData({ ...smsData, selectedTemplateIndex: index });
   };
+
+  // Preview function for fetching and displaying SMS content
+  // const getAdminCustomSms = async () => {
+  //   try {
+  //     const response = await axios.get('/sms/getSmsTemplate', {
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         Authorization: `Bearer ${token}`
+  //       }
+  //     });
+
+  //     if (response?.status === 200) {
+  //       setSmsTemplateView(response?.data[0]?.messageContent);
+  //       setOpenDialog(true);
+  //       setSmsCard(true);
+  //     } else {
+  //       console.error('Error fetching SMS template');
+  //     }
+  //   } catch (error) {
+  //     console.error(`${error.message}`);
+  //   }
+  // };
 
   // Submit the new logo to the backend
   const handleLogoSubmit = async () => {
@@ -425,100 +643,21 @@ export default function Settings() {
     setSelectedImage(null); // Reset selected image
   };
 
-  // Get settings from the API
-  const getAdminCustomSetting = async () => {
-    try {
-      const response = await axios.get('/settings/getSettings', {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        }
-      });
-
-      const {
-        client_admin_session_time,
-        siddha_pi_form_session_time,
-        Patient_reminder_sms_alert,
-        mail_send_email_ids,
-        timeZones,
-        weekly_report,
-        monthly_report,
-        select_pi_form_send_to_patient_default,
-        select_pi_form_send_to_patient_custom,
-        logo,
-        sms_template
-      } = response.data.settings;
-
-      setFormData({
-        expiry: siddha_pi_form_session_time,
-        emailNotification: '',
-        sessionTimeout: client_admin_session_time,
-        emails: mail_send_email_ids || [],
-        timeZones: timeZones || [],
-        reportWeekly: weekly_report,
-        reportMonthly: monthly_report,
-        remainderTitle: Patient_reminder_sms_alert,
-        default: select_pi_form_send_to_patient_default,
-        custom: select_pi_form_send_to_patient_custom,
-        logo
-      });
-
-      if (sms_template && sms_template.length > 0) {
-        const template = sms_template[0]; // Assuming you're using the first template
-        const preSelectedVariables = variables
-          .filter((variable) =>
-            template.smsTemplateContant.includes(`{{${variable.value}}}`)
-          )
-          .map((variable) => variable.value);
-
-        setSmsData({
-          templateName: template.templateName,
-          templateText: template.smsTemplateContant,
-          selectedVariables: preSelectedVariables
-        });
-      }
-    } catch (error) {
-      toast.error(`${error.message}`);
-    }
-  };
-
-  const getAdminCustomSms = async () => {
-    try {
-      const response = await axios.get('/sms/getSmsTemplate', {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        }
-      });
-
-      if (response?.status === 200) {
-        // console.log('sms templ', response?.data[0]?.messageContent);
-        setSmsTemplateView(response?.data[0]?.messageContent);
-        setOpenDialog(true);
-        setSmsCard(true);
-      } else {
-        console.error('Error fetching SMS template');
-      }
-    } catch (error) {
-      console.error(`${error.message}`);
-    }
-  };
-
   useEffect(() => {
     getAdminCustomSetting();
   }, []);
 
-  const handleCancel = () => {
-    setIsEditing(false); // Reset to non-editing state when Cancel is clicked
-  };
+  // const handleCancel = () => {
+  //   setIsEditing(false); // Reset to non-editing state when Cancel is clicked
+  // };
 
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-  };
+  // const handleCloseDialog = () => {
+  //   setOpenDialog(false);
+  // };
 
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
-  const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg'));
-  const isExtraLargeScreen = useMediaQuery(theme.breakpoints.up('xl'));
+  // const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  // const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg'));
+  // const isExtraLargeScreen = useMediaQuery(theme.breakpoints.up('xl'));
 
   return (
     <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
@@ -602,149 +741,221 @@ export default function Settings() {
 
           <Box>
             <Typography variant="h5" gutterBottom>
-              {t('Custom SMS')}
+              {t('Custom SMS Template')}
             </Typography>
 
-            {/* Text Field for the SMS Template Name */}
-            <Box mt={2}>
-              {/* Template Name Input Field */}
-              <TextField
-                disabled={!isEditing}
-                label={t('SMS Template Title')}
-                value={smsData.templateName}
-                onChange={handleTemplateNameChange}
-                placeholder={t('Enter SMS Template Title')}
-              />
+            {/* Add New Template Button */}
+            <Button
+              disabled={!isEditing}
+              variant="contained"
+              color="primary"
+              onClick={() => setShowAddTemplate(!showAddTemplate)}
+              sx={{ mt: 3 }}
+            >
+              {showAddTemplate ? t('Cancel') : t('Add New SMS Template')}
+            </Button>
 
-              {/* View Button */}
-
-              <Tooltip title={t('Click here to view sample sms')}>
-                <Button
-                  disabled={!isEditing}
-                  variant="outlined"
-                  onClick={getAdminCustomSms}
-                  sx={{ ml: 2, mt: 1 }}
-                >
-                  {t('Preview')}
-                </Button>
-              </Tooltip>
-
-              {/* Conditional rendering of the SMS template card */}
-              {smsCard && (
-                <Card>
-                  <Dialog
-                    open={openDialog}
-                    onClose={handleCloseDialog}
-                    fullWidth
-                    maxWidth={
-                      isExtraLargeScreen
-                        ? 'lg'
-                        : isLargeScreen
-                        ? 'md'
-                        : isSmallScreen
-                        ? 'sm'
-                        : 'xs'
-                    } // Adjust the width dynamically based on screen size
-                  >
-                    {/* SMS Template Content */}
-                    <DialogContent dividers>
-                      <CardContent>
-                        {/* <CardHeader> */}
-                        <Typography
-                          variant="h6"
-                          sx={{ padding: '20px 0' }}
-                          color="secondary"
-                        >
-                          {t('Sample SMS')}
-                        </Typography>
-                        {/* </CardHeader> */}
-                        {/* <Divider /> */}
-                        <Typography variant="body2">
-                          {smsTemplateView}
-                        </Typography>
-                      </CardContent>
-                    </DialogContent>
-
-                    {/* Dialog Actions */}
-                    <DialogActions>
-                      <Button onClick={handleCloseDialog} color="secondary">
-                        {t('Cancel')}
-                      </Button>
-                    </DialogActions>
-                  </Dialog>
-                </Card>
-              )}
-            </Box>
-
-            {/* Display variable checkboxes */}
-            <Grid container spacing={2} sx={{ mt: 2 }}>
-              {variables.map((variable) => (
-                <Grid item key={variable.value}>
-                  <FormControlLabel
-                    disabled={!isEditing}
-                    control={
-                      <Checkbox
-                        checked={smsData.selectedVariables.includes(
-                          variable.value
-                        )}
-                        onChange={() => handleVariableSelect(variable.value)}
-                      />
-                    }
-                    label={variable.label}
-                  />
+            {/* Form to Add a New SMS Template */}
+            {showAddTemplate && (
+              <Box mt={3}>
+                {/* Template Name Input Field */}
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={4}>
+                    <TextField
+                      disabled={!isEditing}
+                      label={t('SMS Template Title')}
+                      value={smsData.templateName}
+                      onChange={handleTemplateNameChange}
+                      placeholder={t('Enter SMS Template Title')}
+                      fullWidth
+                      sx={{ mb: 2 }}
+                    />
+                  </Grid>
                 </Grid>
-              ))}
-            </Grid>
 
-            {/* Text area for SMS template with chips for variables */}
-            <Box mt={2}>
-              <Box
-                mt={1}
-                p={2}
-                sx={{
-                  width: '100%',
-                  minHeight: '100px',
-                  border: '1px solid #ccc',
-                  borderRadius: '4px',
-                  backgroundColor: '#f9f9f9',
-                  position: 'relative'
-                }}
-              >
-                {/* Display the chips for selected variables */}
-                {smsData.selectedVariables.map((variable) => (
-                  <Chip
-                    disabled={!isEditing}
-                    key={variable}
-                    label={`{{${variable}}}`}
-                    onDelete={() => handleVariableSelect(variable)}
-                    sx={{ m: 0.5 }}
-                  />
-                ))}
+                {/* Display variable checkboxes */}
+                <Grid container spacing={2} sx={{ mt: 2 }}>
+                  {variables.map((variable) => (
+                    <Grid item key={variable.value}>
+                      <FormControlLabel
+                        disabled={!isEditing}
+                        control={
+                          <Checkbox
+                            checked={smsData.selectedVariables.includes(
+                              variable.value
+                            )}
+                            onChange={() =>
+                              handleVariableSelect(variable.value)
+                            }
+                          />
+                        }
+                        label={variable.label}
+                      />
+                    </Grid>
+                  ))}
+                </Grid>
 
-                {/* Text area where the user can type */}
-                <textarea
-                  id="smsTemplateTextarea"
-                  disabled={!isEditing}
-                  value={smsData.templateText}
-                  onChange={handleTextChange}
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    fontSize: '16px',
-                    lineHeight: '1.5',
-                    border: 'none',
-                    outline: 'none',
-                    background: 'transparent',
-                    resize: 'none'
-                  }}
-                  rows={6}
-                  placeholder={t('Type your sms content here...')}
-                />
+                {/* Text area for SMS template with chips for variables */}
+                <Box mt={2}>
+                  <Box
+                    mt={1}
+                    p={2}
+                    sx={{
+                      width: '100%',
+                      minHeight: '100px',
+                      border: '1px solid #ccc',
+                      borderRadius: '4px',
+                      backgroundColor: '#f9f9f9',
+                      position: 'relative'
+                    }}
+                  >
+                    {/* Display the chips for selected variables */}
+                    {smsData.selectedVariables.map((variable) => (
+                      <Chip
+                        disabled={!isEditing}
+                        key={variable}
+                        label={`{{${variable}}}`}
+                        onDelete={() => handleVariableSelect(variable)}
+                        sx={{ m: 0.5 }}
+                      />
+                    ))}
+
+                    {/* Text area where the user can type */}
+                    <textarea
+                      id="smsTemplateTextarea"
+                      disabled={!isEditing}
+                      value={smsData.templateText}
+                      onChange={handleTextChange}
+                      style={{
+                        width: '100%',
+                        padding: '10px',
+                        fontSize: '16px',
+                        lineHeight: '1.5',
+                        border: 'none',
+                        outline: 'none',
+                        background: 'transparent',
+                        resize: 'none'
+                      }}
+                      rows={6}
+                      placeholder={t('Type your sms content here...')}
+                    />
+                  </Box>
+                </Box>
+                {/* Add New Template Submit Button */}
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleAddTemplate}
+                  sx={{ mt: 2 }}
+                >
+                  {t('Save SMS')}
+                </Button>
               </Box>
-            </Box>
+            )}
+
+            {/* SMS Template Table */}
+            {!showAddTemplate && (
+              <TableContainer component={Paper} sx={{ mt: 3, maxHeight: 400 }}>
+                {/* Paper adds a card-like feel */}
+                <Table stickyHeader aria-label="sms templates table">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={{ textAlign: 'center' }}>
+                        {t('Select')}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          textAlign: 'center',
+                          whiteSpace: 'nowrap',
+                          wordWrap: 'break-word' // Ensure text wrapping
+                        }}
+                      >
+                        {t('SMS Title')}
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          textAlign: 'center',
+                          wordWrap: 'break-word' // Ensure text wrapping
+                        }}
+                      >
+                        {t('Content')}
+                      </TableCell>
+                      <TableCell sx={{ textAlign: 'center' }}>
+                        {t('Actions')}
+                      </TableCell>{' '}
+                      {/* Action Column for Delete */}
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {smsData.smsTemplates.map((template, index) => (
+                      <TableRow key={template.templateName}>
+                        <TableCell>
+                          <Radio
+                            disabled={!isEditing}
+                            checked={smsData.selectedTemplateIndex === index}
+                            onChange={() =>
+                              setSmsData({
+                                ...smsData,
+                                selectedTemplateIndex: index
+                              })
+                            }
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              fontSize: { xs: '12px', sm: '14px', md: '16px' },
+                              wordWrap: 'break-word' // Ensure text wrapping
+                            }}
+                          >
+                            {template.templateName}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Typography
+                            variant="body2"
+                            noWrap
+                            sx={{
+                              fontSize: { xs: '12px', sm: '14px', md: '16px' },
+                              whiteSpace: 'normal',
+                              wordWrap: 'break-word' // Wrap words within the cell
+                            }}
+                          >
+                            {template.smsTemplateContant}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Tooltip
+                            title={isEditing ? t('Delete') : t('Delete')}
+                          >
+                            <span>
+                              {/* Wrap IconButton in <span> to handle disabling */}
+                              <IconButton
+                                edge="end"
+                                aria-label="delete"
+                                onClick={() => handleDeleteTemplate(index)}
+                                sx={{
+                                  color: isEditing ? 'red' : 'gray',
+                                  cursor: isEditing ? 'pointer' : 'none'
+                                }}
+                                disabled={!isEditing} // Disable button if not editing
+                              >
+                                <Delete />
+                              </IconButton>
+                            </span>
+                          </Tooltip>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
           </Box>
         </Box>
       )}
+
       {tabIndex === 1 && (
         <Box>
           <Typography variant="h5" gutterBottom>
@@ -1026,31 +1237,7 @@ export default function Settings() {
         </Box>
       )}
 
-      {/* Hide the Change Settings buttons if tabIndex === 3 */}
-      {/* {tabIndex !== 3 && (
-        <Box mt={3}>
-          {!isEditing ? (
-            <Button variant="contained" onClick={() => setIsEditing(true)}>
-              Change Settings
-            </Button>
-          ) : (
-            <>
-              <Button variant="contained" onClick={handleSubmit}>
-                Save Settings
-              </Button>
-              <Button
-                variant="outlined"
-                color="secondary"
-                sx={{ ml: 2 }}
-                onClick={handleCancel} // Clicking "Cancel" will exit edit mode
-              >
-                Cancel
-              </Button>
-            </>
-          )}
-        </Box>
-      )} */}
-
+      {/* Save Settings Button */}
       <Box mt={3}>
         {!isEditing ? (
           <Button variant="contained" onClick={() => setIsEditing(true)}>
@@ -1065,13 +1252,36 @@ export default function Settings() {
               variant="outlined"
               color="secondary"
               sx={{ ml: 2 }}
-              onClick={handleCancel} // Clicking "Cancel" will exit edit mode
+              onClick={() => setIsEditing(false)}
             >
               {t('Cancel')}
             </Button>
           </>
         )}
       </Box>
+
+      {/* SMS Template Preview Dialog */}
+      {smsCard && (
+        <Dialog
+          open={openDialog}
+          onClose={() => setOpenDialog(false)}
+          fullWidth
+          maxWidth="sm"
+        >
+          <DialogContent>
+            <Typography variant="h6" color="secondary">
+              {t('Sample SMS')}
+            </Typography>
+            <Divider sx={{ my: 2 }} />
+            <Typography variant="body2">{smsTemplateView}</Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenDialog(false)} color="secondary">
+              {t('Close')}
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
     </Box>
   );
 }

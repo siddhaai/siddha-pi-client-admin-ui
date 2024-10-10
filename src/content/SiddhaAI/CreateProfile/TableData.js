@@ -104,7 +104,6 @@ function PageHeader() {
       const imageUrl = response.data.clientProfile[0].profilePhoto
         ? `data:image/jpeg;base64,${response.data.clientProfile[0].profilePhoto}`
         : '';
-
       // Set image URL for displaying
       SetGetUserImage(imageUrl);
 
@@ -114,7 +113,7 @@ function PageHeader() {
         officeLocations: response.data.clientProfile[0].officeLocations || []
       });
     } catch (error) {
-      console.error('Failed to fetch user data');
+      console.error('Failed to fetch user data Create Profile Photo');
     }
   };
 
@@ -130,7 +129,7 @@ function PageHeader() {
       const officeLocations = drchronoOfficeLocation.results;
       setSelectedOffices(officeLocations);
     } catch (error) {
-      console.error('Failed to fetch user data');
+      console.error('Failed to fetch user data drchrono from CreateProfile');
     }
   };
 

@@ -423,7 +423,7 @@ function PatientIntakeSuccessCount() {
         setDateRange(dateRangeString); // Set the date range
       }
     } catch (error) {
-      console.error('Failed to fetch daily report');
+      console.error('Failed to fetch daily report patient intake card');
     }
   };
 

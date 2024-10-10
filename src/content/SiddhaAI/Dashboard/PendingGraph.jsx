@@ -88,7 +88,7 @@ const DataCard = () => {
           console.error('Invalid data structure');
         }
       } catch (err) {
-        console.error('Error fetching data:', err);
+        console.error('Error fetching data pending graph:', err);
       } finally {
         setLoading(false);
       }

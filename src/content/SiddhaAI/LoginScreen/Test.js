@@ -86,10 +86,10 @@ const AddDoctor = () => {
       setDoctors(data); // Store the list of doctors
     } catch (error) {
       console.error('Error fetching doctors:', error);
-      toast.error(t('Error fetching doctors'));
+      // toast.error(t('Error fetching doctors'));
       setDoctors([]);
     }
-  }, [t]);
+  }, []);
 
   useEffect(() => {
     fetchDoctors();
@@ -307,10 +307,10 @@ const AddDoctor = () => {
             {t('Add New Doctor')}
           </Button>
           <TableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                    <TableCell>{t('First Name')}</TableCell>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>{t('First Name')}</TableCell>
                   <TableCell sx={{ textWrap: 'nowrap' }}>
                     {t('Last Name')}
                   </TableCell>

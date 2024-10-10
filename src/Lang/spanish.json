@@ -280,5 +280,9 @@
   "No SMS Available": "No hay SMS disponibles",
   "Last name is required": "El apellido es obligatorio",
   "Last name must be at least 3 characters": "El apellido debe tener al menos 3 caracteres",
-  "Last name must contain only letters": "El apellido debe contener solo letras"
+  "Last name must contain only letters": "El apellido debe contener solo letras",
+  "Template Name": "Nombre de la Plantilla",
+  "Content": "Contenido",
+  "Add New SMS Template": "Agregar Nueva Plantilla de SMS",
+  "Custom SMS Template": "Plantilla de SMS Personalizada"
 }

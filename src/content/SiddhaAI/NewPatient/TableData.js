@@ -1240,7 +1240,7 @@ const PatientIntakeNew = () => {
       const officeLocations = drchronoOfficeLocation.results;
       setSelectedOffices(officeLocations);
     } catch (error) {
-      toast.error('Failed to fetch user data');
+      console.error('Failed to fetch user data new patient');
     }
   };
   const fetchGender = async () => {
@@ -1253,7 +1253,7 @@ const PatientIntakeNew = () => {
       // console.log('res', response.data.data);
       SetGenders(response.data.data);
     } catch (error) {
-      console.error('Failed to fetch user data', error);
+      console.error('Failed to fetch user data new patient', error);
     }
   };
 
@@ -1819,6 +1819,7 @@ const PatientIntakeNew = () => {
                         ))}
                       </TextField>
                     </Grid>
+                    <Grid item xs={12} sm={6} md={6}></Grid>
                     <Grid item xs={12} sm={6} md={6}>
                       <TextField
                         fullWidth

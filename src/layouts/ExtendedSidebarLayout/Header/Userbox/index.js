@@ -121,7 +121,7 @@ function HeaderUserbox() {
       SetGetUserImage(imageUrl);
     } catch (error) {
       console.log(user);
-      toast.error('Failed to fetch user data');
+      console.error('Failed to fetch user data top right corner');
     }
   };
 

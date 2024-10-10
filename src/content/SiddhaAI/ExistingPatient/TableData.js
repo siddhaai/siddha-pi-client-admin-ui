@@ -1299,7 +1299,7 @@ const PatientIntakeExisting = () => {
       const officeLocations = drchronoOfficeLocation.results;
       setSelectedOffices(officeLocations);
     } catch (error) {
-      console.error('Failed to fetch user data');
+      console.error('Failed to fetch user data get Existing ');
     }
   };
 
@@ -1325,8 +1325,8 @@ const PatientIntakeExisting = () => {
         console.error('Unexpected data structure from API');
       }
     } catch (error) {
-      console.error('Error fetching doctors:', error);
-      console.error(t('Error fetching doctors'));
+      console.error('Error fetching doctors get Existing:', error);
+      console.error(t('Error fetching doctors get Existing'));
       setDoctors([]); // Reset doctors state on error
     }
   }, []);

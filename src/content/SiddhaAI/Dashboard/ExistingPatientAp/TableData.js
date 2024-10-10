@@ -165,7 +165,7 @@ const TableData = ({ selectedPatient }) => {
       const officeLocations = drchronoOfficeLocation.results;
       setSelectedOffices(officeLocations);
     } catch (error) {
-      console.error('Failed to fetch user data');
+      console.error('Failed to fetch user data re-schedule drchrono');
     }
   };
 
@@ -189,7 +189,7 @@ const TableData = ({ selectedPatient }) => {
         console.error('Unexpected data structure from API');
       }
     } catch (error) {
-      console.error('Error fetching doctors:', error);
+      console.error('Error fetching doctors: re-schedule', error);
       // toast.error(t('Error fetching doctors'));
       setDoctors([]); // Reset doctors state on error
     }

@@ -61,7 +61,7 @@ function TableData() {
       setDoctors(drchronoDoctoresDetail.results || []);
     } catch (error) {
       console.error('Error fetching doctors:', error);
-      toast.error(t('Error fetching doctors'));
+      // toast.error(t('Error fetching doctors create doctors file'));
       setDoctors([]); // Ensure doctors state is an empty array on error
     }
   }, []);

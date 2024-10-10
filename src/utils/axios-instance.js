@@ -7,7 +7,7 @@ export const ApiUrl = prod
   : ' https://api.chozharoodagam.com';
 
 // export const ApiUrl = `http://localhost:3000`;
-// export let ApiUrl = `http://192.168.1.6:3000`; // room airtel
+// export let ApiUrl = `http://192.168.1.7:3000`; // room airtel
 // export const ApiUrl = `http://192.168.1.20:3000`; // office airtel
 // export const ApiUrl = `http://192.168.29.224:3000`; // office airtel
 

@@ -75,7 +75,7 @@ function SidebarTopSection() {
       SetGetUserImage(imageUrl);
     } catch (error) {
       // console.log(user);
-      console.error('Failed to fetch user data');
+      console.error('Failed to fetch user data ex side top');
     }
   };
   useEffect(() => {

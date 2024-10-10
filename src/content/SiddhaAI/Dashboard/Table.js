@@ -494,7 +494,7 @@ const DataCard = () => {
         console.error('Invalid data');
       }
     } catch (err) {
-      console.error('Error fetching data:', err);
+      console.error('Error fetching data from table from dashboard:', err);
       // toast.error('Failed to fetch data');
     } finally {
       setLoading(false);

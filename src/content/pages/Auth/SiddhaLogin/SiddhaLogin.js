@@ -133,8 +133,15 @@ export default function Login() {
       }
     } catch (error) {
       // Handle the error from the login attempt (like 401 Unauthorized)
-      console.error('Login failed:', error);
-      toast.error(error.response?.data?.message || t('Login failed'));
+      console.error('Login failed login page:', error);
+
+      // Check if the error is due to invalid credentials
+      if (error.response?.status === 400) {
+        toast.error(t('Invalid email or password'));
+      } else {
+        toast.error(error.response?.data?.message || t('Login failed'));
+      }
+
       if (isMountedRef.current) {
         setSubmitting(false); // Ensure form stops submitting
       }
@@ -318,7 +325,7 @@ export default function Login() {
                       }}
                     >
                       <Typography color="secondary">
-                        {t('Version')} 0.0.3
+                        {t('Version')} 0.0.4
                       </Typography>
                     </Box>
                   </Box>
