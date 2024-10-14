@@ -284,5 +284,6 @@
   "Template Name": "模板名称",
   "Content": "内容",
   "Add New SMS Template": "添加新短信模板",
-  "Custom SMS Template": "自定义短信模板"
+  "Custom SMS Template": "自定义短信模板",
+  "Mobile Number": "手机号码"
 }

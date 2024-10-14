@@ -24,8 +24,8 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  useMediaQuery,
-  useTheme,
+  // useMediaQuery,
+  // useTheme,
   CircularProgress,
   TableContainer,
   Paper
@@ -39,11 +39,12 @@ import { useTranslation } from 'react-i18next';
 
 export default function Settings() {
   const { axios } = useAxiosInterceptor();
-  const theme = useTheme();
+  // const theme = useTheme();
   const [smsCard, setSmsCard] = useState(false);
   const [smsTemplateView, setSmsTemplateView] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
   const [showAddTemplate, setShowAddTemplate] = useState(false); // To toggle the add template section
+  const [initialLoader, setInitialLoader] = useState(true); // New state for initial loader
 
   const { t } = useTranslation();
 
@@ -99,6 +100,7 @@ export default function Settings() {
 
   // Get settings from API
   const getAdminCustomSetting = async () => {
+    setIsLoading(true);
     try {
       const response = await axios.get('/settings/getSettings', {
         headers: {
@@ -149,6 +151,9 @@ export default function Settings() {
       }
     } catch (error) {
       toast.error(`${error.message}`);
+    } finally {
+      setIsLoading(false);
+      setInitialLoader(false); // Stop the initial loader after fetching
     }
   };
 
@@ -308,15 +313,15 @@ export default function Settings() {
   const [tabIndex, setTabIndex] = useState(0); // Track current tab
   const token = localStorage.getItem('token');
   const [errors, setErrors] = useState({}); // State to track validation errors
-  const [cursorPosition, setCursorPosition] = useState(0); // To track cursor position
+  // const [cursorPosition, setCursorPosition] = useState(0); // To track cursor position
   const [selectedImage, setSelectedImage] = useState(null); // Selected new image for upload
   const [selectedImageFile, setSelectedImageFile] = useState(null); // For binary upload
   const [isLoading, setIsLoading] = useState(false);
 
   // Track the cursor position in the textarea
-  const handleCursorPositionChange = (event) => {
-    setCursorPosition(event.target.selectionStart); // Update cursor position on text area click or change
-  };
+  // const handleCursorPositionChange = (event) => {
+  //   setCursorPosition(event.target.selectionStart); // Update cursor position on text area click or change
+  // };
 
   // Handle tab change
   const handleTabChange = (event, newIndex) => {
@@ -517,9 +522,9 @@ export default function Settings() {
   // };
 
   // Handle radio button selection
-  const handleTemplateSelect = (index) => {
-    setSmsData({ ...smsData, selectedTemplateIndex: index });
-  };
+  // const handleTemplateSelect = (index) => {
+  //   setSmsData({ ...smsData, selectedTemplateIndex: index });
+  // };
 
   // Preview function for fetching and displaying SMS content
   // const getAdminCustomSms = async () => {
@@ -667,6 +672,7 @@ export default function Settings() {
       </Helmet>
       <Toaster position="bottom-right" />
       {/* Tabs to switch between sections */}
+
       <Tabs
         value={tabIndex}
         onChange={handleTabChange}
@@ -680,280 +686,311 @@ export default function Settings() {
         <Tab label={t('Hospital')} />
       </Tabs>
       {/* Tab Panels */}
-      {tabIndex === 0 && (
-        <Box>
-          <Typography variant="h5" gutterBottom>
-            {t('Patient Intake Form')}
-          </Typography>
-          <Grid container alignItems="center" spacing={2}>
-            <Grid item xs={12} md={6} lg={2}>
-              <Typography variant="caption">Expires In:</Typography>
-              <TextField
-                type="number"
-                name="expiry"
-                value={formData.expiry}
-                onChange={handleChange}
-                fullWidth
-                inputProps={{ min: 1, max: 31 }}
-                disabled={!isEditing}
-              />
-            </Grid>
-            <Grid item sx={{ mt: 1.5 }}>
-              <Typography variant="caption">
-                {formData.expiry > 1 ? t("Day's") : t('Day')}
-              </Typography>
-            </Grid>
-          </Grid>
-
-          <Divider sx={{ my: 3 }} />
-          <Typography variant="h5" gutterBottom>
-            {t('Patient Intake Form Type')}
-          </Typography>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6} md={2}>
-              <FormControlLabel
-                control={
-                  <Radio
-                    checked={formData.default}
-                    onChange={handleRadioChange}
-                    name="default"
-                  />
-                }
-                label={t('Default')}
-                disabled={!isEditing}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6} md={2}>
-              <FormControlLabel
-                control={
-                  <Radio
-                    checked={formData.custom}
-                    onChange={handleRadioChange}
-                    name="custom"
-                  />
-                }
-                label={t('Custom')}
-                disabled={!isEditing}
-              />
-            </Grid>
-          </Grid>
-          <Divider sx={{ my: 3 }} />
-
+      {initialLoader ? (
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          height="60vh"
+        >
+          <CircularProgress />
+        </Box>
+      ) : (
+        tabIndex === 0 && (
           <Box>
             <Typography variant="h5" gutterBottom>
-              {t('Custom SMS Template')}
+              {t('Patient Intake Form')}
             </Typography>
+            <Grid container alignItems="center" spacing={2}>
+              <Grid item xs={12} md={6} lg={2}>
+                <Typography variant="caption">Expires In:</Typography>
+                <TextField
+                  type="number"
+                  name="expiry"
+                  value={formData.expiry}
+                  onChange={handleChange}
+                  fullWidth
+                  inputProps={{ min: 1, max: 31 }}
+                  disabled={!isEditing}
+                />
+              </Grid>
+              <Grid item sx={{ mt: 1.5 }}>
+                <Typography variant="caption">
+                  {formData.expiry > 1 ? t("Day's") : t('Day')}
+                </Typography>
+              </Grid>
+            </Grid>
 
-            {/* Add New Template Button */}
-            <Button
-              disabled={!isEditing}
-              variant="contained"
-              color="primary"
-              onClick={() => setShowAddTemplate(!showAddTemplate)}
-              sx={{ mt: 3 }}
-            >
-              {showAddTemplate ? t('Cancel') : t('Add New SMS Template')}
-            </Button>
-
-            {/* Form to Add a New SMS Template */}
-            {showAddTemplate && (
-              <Box mt={3}>
-                {/* Template Name Input Field */}
-                <Grid container spacing={2}>
-                  <Grid item xs={12} sm={4}>
-                    <TextField
-                      disabled={!isEditing}
-                      label={t('SMS Template Title')}
-                      value={smsData.templateName}
-                      onChange={handleTemplateNameChange}
-                      placeholder={t('Enter SMS Template Title')}
-                      fullWidth
-                      sx={{ mb: 2 }}
+            <Divider sx={{ my: 3 }} />
+            <Typography variant="h5" gutterBottom>
+              {t('Patient Intake Form Type')}
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6} md={2}>
+                <FormControlLabel
+                  control={
+                    <Radio
+                      checked={formData.default}
+                      onChange={handleRadioChange}
+                      name="default"
                     />
-                  </Grid>
-                </Grid>
+                  }
+                  label={t('Default')}
+                  disabled={!isEditing}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={2}>
+                <FormControlLabel
+                  control={
+                    <Radio
+                      checked={formData.custom}
+                      onChange={handleRadioChange}
+                      name="custom"
+                    />
+                  }
+                  label={t('Custom')}
+                  disabled={!isEditing}
+                />
+              </Grid>
+            </Grid>
+            <Divider sx={{ my: 3 }} />
 
-                {/* Display variable checkboxes */}
-                <Grid container spacing={2} sx={{ mt: 2 }}>
-                  {variables.map((variable) => (
-                    <Grid item key={variable.value}>
-                      <FormControlLabel
+            <Box>
+              <Typography variant="h5" gutterBottom>
+                {t('Custom SMS Template')}
+              </Typography>
+
+              {/* Add New Template Button */}
+              <Button
+                disabled={!isEditing}
+                variant="outlined"
+                color="primary"
+                onClick={() => setShowAddTemplate(!showAddTemplate)}
+                sx={{ mt: 3 }}
+              >
+                {showAddTemplate ? t('Cancel') : t('Add New SMS Template')}
+              </Button>
+
+              {/* Form to Add a New SMS Template */}
+              {showAddTemplate && (
+                <Box mt={3}>
+                  {/* Template Name Input Field */}
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sm={4}>
+                      <TextField
                         disabled={!isEditing}
-                        control={
-                          <Checkbox
-                            checked={smsData.selectedVariables.includes(
-                              variable.value
-                            )}
-                            onChange={() =>
-                              handleVariableSelect(variable.value)
-                            }
-                          />
-                        }
-                        label={variable.label}
+                        label={t('SMS Template Title')}
+                        value={smsData.templateName}
+                        onChange={handleTemplateNameChange}
+                        placeholder={t('Enter SMS Template Title')}
+                        fullWidth
+                        sx={{ mb: 2 }}
                       />
                     </Grid>
-                  ))}
-                </Grid>
+                  </Grid>
 
-                {/* Text area for SMS template with chips for variables */}
-                <Box mt={2}>
-                  <Box
-                    mt={1}
-                    p={2}
-                    sx={{
-                      width: '100%',
-                      minHeight: '100px',
-                      border: '1px solid #ccc',
-                      borderRadius: '4px',
-                      backgroundColor: '#f9f9f9',
-                      position: 'relative'
-                    }}
-                  >
-                    {/* Display the chips for selected variables */}
-                    {smsData.selectedVariables.map((variable) => (
-                      <Chip
-                        disabled={!isEditing}
-                        key={variable}
-                        label={`{{${variable}}}`}
-                        onDelete={() => handleVariableSelect(variable)}
-                        sx={{ m: 0.5 }}
-                      />
+                  {/* Display variable checkboxes */}
+                  <Grid container spacing={2} sx={{ mt: 2 }}>
+                    {variables.map((variable) => (
+                      <Grid item key={variable.value}>
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={smsData.selectedVariables.includes(
+                                variable.value
+                              )}
+                              onChange={() =>
+                                handleVariableSelect(variable.value)
+                              }
+                            />
+                          }
+                          label={variable.label}
+                        />
+                      </Grid>
                     ))}
+                  </Grid>
 
-                    {/* Text area where the user can type */}
-                    <textarea
-                      id="smsTemplateTextarea"
-                      disabled={!isEditing}
-                      value={smsData.templateText}
-                      onChange={handleTextChange}
-                      style={{
+                  {/* Text area for SMS template with chips for variables */}
+                  <Box mt={2}>
+                    <Box
+                      mt={1}
+                      p={2}
+                      sx={{
                         width: '100%',
-                        padding: '10px',
-                        fontSize: '16px',
-                        lineHeight: '1.5',
-                        border: 'none',
-                        outline: 'none',
-                        background: 'transparent',
-                        resize: 'none'
+                        minHeight: '100px',
+                        border: '1px solid #ccc',
+                        borderRadius: '4px',
+                        backgroundColor: '#f9f9f9',
+                        position: 'relative'
                       }}
-                      rows={6}
-                      placeholder={t('Type your sms content here...')}
-                    />
-                  </Box>
-                </Box>
-                {/* Add New Template Submit Button */}
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleAddTemplate}
-                  sx={{ mt: 2 }}
-                >
-                  {t('Save SMS')}
-                </Button>
-              </Box>
-            )}
+                    >
+                      {/* Display the chips for selected variables */}
+                      {smsData.selectedVariables.map((variable) => (
+                        <Chip
+                          key={variable}
+                          label={`{{${variable}}}`}
+                          onDelete={() => handleVariableSelect(variable)}
+                          sx={{ m: 0.5 }}
+                        />
+                      ))}
 
-            {/* SMS Template Table */}
-            {!showAddTemplate && (
-              <TableContainer component={Paper} sx={{ mt: 3, maxHeight: 400 }}>
-                {/* Paper adds a card-like feel */}
-                <Table stickyHeader aria-label="sms templates table">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={{ textAlign: 'center' }}>
-                        {t('Select')}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          textAlign: 'center',
-                          whiteSpace: 'nowrap',
-                          wordWrap: 'break-word' // Ensure text wrapping
+                      {/* Text area where the user can type */}
+                      <textarea
+                        id="smsTemplateTextarea"
+                        value={smsData.templateText}
+                        onChange={handleTextChange}
+                        style={{
+                          width: '100%',
+                          padding: '10px',
+                          fontSize: '16px',
+                          lineHeight: '1.5',
+                          border: 'none',
+                          outline: 'none',
+                          background: 'transparent',
+                          resize: 'none'
                         }}
-                      >
-                        {t('SMS Title')}
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          textAlign: 'center',
-                          wordWrap: 'break-word' // Ensure text wrapping
-                        }}
-                      >
-                        {t('Content')}
-                      </TableCell>
-                      <TableCell sx={{ textAlign: 'center' }}>
-                        {t('Actions')}
-                      </TableCell>{' '}
-                      {/* Action Column for Delete */}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {smsData.smsTemplates.map((template, index) => (
-                      <TableRow key={template.templateName}>
-                        <TableCell>
-                          <Radio
-                            disabled={!isEditing}
-                            checked={smsData.selectedTemplateIndex === index}
-                            onChange={() =>
-                              setSmsData({
-                                ...smsData,
-                                selectedTemplateIndex: index
-                              })
-                            }
-                          />
+                        rows={6}
+                        placeholder={t('Type your sms content here...')}
+                      />
+                    </Box>
+                  </Box>
+
+                  {/* Add New Template Submit Button */}
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleAddTemplate}
+                    sx={{ mt: 2 }}
+                  >
+                    {t('Save SMS')}
+                  </Button>
+                </Box>
+              )}
+
+              {/* SMS Template Table */}
+              {!showAddTemplate && (
+                <TableContainer
+                  component={Paper}
+                  sx={{ mt: 3, maxHeight: 400 }}
+                >
+                  <Table stickyHeader aria-label="sms templates table">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell sx={{ textAlign: 'center' }}>
+                          {t('Select')}
                         </TableCell>
-                        <TableCell>
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              fontSize: { xs: '12px', sm: '14px', md: '16px' },
-                              wordWrap: 'break-word' // Ensure text wrapping
-                            }}
-                          >
-                            {template.templateName}
-                          </Typography>
+                        <TableCell
+                          sx={{
+                            textAlign: 'center',
+                            whiteSpace: 'nowrap',
+                            wordWrap: 'break-word' // Ensure text wrapping
+                          }}
+                        >
+                          {t('SMS Title')}
                         </TableCell>
-                        <TableCell>
-                          <Typography
-                            variant="body2"
-                            noWrap
-                            sx={{
-                              fontSize: { xs: '12px', sm: '14px', md: '16px' },
-                              whiteSpace: 'normal',
-                              wordWrap: 'break-word' // Wrap words within the cell
-                            }}
-                          >
-                            {template.smsTemplateContant}
-                          </Typography>
+                        <TableCell
+                          sx={{
+                            textAlign: 'center',
+                            wordWrap: 'break-word' // Ensure text wrapping
+                          }}
+                        >
+                          {t('Content')}
                         </TableCell>
-                        <TableCell>
-                          <Tooltip
-                            title={isEditing ? t('Delete') : t('Delete')}
-                          >
-                            <span>
-                              {/* Wrap IconButton in <span> to handle disabling */}
-                              <IconButton
-                                edge="end"
-                                aria-label="delete"
-                                onClick={() => handleDeleteTemplate(index)}
-                                sx={{
-                                  color: isEditing ? 'red' : 'gray',
-                                  cursor: isEditing ? 'pointer' : 'none'
-                                }}
-                                disabled={!isEditing} // Disable button if not editing
-                              >
-                                <Delete />
-                              </IconButton>
-                            </span>
-                          </Tooltip>
-                        </TableCell>
+                        <TableCell sx={{ textAlign: 'center' }}>
+                          {t('Actions')}
+                        </TableCell>{' '}
+                        {/* Action Column for Delete */}
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            )}
+                    </TableHead>
+                    <TableBody>
+                      {smsData.smsTemplates.length === 0 ? (
+                        // Display this row if there are no templates
+                        <TableRow>
+                          <TableCell colSpan={4} sx={{ textAlign: 'center' }}>
+                            {t('No records found')}
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        // Otherwise, display the templates
+                        smsData.smsTemplates.map((template, index) => (
+                          <TableRow key={template.templateName}>
+                            <TableCell>
+                              <Radio
+                                disabled={!isEditing}
+                                checked={
+                                  smsData.selectedTemplateIndex === index
+                                }
+                                onChange={() =>
+                                  setSmsData({
+                                    ...smsData,
+                                    selectedTemplateIndex: index
+                                  })
+                                }
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  fontSize: {
+                                    xs: '12px',
+                                    sm: '14px',
+                                    md: '16px'
+                                  },
+                                  wordWrap: 'break-word' // Ensure text wrapping
+                                }}
+                              >
+                                {template.templateName}
+                              </Typography>
+                            </TableCell>
+                            <TableCell>
+                              <Typography
+                                variant="body2"
+                                noWrap
+                                sx={{
+                                  fontSize: {
+                                    xs: '12px',
+                                    sm: '14px',
+                                    md: '16px'
+                                  },
+                                  whiteSpace: 'normal',
+                                  wordWrap: 'break-word' // Wrap words within the cell
+                                }}
+                              >
+                                {template.smsTemplateContant}
+                              </Typography>
+                            </TableCell>
+                            <TableCell>
+                              <Tooltip
+                                title={isEditing ? t('Delete') : t('Delete')}
+                              >
+                                <span>
+                                  {/* Wrap IconButton in <span> to handle disabling */}
+                                  <IconButton
+                                    edge="end"
+                                    aria-label="delete"
+                                    onClick={() => handleDeleteTemplate(index)}
+                                    sx={{
+                                      color: isEditing ? 'red' : 'gray',
+                                      cursor: isEditing ? 'pointer' : 'none'
+                                    }}
+                                    disabled={!isEditing} // Disable button if not editing
+                                  >
+                                    <Delete />
+                                  </IconButton>
+                                </span>
+                              </Tooltip>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              )}
+            </Box>
           </Box>
-        </Box>
+        )
       )}
 
       {tabIndex === 1 && (

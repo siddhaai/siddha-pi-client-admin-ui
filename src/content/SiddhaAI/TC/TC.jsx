@@ -16,18 +16,20 @@ import {
   Paper,
   Typography,
   Divider,
-  Box
+  Box,
+  CircularProgress,
+  Tooltip
 } from '@mui/material';
 import jsPDF from 'jspdf';
 import useAxiosInterceptor from 'src/contexts/Interceptor';
 import { styled } from '@mui/material/styles'; // For hover effects
 import { Helmet } from 'react-helmet-async';
-// import { useTranslation } from 'react-i18next';
 import { t } from 'i18next';
+import EditIcon from '@mui/icons-material/Edit';
 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
   '&:hover': {
-    backgroundColor: theme.palette.action.hover, // Add hover effect
+    backgroundColor: '#eef1f6', // Add hover effect
     cursor: 'pointer'
   }
 }));
@@ -90,6 +92,7 @@ const TC = () => {
   const [showTable, setShowTable] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [currentAgreementId, setCurrentAgreementId] = useState(null);
+  const [initialLoader, setInitialLoader] = useState(true); // New state for initial loader
 
   const token = localStorage.getItem('token');
 
@@ -106,7 +109,6 @@ const TC = () => {
       }
     } catch (error) {
       console.error('Error fetching doctors:', error);
-      // toast.error('Error fetching doctors');
     }
   }, [axios, token]);
 
@@ -118,15 +120,18 @@ const TC = () => {
       });
 
       if (response.data.status === 200) {
-        setIsLoading(false);
-        setAgreements(response.data.data);
-        setShowTable(response.data.data.length > 0);
+        const fetchedAgreements = response.data.data;
+        setAgreements(fetchedAgreements);
+        setShowTable(fetchedAgreements.length > 0);
       } else {
         console.error('Failed to fetch agreements');
+        setShowTable(false);
       }
     } catch (error) {
       console.error('Error fetching agreements:', error);
-      // toast.error('Error fetching agreements');
+    } finally {
+      setIsLoading(false);
+      setInitialLoader(false); // Stop the initial loader after fetching
     }
   }, [axios, token]);
 
@@ -203,7 +208,6 @@ const TC = () => {
       }
     } catch (error) {
       console.error('Error submitting the content:', error);
-      // toast.error('Error creating or updating agreement');
     } finally {
       setIsLoading(false);
     }
@@ -372,7 +376,6 @@ const TC = () => {
     const pageWidth = pdf.internal.pageSize.width;
     let startY = 20;
 
-    // Center the title on the first page
     pdf.setFontSize(18);
     pdf.setFont('helvetica', 'bold');
     const titleWidth = pdf.getTextWidth(title);
@@ -381,7 +384,7 @@ const TC = () => {
 
     processHtmlForPdf(body, pdf, startY);
 
-    addCustomPageNumber(pdf); // Add page number for the first page
+    addCustomPageNumber(pdf);
 
     const pdfBlob = pdf.output('blob');
     const pdfUrl = URL.createObjectURL(pdfBlob);
@@ -409,130 +412,156 @@ const TC = () => {
       <Helmet>
         <title>Agreement</title>
       </Helmet>
-      <Grid container spacing={2}>
-        <Grid item xs={12}>
-          <Typography variant="h5" gutterBottom>
-            {editMode
-              ? t('Edit Agreement')
-              : t('Select Doctor and Create Agreement')}
-          </Typography>
-        </Grid>
 
-        {/* Dropdown for selecting doctor */}
-        <Grid item xs={12} sm={6}>
-          <TextField
-            select
-            fullWidth
-            label={t('Preferred Doctor')}
-            value={selectedDoctor}
-            onChange={(event) => setSelectedDoctor(event.target.value)}
-            placeholder={t('Select a doctor')}
-            variant="outlined"
-          >
-            {doctors?.map((doctor) => (
-              <MenuItem key={doctor?.id} value={doctor?.id}>
-                {`${doctor?.first_name} ${doctor?.last_name}`}
-              </MenuItem>
-            ))}
-          </TextField>
-        </Grid>
-
-        {/* Title input */}
-        <Grid item xs={12} sm={6}>
-          <TextField
-            fullWidth
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder={t('Enter title')}
-            label={t('Agreement Title')}
-            variant="outlined"
-            disabled={!selectedDoctor}
-          />
-        </Grid>
-
-        {/* Custom toolbar */}
-        <Grid item xs={12}>
-          <CustomToolbar />
-        </Grid>
-
-        {/* Content editor */}
-        <Grid item xs={12}>
-          <ReactQuill
-            value={content}
-            readOnly={!selectedDoctor}
-            onChange={setContent}
-            style={{ marginBottom: '20px', height: '300px' }}
-            modules={quillModules}
-          />
-        </Grid>
-
-        {/* Submit button */}
-        <Grid item xs={12}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleSubmit}
-            disabled={isLoading || !title || !content || !selectedDoctor}
-            // fullWidth
-          >
-            {isLoading
-              ? editMode
-                ? t('Update')
-                : t('Submit')
-              : editMode
-              ? t('Update')
-              : t('Submit')}
-          </Button>
-        </Grid>
-      </Grid>
-
-      {/* Divider */}
-      <Box my={4}>
-        <Divider />
-      </Box>
-
-      {/* Conditionally show the AgreementTable if agreements exist */}
-      {showTable && (
+      {initialLoader ? (
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          height="60vh"
+        >
+          <CircularProgress />
+        </Box>
+      ) : (
         <Grid container spacing={2}>
-          <Grid item xs={12} md={10}>
-            <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 450 }}>
-                <TableHead>
-                  <TableRow>
-                    <TableCell align="center">{t('S.no')}</TableCell>
-                    <TableCell align="center">{t('Agreement Title')}</TableCell>
-                    <TableCell align="center">{t('Actions')}</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {agreements.map((agreement, index) => (
-                    <StyledTableRow key={agreement._id}>
-                      <TableCell align="center">{index + 1}</TableCell>
-                      <TableCell align="center">{agreement.title}</TableCell>
-                      <TableCell align="center">
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          onClick={() =>
-                            handleViewPdf(agreement.title, agreement.body)
-                          }
-                        >
-                          {t('View')}
-                        </Button>
-                        <Button
-                          variant="contained"
-                          color="secondary"
-                          onClick={() => handleEditAgreement(agreement)}
-                          style={{ marginLeft: '8px' }} // Add spacing
-                        >
-                          {t('Edit')}
-                        </Button>
+          <Grid item xs={12}>
+            <Typography variant="h5" gutterBottom>
+              {editMode
+                ? t('Edit Agreement')
+                : t('Select Doctor and Create Agreement')}
+            </Typography>
+          </Grid>
+
+          {/* Doctor selection dropdown */}
+          <Grid item xs={12} sm={6}>
+            <TextField
+              select
+              fullWidth
+              label={t('Preferred Doctor')}
+              value={selectedDoctor}
+              onChange={(event) => setSelectedDoctor(event.target.value)}
+              placeholder={t('Select a doctor')}
+              variant="outlined"
+            >
+              {doctors?.map((doctor) => (
+                <MenuItem key={doctor?.id} value={doctor?.id}>
+                  {`${doctor?.first_name} ${doctor?.last_name}`}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+
+          {/* Title input */}
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder={t('Enter title')}
+              label={t('Agreement Title')}
+              variant="outlined"
+              disabled={!selectedDoctor}
+            />
+          </Grid>
+
+          {/* Custom toolbar */}
+          <Grid item xs={12}>
+            <CustomToolbar />
+          </Grid>
+
+          {/* Content editor */}
+          <Grid item xs={12}>
+            <ReactQuill
+              value={content}
+              readOnly={!selectedDoctor}
+              onChange={setContent}
+              style={{ marginBottom: '20px', height: '300px' }}
+              modules={quillModules}
+            />
+          </Grid>
+
+          {/* Submit button */}
+          <Grid item xs={12}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleSubmit}
+              disabled={isLoading || !title || !content || !selectedDoctor}
+            >
+              {isLoading ? (
+                <CircularProgress size={24} />
+              ) : editMode ? (
+                t('Update')
+              ) : (
+                t('Submit')
+              )}
+            </Button>
+          </Grid>
+
+          {/* Divider */}
+          <Grid item xs={12}>
+            <Divider />
+          </Grid>
+
+          {/* Agreement table */}
+          <Grid item xs={12}>
+            {isLoading ? (
+              <Box display="flex" justifyContent="center" alignItems="center">
+                <CircularProgress />
+              </Box>
+            ) : showTable ? (
+              <TableContainer component={Paper}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={{ textAlign: 'center' }}>
+                        {t('S.no')}
                       </TableCell>
-                    </StyledTableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                      <TableCell sx={{ textAlign: 'center' }}>
+                        {t('Agreement Title')}
+                      </TableCell>
+                      <TableCell sx={{ textAlign: 'center' }}>
+                        {t('Actions')}
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {agreements.map((agreement, index) => (
+                      <StyledTableRow key={index}>
+                        <TableCell sx={{ textAlign: 'center' }}>
+                          {index + 1}
+                        </TableCell>
+                        <TableCell sx={{ textAlign: 'center' }}>
+                          {agreement.title}
+                        </TableCell>
+                        <TableCell sx={{ textAlign: 'center' }}>
+                          <Button
+                            onClick={() => handleEditAgreement(agreement)}
+                          >
+                            <Tooltip title={t('Edit')}>
+                              <EditIcon />
+                            </Tooltip>
+                          </Button>
+                          <Button
+                            onClick={() =>
+                              handleViewPdf(agreement.title, agreement.body)
+                            }
+                          >
+                            <Typography sx={{ textDecoration: 'underline' }}>
+                              {t('View')}
+                            </Typography>
+                          </Button>
+                        </TableCell>
+                      </StyledTableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            ) : (
+              <Typography variant="body1" color="textSecondary" align="center">
+                {t('No Agreement')}
+              </Typography>
+            )}
           </Grid>
         </Grid>
       )}
