@@ -1826,13 +1826,15 @@ const PatientIntakeExisting = () => {
             </Box>
             <Box px={4}>
               <Stepper activeStep={activeStep} alternativeLabel>
-                {['Patient Details', 'Appointment Details', 'Send SMS'].map(
-                  (label) => (
-                    <Step key={label}>
-                      <StepLabel>{label}</StepLabel>
-                    </Step>
-                  )
-                )}
+                {[
+                  t('Patient Details'),
+                  t('Appointment Details'),
+                  t('Send SMS')
+                ].map((label) => (
+                  <Step key={label}>
+                    <StepLabel>{label}</StepLabel>
+                  </Step>
+                ))}
               </Stepper>
 
               {activeStep === 0 && (

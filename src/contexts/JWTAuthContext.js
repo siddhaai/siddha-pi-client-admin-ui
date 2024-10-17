@@ -138,7 +138,7 @@ export const AuthProvider = (props) => {
           }
         }
       );
-      console.log(response);
+      // console.log(response);
       // const { accessToken, user } = response.data;
       const user = response.data.token;
       const token = response.data.token;

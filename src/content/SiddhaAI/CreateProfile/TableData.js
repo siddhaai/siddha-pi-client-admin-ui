@@ -6,6 +6,7 @@ import {
   Box,
   Button,
   CardHeader,
+  CircularProgress,
   Grid,
   IconButton,
   styled as muiStyled,
@@ -377,7 +378,7 @@ function PageHeader() {
               {selectedOffices?.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={8} align="center">
-                    {t('Loading...')}
+                  <CircularProgress />
                   </TableCell>
                 </TableRow>
               ) : (

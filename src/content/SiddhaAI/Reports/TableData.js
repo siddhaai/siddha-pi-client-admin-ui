@@ -216,9 +216,9 @@ function Reports() {
             }}
           >
             <CircularProgress />
-            <Typography variant="h6" sx={{ marginLeft: 2 }}>
+            {/* <Typography variant="h6" sx={{ marginLeft: 2 }}>
               {t('Loading...')}
-            </Typography>
+            </Typography> */}
           </Box>
         ) : (
           <Box position="relative">

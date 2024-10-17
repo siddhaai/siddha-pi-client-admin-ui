@@ -99,7 +99,12 @@ const appointmentDetailsSchema = Yup.object({
   hospital_location: Yup.string().required(t('Hospital Location is required')),
   reason: Yup.string()
     .required(t('Reason is required'))
-    .max(100, t('Reason cannot exceed 100 characters')),
+    .max(100, t('Reason cannot exceed 100 characters'))
+    .matches(
+      /^[a-zA-Z0-9 ]*$/,
+      t('Reason can only contain alphabets, numbers')
+    ),
+
   notes: Yup.string()
     .required(t('Additional notes is required'))
     .max(1000, t('Additional notes cannot exceed 1000 characters')),
@@ -821,7 +826,7 @@ const TableData = ({ selectedPatient }) => {
                                         color="primary"
                                         onClick={handleCreatePatient}
                                       >
-                                        {t('Home')}
+                                        {t('Dashboard')}
                                       </Button>
                                     </Box>
                                   )}

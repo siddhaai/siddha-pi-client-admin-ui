@@ -1,6 +1,7 @@
 import {
   Card,
   CardHeader,
+  CircularProgress,
   Divider,
   Grid,
   Table,
@@ -186,7 +187,7 @@ function TableData() {
               {doctors.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={8} align="center">
-                    {t('Loading...')}
+                  <CircularProgress /> 
                   </TableCell>
                 </TableRow>
               ) : (

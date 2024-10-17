@@ -151,7 +151,7 @@ const TestingPI = () => {
 
   // Handle form submission
   const handleSubmit = () => {
-    console.log('Form Submitted:', {
+    console.log('Form Submitted', {
       patientDetails,
       appointmentDetails,
       smsDetails

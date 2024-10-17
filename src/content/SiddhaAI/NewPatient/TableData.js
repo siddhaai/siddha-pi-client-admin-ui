@@ -1170,35 +1170,35 @@ const validateNotes = (value) => {
 };
 
 // Validation for Appointment Details
-const validateAppointmentDetails = (values) => {
-  const errors = {};
+// const validateAppointmentDetails = (values) => {
+//   const errors = {};
 
-  // Validate the DateTime using custom logic
-  const dateTimeError = validateDateTime(values.appointment_date);
-  if (dateTimeError) {
-    errors.appointment_date = dateTimeError;
-  }
+//   // Validate the DateTime using custom logic
+//   const dateTimeError = validateDateTime(values.appointment_date);
+//   if (dateTimeError) {
+//     errors.appointment_date = dateTimeError;
+//   }
 
-  if (!values.duration) {
-    errors.duration = 'Duration is required.';
-  }
+//   if (!values.duration) {
+//     errors.duration = 'Duration is required.';
+//   }
 
-  if (!values.hospital_location) {
-    errors.hospital_location = 'Hospital location is required.';
-  }
+//   if (!values.hospital_location) {
+//     errors.hospital_location = 'Hospital location is required.';
+//   }
 
-  if (!values.reason) {
-    errors.reason = 'Reason for appointment is required.';
-  }
+//   if (!values.reason) {
+//     errors.reason = 'Reason for appointment is required.';
+//   }
 
-  if (!values.notes) {
-    errors.notes = 'Notes are required.';
-  } else if (values.notes.length > 300) {
-    errors.notes = 'Notes cannot exceed 300 characters.';
-  }
+//   if (!values.notes) {
+//     errors.notes = 'Notes are required.';
+//   } else if (values.notes.length > 300) {
+//     errors.notes = 'Notes cannot exceed 300 characters.';
+//   }
 
-  return errors;
-};
+//   return errors;
+// };
 
 // Component
 const PatientIntakeNew = () => {
@@ -1257,10 +1257,10 @@ const PatientIntakeNew = () => {
     }
   };
 
-  useEffect(() => {
-    fetchDoctorOffice();
-    fetchGender();
-  }, []);
+  // useEffect(() => {
+  //   fetchDoctorOffice();
+  //   fetchGender();
+  // }, []);
 
   // console.log(officePhone);
 
@@ -1288,6 +1288,8 @@ const PatientIntakeNew = () => {
 
   useEffect(() => {
     fetchDoctors();
+     fetchDoctorOffice();
+    fetchGender();
   }, []);
 
   // State to track personal details and errors

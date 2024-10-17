@@ -349,7 +349,7 @@
 // export default DataCard;
 
 import ReplayIcon from '@mui/icons-material/Replay';
-import CloseIcon from '@mui/icons-material/Close';
+// import CloseIcon from '@mui/icons-material/Close';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'; // Icon for ascending
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'; // Icon for descending
 import {
@@ -376,7 +376,8 @@ import {
   useMediaQuery,
   useTheme,
   IconButton,
-  Pagination // Import Pagination
+  Pagination, // Import Pagination
+  CircularProgress
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -536,7 +537,7 @@ const DataCard = () => {
       return (
         <TableRow>
           <TableCell colSpan={5} sx={{ textAlign: 'center' }}>
-            {loading ? t('Loading...') : t('No records found')}
+            {loading ? <CircularProgress /> : t('No records found')}
           </TableCell>
         </TableRow>
       );
@@ -700,6 +701,12 @@ const DataCard = () => {
         fullWidth
         maxWidth={isExtraLargeScreen ? 'lg' : isLargeScreen ? 'md' : 'xs'} // Dynamically adjust width based on screen size
       >
+        <DialogActions>
+          <Button onClick={handleCloseDialog} color="error">
+            {/* <CloseIcon /> */}
+            {t('Close')}
+          </Button>
+        </DialogActions>
         <DialogTitle>{t('Re-Schedule Appointment')}</DialogTitle>
         <DialogContent>
           <ExistingPatientAp
@@ -707,12 +714,6 @@ const DataCard = () => {
             onClose={handleCloseDialog}
           />
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog} color="secondary">
-            <CloseIcon />
-            {t('Close')}
-          </Button>
-        </DialogActions>
       </Dialog>
     </Box>
   );

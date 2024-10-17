@@ -46,6 +46,8 @@ export default function Settings() {
   const [showAddTemplate, setShowAddTemplate] = useState(false); // To toggle the add template section
   const [initialLoader, setInitialLoader] = useState(true); // New state for initial loader
 
+  // const [errorMessage, setErrorMessage] = useState('');
+
   const { t } = useTranslation();
 
   // Initialize the states
@@ -195,14 +197,14 @@ export default function Settings() {
       setShowAddTemplate(false); // Hide add template section after adding
       toast.success('New SMS template added successfully!');
     } else {
-      console.error('Please fill out the template name and content.');
+      toast.error('Please fill out the SMS template title and content.');
     }
   };
 
   const variables = [
     { label: 'Patient First Name', value: 'patientName' },
     { label: 'Appointment Date & Time', value: 'scheduleDateTime' },
-    { label: 'Time Zone', value: 'timeZone' },
+    // { label: 'Time Zone', value: 'timeZone' },
     { label: 'Patient Intake Form Url', value: 'WEB_APP_URL', required: true } // Required checkbox
   ];
 
@@ -257,13 +259,11 @@ export default function Settings() {
     //   return;
     // }
 
-    // Check if a template has been selected
-    if (
-      smsData.selectedTemplateIndex === null ||
-      smsData.selectedTemplateIndex === undefined
-    ) {
-      toast.error('Please select an SMS template to proceed.');
-      return; // Exit the function early if no template is selected
+    // Check if a template is selected
+    if (smsData.selectedTemplateIndex === null) {
+      // Show error toast if no template is selected
+      toast.error('Please select an SMS template');
+      return; // Prevent form submission
     }
 
     // Prepare the SMS templates for PUT request, ensuring the selected template is marked
@@ -898,8 +898,7 @@ export default function Settings() {
                         </TableCell>
                         <TableCell sx={{ textAlign: 'center' }}>
                           {t('Actions')}
-                        </TableCell>{' '}
-                        {/* Action Column for Delete */}
+                        </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -1275,7 +1274,7 @@ export default function Settings() {
       )}
 
       {/* Save Settings Button */}
-      <Box mt={3}>
+      {/* <Box mt={3}>
         {!isEditing ? (
           <Button variant="contained" onClick={() => setIsEditing(true)}>
             {t('Change Settings')}
@@ -1289,7 +1288,43 @@ export default function Settings() {
               variant="outlined"
               color="secondary"
               sx={{ ml: 2 }}
-              onClick={() => setIsEditing(false)}
+              onClick={() => {
+                setIsEditing(false)
+                }}
+            >
+              {t('Cancel')}
+            </Button>
+          </>
+        )}
+      </Box> */}
+
+      {/* Save Settings and Global Cancel Button */}
+      <Box mt={3}>
+        {!isEditing ? (
+          <Button variant="contained" onClick={() => setIsEditing(true)}>
+            {t('Change Settings')}
+          </Button>
+        ) : (
+          <>
+            <Button variant="contained" onClick={handleSubmit}>
+              {t('Save Settings')}
+            </Button>
+            {/* Single Global Cancel Button */}
+            <Button
+              variant="outlined"
+              color="secondary"
+              sx={{ ml: 2 }}
+              onClick={() => {
+                setIsEditing(false); // Exit editing mode
+                setShowAddTemplate(false); // Hide the Add New SMS Template form
+                setSmsData({
+                  ...smsData,
+                  templateName: '', // Clear template name
+                  templateText: '', // Clear template text
+                  selectedVariables: [], // Clear selected variables
+                  selectedTemplateIndex: null // Clear selected template
+                });
+              }}
             >
               {t('Cancel')}
             </Button>
