@@ -2,7 +2,7 @@ import Authenticated from 'src/components/Authenticated';
 import { Navigate } from 'react-router-dom';
 
 import BoxedSidebarLayout from 'src/layouts/BoxedSidebarLayout';
-import DocsLayout from 'src/layouts/DocsLayout';
+// import DocsLayout from 'src/layouts/DocsLayout';
 import BaseLayout from 'src/layouts/BaseLayout';
 import AccentHeaderLayout from 'src/layouts/AccentHeaderLayout';
 import AccentSidebarLayout from 'src/layouts/AccentSidebarLayout';

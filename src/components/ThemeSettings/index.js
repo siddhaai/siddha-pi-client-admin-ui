@@ -2,9 +2,9 @@ import { useContext, useRef, useState } from 'react';
 import {
   Popover,
   styled,
-  Button,
-  MenuItem,
-  Menu,
+  // Button,
+  // MenuItem,
+  // Menu,
   Typography,
   Stack,
   Divider,
@@ -16,8 +16,8 @@ import CheckTwoToneIcon from '@mui/icons-material/CheckTwoTone';
 import SettingsTwoToneIcon from '@mui/icons-material/SettingsTwoTone';
 import Fab from '@mui/material/Fab';
 import { useTranslation } from 'react-i18next';
-import UnfoldMoreTwoToneIcon from '@mui/icons-material/UnfoldMoreTwoTone';
-import { NavLink } from 'react-router-dom';
+// import UnfoldMoreTwoToneIcon from '@mui/icons-material/UnfoldMoreTwoTone';
+// import { NavLink } from 'react-router-dom';
 
 const ThemeSettingsButton = styled(Box)(
   ({ theme }) => `

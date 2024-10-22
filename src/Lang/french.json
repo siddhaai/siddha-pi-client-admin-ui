@@ -285,5 +285,6 @@
   "Content": "Contenu",
   "Add New SMS Template": "Ajouter un Nouveau Modèle de SMS",
   "Custom SMS Template": "Modèle de SMS Personnalisé",
-  "Mobile Number": "Numéro de Mobile"
+  "Mobile Number": "Numéro de Mobile",
+  "SMS TITLE": "Titre du SMS"
 }

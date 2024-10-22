@@ -101,7 +101,7 @@ function Logo() {
   const { t } = useTranslation();
 
   return (
-    <LogoWrapper to="/overview">
+    <LogoWrapper to="/">
       <LogoSignWrapper>
         <LogoSign>
           <LogoSignInner />
@@ -114,8 +114,8 @@ function Logo() {
         }}
       >
         <LogoTextWrapper>
-          <Tooltip title={t('Version') + ' 3.1'} arrow placement="right">
-            <VersionBadge>0.0.1</VersionBadge>
+          <Tooltip title={t('Version') + ' 0.0.6'} arrow placement="right">
+            <VersionBadge>0.0.6</VersionBadge>
           </Tooltip>
           <LogoText>Siddha Ai</LogoText>
         </LogoTextWrapper>

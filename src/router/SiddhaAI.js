@@ -12,9 +12,9 @@ const Loader = (Component) => (props) =>
 
 // Siddha AI
 
-const LoginScreen = Loader(
-  lazy(() => import('src/content/SiddhaAI/LoginScreen/LoginScreen'))
-);
+// const LoginScreen = Loader(
+//   lazy(() => import('src/content/SiddhaAI/LoginScreen/LoginScreen'))
+// );
 
 const CreateDoctor = Loader(
   lazy(() => import('src/content/SiddhaAI/CreateDoctor/CreateDoctor'))
@@ -50,15 +50,15 @@ const Settings = Loader(
 const TC = Loader(lazy(() => import('src/content/SiddhaAI/TC/TC')));
 
 const AdminRoutes = [
-  {
-    path: 'LoginScreen',
-    children: [
-      {
-        path: 'LoginScreen',
-        element: <LoginScreen />
-      }
-    ]
-  },
+  // {
+  //   path: 'LoginScreen',
+  //   children: [
+  //     {
+  //       path: 'LoginScreen',
+  //       element: <LoginScreen />
+  //     }
+  //   ]
+  // },
   {
     path: 'CreateDoctor',
     children: [

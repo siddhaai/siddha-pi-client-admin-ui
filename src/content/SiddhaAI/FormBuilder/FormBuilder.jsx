@@ -172,7 +172,7 @@ const FormBuilder = () => {
         setIsLoading(false);
       })
       .catch((error) => console.error('Error fetching form data', error));
-  }, [token]);
+  }, []);
 
   // Function to handle View Form click
   const handleViewForm = () => {
@@ -297,11 +297,11 @@ const FormBuilder = () => {
       });
     };
     const sections = [
-      'PersonalDetails',
-      'AddressDetails',
-      'InsuranceDetails',
-      'EmergencyDetails',
-      'PrimaryCarePhysician'
+      t('PersonalDetails'),
+      t('AddressDetails'),
+      t('InsuranceDetails'),
+      t('EmergencyDetails'),
+      t('PrimaryCarePhysician')
     ];
     sections.some((section) => {
       if (!validateSection(section)) {
@@ -705,11 +705,11 @@ const FormBuilder = () => {
                         (section) => section.length > 0
                       ) &&
                         [
-                          'PersonalDetails',
-                          'AddressDetails',
-                          'InsuranceDetails',
-                          'EmergencyDetails',
-                          'PrimaryCarePhysician'
+                          t('PersonalDetails'),
+                          t('AddressDetails'),
+                          t('InsuranceDetails'),
+                          t('EmergencyDetails'),
+                          t('PrimaryCarePhysician')
                         ].map(
                           (section) =>
                             selectedFields[section].length > 0 && (
@@ -779,11 +779,11 @@ const FormBuilder = () => {
                       </Box>
 
                       {[
-                        'PersonalDetails',
-                        'AddressDetails',
-                        'InsuranceDetails',
-                        'EmergencyDetails',
-                        'PrimaryCarePhysician'
+                        t('PersonalDetails'),
+                        t('AddressDetails'),
+                        t('InsuranceDetails'),
+                        t('EmergencyDetails'),
+                        t('PrimaryCarePhysician')
                       ].map((section) => (
                         <Accordion
                           key={section}

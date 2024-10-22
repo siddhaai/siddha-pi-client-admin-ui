@@ -51,7 +51,7 @@ const validationSchema = Yup.object({
 export default function Login() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const isMountedRef = useRefMounted();
+  // const isMountedRef = useRefMounted();
   const { axios } = useAxiosInterceptor();
 
   // const { login, setSession } = useContext(AuthContext);
@@ -103,18 +103,18 @@ export default function Login() {
     try {
       // Attempt login with provided credentials
       const response = await login(values.email, values.password);
-
+  
       if (response.success && response.user) {
         const token = response.user;
         let accessToken = token;
-
+  
         // Verify token and ensure it's valid before proceeding
         if (accessToken && verify(accessToken)) {
           // Successful login, navigate to dashboard
           toast.success(t('Login successful!'));
           setSession(accessToken);
           navigate('/extended-sidebar/SiddhaAI/Dashboard/Dashboard');
-
+  
           // Store credentials if 'Remember Me' is checked
           if (rememberMe) {
             localStorage.setItem('rememberedEmail', values.email);
@@ -125,30 +125,27 @@ export default function Login() {
           }
         }
       } else {
-        // Handle case where response does not indicate success
-        toast.error(t('Invalid email or password')); // Show error message
-        if (isMountedRef.current) {
-          setSubmitting(false); // Stop the form submission process
-        }
+        // Show error message if response is not successful (e.g., invalid credentials)
+        toast.error(t('Invalid Email ID or Password. Please try again!'));
       }
+  
     } catch (error) {
-      // Handle the error from the login attempt (like 401 Unauthorized)
-      console.error('Login failed login page:', error);
-
-      // Check if the error is due to invalid credentials
-      if (error.response?.status === 400) {
-        toast.error(t('Invalid email or password'));
+      // If error is 401 (Unauthorized), show invalid credentials message
+      if (error.response?.status === 401) {
+        // Specific handling for invalid credentials
+        toast.error(t('Invalid Email ID or Password. Please try again!'));
       } else {
+        // Handle other errors that are not 401
         toast.error(error.response?.data?.message || t('Login failed'));
       }
-
-      if (isMountedRef.current) {
-        setSubmitting(false); // Ensure form stops submitting
-      }
+  
+      setSubmitting(false); // Ensure form stops submitting
     } finally {
       setLoading(false); // Hide loading spinner
     }
   };
+  
+  
 
   const handleClickShowPassword = () => setShowPassword(!showPassword);
   const handleMouseDownPassword = (event) => event.preventDefault();
@@ -325,7 +322,7 @@ export default function Login() {
                       }}
                     >
                       <Typography color="secondary">
-                        {t('Version')} 0.0.5
+                        {t('Version')} 0.0.6
                       </Typography>
                     </Box>
                   </Box>

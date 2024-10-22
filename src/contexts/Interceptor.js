@@ -26,17 +26,23 @@ const useAxiosInterceptor = () => {
     // Handle request errors here
     return Promise.reject(error);
   };
-
   const errorResponseInterceptor = (error) => {
     if (error.response && error.response.status === 401) {
-      // Token is expired or invalid, remove it from local storage
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('jwtToken');
-      delete axBackendInstance.defaults.headers.common.Authorization;
+      const errorMessage =
+        error.response.data?.message || 'Session expired. Please log in again.';
 
-      // Navigate to the logout screen
-      navigate('/account/LogOutForSession');
+      // Check if the error is due to an expired token or invalid credentials
+      const isExpiredTokenError = errorMessage.toLowerCase().includes('token');
+
+      // If it's due to an expired token, clear tokens and redirect to LogOutForSession
+      if (isExpiredTokenError) {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('jwtToken');
+        delete axBackendInstance.defaults.headers.common.Authorization;
+
+        navigate('/account/LogOutForSession');
+      }
     }
 
     return Promise.reject(error);

@@ -285,5 +285,6 @@
   "Content": "المحتوى",
   "Add New SMS Template": "إضافة قالب SMS جديد",
   "Custom SMS Template": "قالب SMS مخصص",
-  "Mobile Number": "رقم الجوال"
+  "Mobile Number": "رقم الجوال",
+  "SMS Title": "عنوان الرسائل القصيرة"
 }

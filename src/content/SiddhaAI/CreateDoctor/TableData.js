@@ -50,7 +50,7 @@ function TableData() {
     setOrderBy(property);
   };
 
-  // Fetch doctors from the API
+  // Fetch doctors from the API old
   const fetchDoctors = useCallback(async () => {
     try {
       const response = await axios.get(`/drchronoDoctorDetails`, {
@@ -67,9 +67,15 @@ function TableData() {
     }
   }, []);
 
+  //old
   useEffect(() => {
     fetchDoctors();
-  }, []);
+  }, [fetchDoctors]);
+
+  // new
+  // useEffect(() => {
+  //   fetchDoctors(token, setDoctors);
+  // }, [fetchDoctors, token, setDoctors]);
 
   return (
     <>
@@ -187,7 +193,7 @@ function TableData() {
               {doctors.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={8} align="center">
-                  <CircularProgress /> 
+                    <CircularProgress />
                   </TableCell>
                 </TableRow>
               ) : (

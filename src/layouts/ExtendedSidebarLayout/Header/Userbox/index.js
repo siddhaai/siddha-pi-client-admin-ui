@@ -15,10 +15,11 @@ import {
   alpha,
   styled
 } from '@mui/material';
-import toast from 'react-hot-toast';
+// import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import useAxiosInterceptor from 'src/contexts/Interceptor';
 import { useLocation } from 'react-router-dom';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 const UserBoxButton = styled(IconButton)(
   ({ theme }) => `
@@ -194,7 +195,7 @@ function HeaderUserbox() {
         {/* <Divider /> */}
         <Box m={1}>
           <Button color="primary" fullWidth onClick={handleLogout}>
-            <LockOpenTwoToneIcon
+            <LogoutIcon
               sx={{
                 mr: 1
               }}
