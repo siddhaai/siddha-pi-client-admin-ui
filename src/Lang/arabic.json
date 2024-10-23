@@ -286,5 +286,7 @@
   "Add New SMS Template": "إضافة قالب SMS جديد",
   "Custom SMS Template": "قالب SMS مخصص",
   "Mobile Number": "رقم الجوال",
-  "SMS Title": "عنوان الرسائل القصيرة"
+  "SMS Title": "عنوان الرسائل القصيرة",
+  "Date of birth is required": "تاريخ الميلاد مطلوب",
+  "Gender is required": "الجنس مطلوب"
 }

@@ -286,5 +286,7 @@
   "Add New SMS Template": "Ajouter un Nouveau Modèle de SMS",
   "Custom SMS Template": "Modèle de SMS Personnalisé",
   "Mobile Number": "Numéro de Mobile",
-  "SMS TITLE": "Titre du SMS"
+  "SMS TITLE": "Titre du SMS",
+  "Date of birth is required": "La date de naissance est requise",
+  "Gender is required": "Le genre est requis"
 }

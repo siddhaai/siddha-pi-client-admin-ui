@@ -286,5 +286,7 @@
   "Add New SMS Template": "添加新短信模板",
   "Custom SMS Template": "自定义短信模板",
   "Mobile Number": "手机号码",
-  "SMS Title": "短信标题"
+  "SMS Title": "短信标题",
+  "Date of birth is required": "需要出生日期",
+  "Gender is required": "需要性别"
 }

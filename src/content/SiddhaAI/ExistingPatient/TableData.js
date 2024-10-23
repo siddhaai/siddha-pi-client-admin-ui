@@ -1283,6 +1283,9 @@ const PatientIntakeExisting = () => {
   const [selectedPatientId, setSelectedPatientId] = useState(''); // ID of the selected patient for radio button selection
   const [showExitingPatient, setShowExitingPatient] = useState(false);
 
+  const [doctorNpi,setDoctorNpi]=useState("")
+
+
   const fetchDoctorOffice = async () => {
     try {
       const response = await axios.get(`/drchronoDoctorDetails`, {
@@ -1348,7 +1351,8 @@ const PatientIntakeExisting = () => {
     hospital_location: '',
     reason: '',
     notes: '',
-    preferred_doctor: ''
+    preferred_doctor: '',
+    doctor_npi: '' // New state for storing NPI number
   });
 
   const [errors, setErrors] = useState({});
@@ -1440,6 +1444,18 @@ const PatientIntakeExisting = () => {
     // Update the field value
     setAppointmentDetails({ ...appointmentDetails, [name]: value });
 
+     // Find the selected doctor's NPI number
+     if (name === 'preferred_doctor') {
+      const selectedDoctor = doctors.find((doctor) => doctor.id === value);
+      const doctorNpi = selectedDoctor ? selectedDoctor.npi_number : '';
+      setAppointmentDetails((prevDetails) => ({
+        ...prevDetails,
+        doctor_npi: doctorNpi
+      }));
+    }
+
+    setDoctorNpi(appointmentDetails.doctor_npi)
+
     // Validate the specific field that has changed
     const fieldError = validateAppointmentDetails({
       ...appointmentDetails,
@@ -1452,6 +1468,7 @@ const PatientIntakeExisting = () => {
       [name]: fieldError[name] || null // Only update the error for the specific field
     }));
   };
+
 
   // Updated handleAppointmentDateChange for date field
   const handleAppointmentDateChange = (newDateTime) => {
@@ -1699,7 +1716,8 @@ const PatientIntakeExisting = () => {
       doctor_PraticeName: doctorPracticeName,
       doctor_phone: officePhone,
       patient_is_new: false,
-      doctorId: appointmentDetails.preferred_doctor
+      doctorId: appointmentDetails.preferred_doctor.replace,
+      NpiNumber:doctorNpi
     };
 
     try {

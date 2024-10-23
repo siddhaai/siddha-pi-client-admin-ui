@@ -286,5 +286,7 @@
   "Add New SMS Template": "Magdagdag ng Bagong Template ng SMS",
   "Custom SMS Template": "Pasadyang Template ng SMS",
   "Mobile Number": "Numero ng Mobile",
-  "SMS Title": "Pamagat ng SMS"
+  "SMS Title": "Pamagat ng SMS",
+  "Date of birth is required": "Kinakailangan ang petsa ng kapanganakan",
+  "Gender is required": "Kinakailangan ang kasarian"
 }

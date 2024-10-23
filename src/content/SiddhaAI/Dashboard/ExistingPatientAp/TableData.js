@@ -116,7 +116,6 @@ const completeRegistrationSchema = Yup.object({
 });
 
 const TableData = ({ selectedPatient }) => {
-  console.log('selectedPatient existing', selectedPatient);
 
   const { axios } = useAxiosInterceptor();
   const { t } = useTranslation();
@@ -331,8 +330,8 @@ const TableData = ({ selectedPatient }) => {
         patientPhNum: selectedPatientId?.patientPhNum,
         patient_is_new: selectedPatientId?.patient_is_new,
         patientReSchedule: true,
-        document_id: selectedPatientId?.document_id
-        // NpiNumber:selectedPatientId?.NpiNumber
+        document_id: selectedPatientId?.document_id,
+        NpiNumber:selectedPatientId?.NpiNumber
       };
 
       const response = await axios.post(

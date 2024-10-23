@@ -287,5 +287,7 @@
   "Add New SMS Template": "Thêm Mẫu SMS Mới",
   "Custom SMS Template": "Mẫu SMS Tùy Chỉnh",
   "Mobile Number": "Số Điện Thoại Di Động",
-  "SMS Title": "Tiêu đề SMS"
+  "SMS Title": "Tiêu đề SMS",
+  "Date of birth is required": "Yêu cầu ngày sinh",
+  "Gender is required": "Yêu cầu giới tính"
 }
