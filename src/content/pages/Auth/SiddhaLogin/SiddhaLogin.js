@@ -103,18 +103,18 @@ export default function Login() {
     try {
       // Attempt login with provided credentials
       const response = await login(values.email, values.password);
-  
+
       if (response.success && response.user) {
         const token = response.user;
         let accessToken = token;
-  
+
         // Verify token and ensure it's valid before proceeding
         if (accessToken && verify(accessToken)) {
           // Successful login, navigate to dashboard
           toast.success(t('Login successful!'));
           setSession(accessToken);
           navigate('/extended-sidebar/SiddhaAI/Dashboard/Dashboard');
-  
+
           // Store credentials if 'Remember Me' is checked
           if (rememberMe) {
             localStorage.setItem('rememberedEmail', values.email);
@@ -128,7 +128,6 @@ export default function Login() {
         // Show error message if response is not successful (e.g., invalid credentials)
         toast.error(t('Invalid Email ID or Password. Please try again!'));
       }
-  
     } catch (error) {
       // If error is 401 (Unauthorized), show invalid credentials message
       if (error.response?.status === 401) {
@@ -138,17 +137,37 @@ export default function Login() {
         // Handle other errors that are not 401
         toast.error(error.response?.data?.message || t('Login failed'));
       }
-  
+
       setSubmitting(false); // Ensure form stops submitting
     } finally {
       setLoading(false); // Hide loading spinner
     }
   };
-  
-  
 
   const handleClickShowPassword = () => setShowPassword(!showPassword);
   const handleMouseDownPassword = (event) => event.preventDefault();
+
+  const [logoUrl, setLogoUrl] = useState(null);
+
+  useEffect(() => {
+    axios
+      .get('/adminLogin/getClientLogo')
+      .then((response) => {
+        // Extract base64 logo data and format it as a data URL
+        const logoBase64 = response.data.logo;
+        if (logoBase64) {
+          setLogoUrl(`data:image/jpeg;base64,${logoBase64}`);
+        } else {
+          setLogoUrl(null); // If no logo, set to null
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching the logo:', error);
+        setLogoUrl(null); // Set to null on error
+      });
+  }, []);
+
+  console.log('logoUrl', logoUrl);
 
   return (
     <>
@@ -174,10 +193,9 @@ export default function Login() {
               <Grid
                 item
                 mt={4}
-                xs={false}
-                sm={4}
                 md={6}
                 sx={{
+                  display: { xs: 'none', sm: 'none', md: 'none', lg: 'block' },
                   backgroundImage: `url(${Doctors})`,
                   backgroundSize: 'contain',
                   backgroundRepeat: 'no-repeat',
@@ -193,15 +211,14 @@ export default function Login() {
                   md={6}
                   sx={{
                     height: '70px',
-                    ml: 15,
                     mt: 8,
-                    backgroundImage:
-                      'url(/static/images/SiddhaAI/clientLogo.png)',
+                    backgroundImage: logoUrl ? `url(${logoUrl})` : 'none', // Only show image if logoUrl is set
                     backgroundSize: 'contain',
                     backgroundRepeat: 'no-repeat',
                     backgroundPosition: 'center center'
                   }}
                 />
+
                 <Box
                   sx={{
                     my: 4,
@@ -322,7 +339,7 @@ export default function Login() {
                       }}
                     >
                       <Typography color="secondary">
-                        {t('Version')} 0.0.7
+                        {t('Version')} 0.0.8
                       </Typography>
                     </Box>
                   </Box>

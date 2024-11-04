@@ -240,24 +240,44 @@ const PatientIntakeNew = () => {
   const [smsTemplateResponseData, setSmsTemeplateResponseData] = useState([]);
   const [genders, SetGenders] = useState([]);
   const [showCreatePatient, setShowCreatePatient] = useState(false);
-  const [doctorNpi,setDoctorNpi]=useState("")
+  const [doctorNpi, setDoctorNpi] = useState('');
+  const [selectedOfficeAddress, setSelectedOfficeAddress] = useState(false);
+
+  // const fetchDoctorOffice = async () => {
+  //   try {
+  //     const response = await axios.get(`/drchronoDoctorDetails`, {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`
+  //       }
+  //     });
+  //     //office phone
+  //     setOfficePhone(
+  //       response.data.drchronoDoctoresDetail.results[0].office_phone
+  //     );
+  //     const { drchronoOfficeLocation } = response.data;
+  //     const officeLocations = drchronoOfficeLocation.results;
+  //     setSelectedOffices(officeLocations);
+  //   } catch (error) {
+  //     console.error('Failed to fetch user data in new patient');
+  //   }
+  // };
 
   const fetchDoctorOffice = async () => {
     try {
-      const response = await axios.get(`/drchronoDoctorDetails`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+      const response = await axios.get('/getHospitalDetails', {
+        headers: { Authorization: `Bearer ${token}` }
       });
-      //office phone
-      setOfficePhone(
-        response.data.drchronoDoctoresDetail.results[0].office_phone
-      );
-      const { drchronoOfficeLocation } = response.data;
-      const officeLocations = drchronoOfficeLocation.results;
-      setSelectedOffices(officeLocations);
+      const { hospitalOfficeLocation } = response.data.data;
+      if (hospitalOfficeLocation) {
+        setSelectedOffices(hospitalOfficeLocation); // Save full data for later access
+      } else {
+        setSelectedOffices([]); // Handle missing office details
+        console.error(
+          'Unexpected data structure from API for office locations'
+        );
+      }
     } catch (error) {
-      console.error('Failed to fetch user data in new patient');
+      console.error('Failed to fetch office locations:', error);
     }
   };
   const fetchGender = async () => {
@@ -283,22 +303,24 @@ const PatientIntakeNew = () => {
 
   const fetchDoctors = async () => {
     try {
-      const response = await axios.get(`/drchronoDoctorDetails`, {
+      const response = await axios.get('/getHospitalDetails', {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      const { drchronoDoctoresDetail } = response.data;
+      const { hospitalDoctorsDetail } = response.data.data;
 
-      // Ensure that you are getting results and update the state
-      if (drchronoDoctoresDetail && drchronoDoctoresDetail.results) {
-        setDoctors(drchronoDoctoresDetail.results);
+      if (hospitalDoctorsDetail) {
+        const formattedDoctors = hospitalDoctorsDetail.map((doctor) => ({
+          id: doctor.emr_doctor_id,
+          name: doctor.doctor_name
+        }));
+        setDoctors(formattedDoctors);
       } else {
-        setDoctors([]); // In case of unexpected data structure
-        console.error('Unexpected data structure from API');
+        setDoctors([]); // Handle case when doctor details are missing
+        console.error('Unexpected data structure from API for doctors');
       }
     } catch (error) {
       console.error('Error fetching doctors:', error);
-      // console.error(t('Error fetching doctors'));
       setDoctors([]); // Reset doctors state on error
     }
   };
@@ -331,6 +353,21 @@ const PatientIntakeNew = () => {
     notes: ''
   });
 
+  const handleOfficeSelection = (selectedOfficeId) => {
+    const selectedOffice = selectedOffices.find(
+      (office) => office.office_id === selectedOfficeId
+    );
+
+    if (selectedOffice) {
+      const officeAddress = selectedOffice.office_address;
+      // Send `officeAddress` to backend or store it for further use
+      console.log('Selected Office Address:', officeAddress);
+      // Example: save in state or send to backend as needed
+      setSelectedOfficeAddress(officeAddress); // Optional, if you need to store
+    } else {
+      console.error('Office not found for the selected ID');
+    }
+  };
   const handleChangePersonalDetails = (e) => {
     const { name, value } = e.target;
     setPersonalDetails((prevDetails) => ({
@@ -420,7 +457,7 @@ const PatientIntakeNew = () => {
   };
 
   // Handle Submit for Personal Information
-  console.log('dcotors npi', doctors);
+  // console.log('dcotors npi', doctors);
   const handleSubmitPersonalInfo = async () => {
     const validationErrors = validatePersonalDetails(personalDetails);
     if (Object.keys(validationErrors).length > 0) {
@@ -430,7 +467,7 @@ const PatientIntakeNew = () => {
 
     setName(personalDetails.first_name);
     setMobile(personalDetails.phone);
-    setDoctorNpi(personalDetails.doctor_npi)
+    setDoctorNpi(personalDetails.doctor_npi);
 
     setLoading(true);
     try {
@@ -538,7 +575,8 @@ const PatientIntakeNew = () => {
       doctor_PraticeName: doctorPracticeName,
       patient_is_new: true,
       doctorId: personalDetails.preferred_doctor, // Assuming doctor ID is static or passed from props
-      NpiNumber:doctorNpi
+      NpiNumber: doctorNpi,
+      office_location: selectedOfficeAddress
     };
 
     try {
@@ -763,7 +801,7 @@ const PatientIntakeNew = () => {
                       >
                         {doctors?.map((doctor) => (
                           <MenuItem key={doctor?.id} value={doctor?.id}>
-                            {doctor?.first_name}
+                            {doctor?.name}
                           </MenuItem>
                         ))}
                       </TextField>
@@ -827,13 +865,20 @@ const PatientIntakeNew = () => {
                         label={t('Hospital Location')}
                         name="hospital_location"
                         value={appointmentDetails.hospital_location}
-                        onChange={handleChangeAppointmentDetails}
+                        // onChange={handleChangeAppointmentDetails}
+                        onChange={(event) => {
+                          handleOfficeSelection(event.target.value);
+                          handleChangeAppointmentDetails(event);
+                        }}
                         error={!!errors.hospital_location}
                         helperText={errors.hospital_location}
                       >
                         {selectedOffices?.map((office) => (
-                          <MenuItem key={office?.id} value={office?.id}>
-                            {office?.name}
+                          <MenuItem
+                            key={office?.office_id}
+                            value={office?.office_id}
+                          >
+                            {office?.office_name}
                           </MenuItem>
                         ))}
                       </TextField>

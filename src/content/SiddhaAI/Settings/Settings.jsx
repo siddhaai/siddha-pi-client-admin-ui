@@ -204,7 +204,7 @@ export default function Settings() {
   const variables = [
     { label: 'Patient First Name', value: 'patientName' },
     { label: 'Appointment Date & Time', value: 'scheduleDateTime' },
-    // { label: 'Time Zone', value: 'timeZone' },
+    { label: 'Office Location', value: 'office_location' },
     { label: 'Patient Intake Form Url', value: 'WEB_APP_URL', required: true } // Required checkbox
   ];
 
@@ -576,15 +576,15 @@ export default function Settings() {
         setSelectedImageFile(null); // Clear the selected file after upload
         setSelectedImage(null); // Clear base64 preview
         getAdminCustomSetting(); // Refresh settings to display updated logo
-        setIsLoading(false); // Reset loading state
       } else {
         toast.error(t('Error updating logo'));
       }
     } catch (error) {
       toast.error(`${error.message}`);
+    } finally {
+      setIsLoading(false); // Reset loading state
+      setIsEditing(false); // Exit editing mode
     }
-
-    setIsEditing(false); // Exit editing mode
   };
 
   // Handle image selection
@@ -601,47 +601,110 @@ export default function Settings() {
   //   }
   // };
 
+  // const handleImageChange = (event) => {
+  //   const file = event.target.files[0];
+
+  //   if (!file) {
+  //     toast.error(t('Please select a valid image file'));
+  //     return;
+  //   }
+
+  //   // Enforce 5MB size limit
+  //   const maxSizeInMB = 5;
+  //   const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
+
+  //   if (file.size > maxSizeInBytes) {
+  //     toast.error(
+  //       t('File size exceeds 5MB limit. Please select a smaller image.')
+  //     );
+  //     return;
+  //   }
+
+  //   // Supported file types excluding GIF
+  //   const supportedFormats = [
+  //     'image/jpeg',
+  //     'image/png',
+  //     'image/webp',
+  //     'image/heic',
+  //     'image/heif'
+  //   ];
+
+  //   if (!supportedFormats.includes(file.type)) {
+  //     toast.error(t('Unsupported file format'));
+  //     return;
+  //   }
+
+  //   // Use FileReader to convert image for preview
+  //   const reader = new FileReader();
+  //   reader.onloadend = () => {
+  //     setSelectedImage(reader.result); // Base64 preview
+  //   };
+
+  //   setSelectedImageFile(file); // Store binary file for upload
+  //   reader.readAsDataURL(file); // Read the file for display
+  // };
+
   const handleImageChange = (event) => {
     const file = event.target.files[0];
 
     if (!file) {
-      toast.error(t('Please select a valid image file'));
+      toast.error('Please select a valid image file');
       return;
     }
 
-    // Enforce 5MB size limit
-    const maxSizeInMB = 5;
-    const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
-
-    if (file.size > maxSizeInBytes) {
-      toast.error(
-        t('File size exceeds 5MB limit. Please select a smaller image.')
-      );
-      return;
-    }
-
-    // Supported file types excluding GIF
     const supportedFormats = [
       'image/jpeg',
       'image/png',
       'image/webp',
       'image/heic',
-      'image/heif'
+      'image.heif'
     ];
-
     if (!supportedFormats.includes(file.type)) {
-      toast.error(t('Unsupported file format'));
+      toast.error('Unsupported file format');
       return;
     }
 
-    // Use FileReader to convert image for preview
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setSelectedImage(reader.result); // Base64 preview
-    };
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
 
-    setSelectedImageFile(file); // Store binary file for upload
-    reader.readAsDataURL(file); // Read the file for display
+    img.onload = () => {
+      // Set maximum dimensions (optional)
+      const maxDimension = 500;
+      let width = img.naturalWidth;
+      let height = img.naturalHeight;
+
+      if (width > maxDimension || height > maxDimension) {
+        if (width > height) {
+          width = maxDimension;
+          height = (maxDimension / img.naturalWidth) * img.naturalHeight;
+        } else {
+          height = maxDimension;
+          width = (maxDimension / img.naturalHeight) * img.naturalWidth;
+        }
+      }
+
+      // Create a canvas with the final width and height
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+
+      // Set the desired background color (e.g., white)
+      ctx.fillStyle = '#ffffff'; // Replace with any color
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Draw the image on top of the background
+      ctx.drawImage(img, 0, 0, width, height);
+
+      // Convert the canvas to a JPEG to eliminate transparency
+      canvas.toBlob((blob) => {
+        const backgroundAddedFile = new File([blob], file.name, {
+          type: 'image/jpeg'
+        });
+        setSelectedImageFile(backgroundAddedFile); // For uploading with the background color
+        setSelectedImage(canvas.toDataURL('image/jpeg')); // Preview with the background color
+      }, 'image/jpeg'); // Specify JPEG format to ensure no transparency
+    };
   };
 
   const handleCancelImageChange = () => {
@@ -1151,17 +1214,32 @@ export default function Settings() {
             {t('Healthcare organization logo')}
           </Typography>
           <Box display="flex" alignItems="center" gap={2}>
-            {/* Display current or selected logo */}
-            <Card>
+            <Card
+              sx={{
+                width: 'auto',
+                height: 'auto',
+                maxWidth: 150, // Define max width if needed
+                maxHeight: 150, // Define max height if needed
+                position: 'relative',
+                // backgroundColor: '#f0f0f0', // Light background for images with transparency
+                // backgroundImage: `url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill-opacity='0.1'><rect width='5' height='5' fill='%23cccccc'/><rect x='5' y='5' width='5' height='5' fill='%23cccccc'/><rect x='5' width='5' height='5' fill='%23ffffff'/><rect y='5' width='5' height='5' fill='%23ffffff'/></svg>")`,  checkerboard background for transparency
+                padding: 1
+              }}
+            >
               <Avatar
-                src={selectedImage || `data:image/jpeg;base64,${formData.logo}`} // Use selected image or current logo
+                src={selectedImage || `data:image/jpeg;base64,${formData.logo}`}
                 alt="Logo"
-                sx={{ width: 120, height: 120 }}
+                sx={{
+                  width: '100%',
+                  height: 'auto',
+                  objectFit: 'contain',
+                  borderRadius: '8px',
+                  backgroundColor: 'transparent'
+                }}
               />
             </Card>
             {isEditing ? (
               <>
-                {/* File input for image upload */}
                 <IconButton color="primary" component="label">
                   <input
                     hidden
@@ -1174,14 +1252,9 @@ export default function Settings() {
                   </Tooltip>
                 </IconButton>
 
-                {/* If image is selected, show Cancel and Save Logo buttons */}
                 {selectedImage && (
                   <Box display="flex" gap={2}>
-                    <Button
-                      variant="contained"
-                      // color="secondary"
-                      onClick={handleLogoSubmit}
-                    >
+                    <Button variant="contained" onClick={handleLogoSubmit}>
                       {t('Save')}
                       {isLoading && (
                         <CircularProgress size={24} sx={{ ml: 2 }} />

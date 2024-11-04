@@ -35,6 +35,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import SendIcon from '@mui/icons-material/Send';
 import { t } from 'i18next';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 
 const CardIndicatorWrapper = styled(Card)(
   () => `
@@ -116,7 +117,6 @@ const completeRegistrationSchema = Yup.object({
 });
 
 const TableData = ({ selectedPatient }) => {
-
   const { axios } = useAxiosInterceptor();
   const { t } = useTranslation();
   const theme = useTheme();
@@ -142,6 +142,7 @@ const TableData = ({ selectedPatient }) => {
   const [selectedTemplate, setSelectedTemplate] = useState('');
   const [officePhone, setOfficePhone] = useState();
   const [showExitingPatient, setShowExitingPatient] = useState(false);
+  const [selectedOfficeAddress, setSelectedOfficeAddress] = useState(false);
 
   // Function to handle radio button change
   const handleTemplateChange = (event) => {
@@ -153,23 +154,44 @@ const TableData = ({ selectedPatient }) => {
     window.location.reload();
     resetForm();
   };
+  // const fetchDoctorOffice = async () => {
+  //   try {
+  //     const response = await axios.get(`/drchronoDoctorDetails`, {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`
+  //       }
+  //     });
+
+  //     setOfficePhone(
+  //       response.data.drchronoDoctoresDetail.results[0].office_phone
+  //     );
+
+  //     const { drchronoOfficeLocation } = response.data;
+  //     const officeLocations = drchronoOfficeLocation.results;
+  //     setSelectedOffices(officeLocations);
+  //   } catch (error) {
+  //     console.error('Failed to fetch user data re-schedule drchrono');
+  //   }
+  // };
+
   const fetchDoctorOffice = async () => {
     try {
-      const response = await axios.get(`/drchronoDoctorDetails`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+      const response = await axios.get('/getHospitalDetails', {
+        headers: { Authorization: `Bearer ${token}` }
       });
 
-      setOfficePhone(
-        response.data.drchronoDoctoresDetail.results[0].office_phone
-      );
+      const { hospitalOfficeLocation } = response.data.data;
 
-      const { drchronoOfficeLocation } = response.data;
-      const officeLocations = drchronoOfficeLocation.results;
-      setSelectedOffices(officeLocations);
+      if (hospitalOfficeLocation) {
+        setSelectedOffices(hospitalOfficeLocation); // Save full data for later access
+      } else {
+        setSelectedOffices([]); // Handle missing office details
+        console.error(
+          'Unexpected data structure from API for office locations'
+        );
+      }
     } catch (error) {
-      console.error('Failed to fetch user data re-schedule drchrono');
+      console.error('Failed to fetch office locations:', error);
     }
   };
 
@@ -177,27 +199,51 @@ const TableData = ({ selectedPatient }) => {
     fetchDoctorOffice();
   }, []);
 
-  const fetchDoctors = useCallback(async () => {
+  // const fetchDoctors = useCallback(async () => {
+  //   try {
+  //     const token = localStorage.getItem('token');
+  //     const response = await axios.get(`/drchronoDoctorDetails`, {
+  //       headers: { Authorization: `Bearer ${token}` }
+  //     });
+
+  //     const { drchronoDoctoresDetail } = response.data;
+
+  //     if (drchronoDoctoresDetail && drchronoDoctoresDetail.results) {
+  //       setDoctors(drchronoDoctoresDetail.results);
+  //     } else {
+  //       setDoctors([]); // In case of unexpected data structure
+  //       console.error('Unexpected data structure from API');
+  //     }
+  //   } catch (error) {
+  //     console.error('Error fetching doctors: re-schedule', error);
+  //     // toast.error(t('Error fetching doctors'));
+  //     setDoctors([]); // Reset doctors state on error
+  //   }
+  // }, []);
+
+  const fetchDoctors = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`/drchronoDoctorDetails`, {
+      const response = await axios.get('/getHospitalDetails', {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      const { drchronoDoctoresDetail } = response.data;
+      const { hospitalDoctorsDetail } = response.data.data;
 
-      if (drchronoDoctoresDetail && drchronoDoctoresDetail.results) {
-        setDoctors(drchronoDoctoresDetail.results);
+      if (hospitalDoctorsDetail) {
+        const formattedDoctors = hospitalDoctorsDetail.map((doctor) => ({
+          id: doctor.emr_doctor_id,
+          name: doctor.doctor_name
+        }));
+        setDoctors(formattedDoctors);
       } else {
-        setDoctors([]); // In case of unexpected data structure
-        console.error('Unexpected data structure from API');
+        setDoctors([]); // Handle case when doctor details are missing
+        console.error('Unexpected data structure from API for doctors');
       }
     } catch (error) {
-      console.error('Error fetching doctors: re-schedule', error);
-      // toast.error(t('Error fetching doctors'));
+      console.error('Error fetching doctors:', error);
       setDoctors([]); // Reset doctors state on error
     }
-  }, []);
+  };
 
   useEffect(() => {
     fetchDoctors();
@@ -211,12 +257,29 @@ const TableData = ({ selectedPatient }) => {
     }
   }, []);
 
+  const handleOfficeSelection = (selectedOfficeId) => {
+    const selectedOffice = selectedOffices.find(
+      (office) => office.office_id === selectedOfficeId
+    );
+
+    if (selectedOffice) {
+      const officeAddress = selectedOffice.office_address;
+      // Send `officeAddress` to backend or store it for further use
+      console.log('Selected Office Address:', officeAddress);
+      // Example: save in state or send to backend as needed
+      setSelectedOfficeAddress(officeAddress); // Optional, if you need to store
+    } else {
+      console.error('Office not found for the selected ID');
+    }
+  };
+
   // console.log('selectedPatientId', selectedPatientId.patientid);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(smsText);
     toast.success(t('SMS copied Successfully'));
   };
+
   // const handleSubmitCompleteRegistration = async () => {
   //   setLoading(true);
   //   try {
@@ -331,7 +394,8 @@ const TableData = ({ selectedPatient }) => {
         patient_is_new: selectedPatientId?.patient_is_new,
         patientReSchedule: true,
         document_id: selectedPatientId?.document_id,
-        NpiNumber:selectedPatientId?.NpiNumber
+        NpiNumber: selectedPatientId?.NpiNumber,
+        office_location: selectedOfficeAddress
       };
 
       const response = await axios.post(
@@ -559,21 +623,28 @@ const TableData = ({ selectedPatient }) => {
                                   errors.hospital_location
                                 }
                                 onChange={(event) => {
+                                  handleOfficeSelection(event.target.value); // New function to handle address extraction
                                   setFieldValue(
                                     'hospital_location',
                                     event.target.value
                                   );
                                 }}
+
+                      
                               >
                                 {selectedOffices?.map((office) => (
-                                  <MenuItem key={office?.id} value={office?.id}>
-                                    {office?.name}
+                                  <MenuItem
+                                    key={office?.office_id}
+                                    value={office?.office_id}
+                                  >
+                                    {office?.office_name}
                                   </MenuItem>
                                 ))}
                               </TextField>
                             )}
                           </Field>
                         </Grid>
+
                         <Grid item xs={12} md={6}>
                           <Field name="preferred_doctor">
                             {({
@@ -603,7 +674,7 @@ const TableData = ({ selectedPatient }) => {
                               >
                                 {doctors?.map((doctor) => (
                                   <MenuItem key={doctor?.id} value={doctor?.id}>
-                                    {doctor?.first_name}
+                                    {doctor?.name}
                                   </MenuItem>
                                 ))}
                               </TextField>
@@ -825,7 +896,10 @@ const TableData = ({ selectedPatient }) => {
                                         color="primary"
                                         onClick={handleCreatePatient}
                                       >
-                                        {t('Dashboard')}
+                                          <DashboardIcon
+                                            sx={{ padding: '0 5px 0 0' }}
+                                          />
+                                        {t('Go to Dashboard')}
                                       </Button>
                                     </Box>
                                   )}
