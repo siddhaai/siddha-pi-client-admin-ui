@@ -288,5 +288,21 @@
   "Mobile Number": "رقم الجوال",
   "SMS Title": "عنوان الرسائل القصيرة",
   "Date of birth is required": "تاريخ الميلاد مطلوب",
-  "Gender is required": "الجنس مطلوب"
+  "Gender is required": "الجنس مطلوب",
+  "Additional Information":"معلومات اضافية",
+  "Enter additional Information for appointment...":"ادخل المعلومات الاضافية للموعد...",
+  "Additional Information are required":"المعلومات الاضافية مطلوبة",
+  "Additional Information cannot exceed 1000 characters":"لا يمكن ان تتجاوز المعلومات الاضافية 1000 حرف",
+  "About": "حول",
+  "Filter": "تصفية",
+  "The Patient Intake Form URL is required": "الرابط لنموذج الإدخال المريض مطلوب",
+  "New SMS template added successfully!": "قالب SMS جديد مضاف بنجاح!",
+  "Please fill out the SMS template title and content.": "يرجى تعبئة عنوان قالب الرسائل القصيرة والمحتوى.",
+  "Timeout In:": "انتهاء الاتصال في:",
+  "Expires In:": "انتهاء الصلاحية في:",
+  "Days": "يوم",
+  "Change Password": "تغيير كلمة المرور"
+
+
+  
 }

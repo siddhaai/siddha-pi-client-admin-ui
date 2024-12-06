@@ -288,5 +288,19 @@
   "Mobile Number": "Numero ng Mobile",
   "SMS Title": "Pamagat ng SMS",
   "Date of birth is required": "Kinakailangan ang petsa ng kapanganakan",
-  "Gender is required": "Kinakailangan ang kasarian"
+  "Gender is required": "Kinakailangan ang kasarian",
+  "Additional Information": "Impormasyon Adicional",
+  "Enter additional Information for appointment...": "I-enter ang impormasyon adicional para sa appointment...",
+  "Additional Information are required": "Kinakailangan ang impormasyon adicional",
+  "Additional Information cannot exceed 1000 characters": "Ang impormasyon adicional ay hindi dapat lumampas sa 1000 karakter",
+  "About": "Tingnan ang",
+  "Filter":"Filter",
+  "The Patient Intake Form URL is required": "L'URL du formulaire d'admission du patient est requise",
+  "New SMS template added successfully!": "Nueva plantilla de SMS agregada con éxito!",
+  "Please fill out the SMS template title and content.":"Por favor, rellene el título y el contenido de la plantilla de SMS.",
+  "Timeout In:":"Expira en:",
+  "Expires In:": "Expira en:",
+  "Days": "Días",
+  "Change Password": "Cambiar Contraseña"
+
 }

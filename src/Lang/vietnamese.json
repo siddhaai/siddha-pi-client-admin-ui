@@ -289,5 +289,19 @@
   "Mobile Number": "Số Điện Thoại Di Động",
   "SMS Title": "Tiêu đề SMS",
   "Date of birth is required": "Yêu cầu ngày sinh",
-  "Gender is required": "Yêu cầu giới tính"
+  "Gender is required": "Yêu cầu giới tính",
+  "Additional Information":"Thống tin bảo mẫu",
+  "Enter additional Information for appointment...":"Nhập thống tin bảo mẫu cho cuộc hẹn...",
+  "Additional Information are required":"Yêu cầu thống tin bảo mẫu",
+  "Additional Information cannot exceed 1000 characters":"Thống tin bảo mẫu không được vụt quá 1000 ký tự",
+  "About": "Gioi thieu",
+  "Filter":"Tìm kiếm",
+  "The Patient Intake Form URL is required": "URL biểu mẫu tiếp nhận bệnh nhân là bắt buộc",
+  "New SMS template added successfully!": "Mẫu SMS mới đã thêm thành công!",
+  "Please fill out the SMS template title and content.":"Nhập tiêu đề mẫu SMS và nội dung.",
+  "Timeout In:": "Hệ thống trong:",
+  "Days": "Ngày",
+  "Change Password": "Đổi mật khẩu",
+  "Expires In:": "Hệ thống trong:"
+
 }

@@ -19,6 +19,9 @@ const Loader = (Component) => (props) =>
 const CreateDoctor = Loader(
   lazy(() => import('src/content/SiddhaAI/CreateDoctor/CreateDoctor'))
 );
+const About = Loader(
+  lazy(() => import('src/content/SiddhaAI/About/About'))
+);
 const CreateProfile = Loader(
   lazy(() => import('src/content/SiddhaAI/CreateProfile/CreateProfile'))
 );
@@ -48,6 +51,7 @@ const Settings = Loader(
 
 // const Ai = Loader(lazy(() => import('src/content/SiddhaAI/Ai/AiTest')));
 const TC = Loader(lazy(() => import('src/content/SiddhaAI/TC/TC')));
+const PasswordReset = Loader(lazy(() => import('src/content/SiddhaAI/PasswordReset/PasswordReset')));
 
 const AdminRoutes = [
   // {
@@ -65,6 +69,15 @@ const AdminRoutes = [
       {
         path: 'CreateDoctor',
         element: <CreateDoctor />
+      }
+    ]
+  },
+  {
+    path: 'About',
+    children: [
+      {
+        path: 'About',
+        element: <About />
       }
     ]
   },
@@ -147,6 +160,15 @@ const AdminRoutes = [
       {
         path: 'TC',
         element: <TC />
+      }
+    ]
+  },
+  {
+    path: 'PasswordReset',
+    children: [
+      {
+        path: 'PasswordReset',
+        element: <PasswordReset />
       }
     ]
   }

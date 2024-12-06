@@ -18,7 +18,12 @@ import {
   Divider,
   Box,
   CircularProgress,
-  Tooltip
+  Tooltip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions
 } from '@mui/material';
 import jsPDF from 'jspdf';
 import useAxiosInterceptor from 'src/contexts/Interceptor';
@@ -26,7 +31,7 @@ import { styled } from '@mui/material/styles'; // For hover effects
 import { Helmet } from 'react-helmet-async';
 import { t } from 'i18next';
 import EditIcon from '@mui/icons-material/Edit';
-
+import DeleteIcon from '@mui/icons-material/Delete';
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
   '&:hover': {
     backgroundColor: '#eef1f6', // Add hover effect
@@ -48,18 +53,9 @@ const CustomToolbar = () => (
       <button className="ql-strike"></button>
     </span>
     <span className="ql-formats">
-      <select className="ql-color"></select>
-      <select className="ql-background"></select>
-    </span>
-    <span className="ql-formats">
-      <button className="ql-script" value="sub"></button>
-      <button className="ql-script" value="super"></button>
-    </span>
-    <span className="ql-formats">
       <button className="ql-header" value="1"></button>
       <button className="ql-header" value="2"></button>
       <button className="ql-blockquote"></button>
-      <button className="ql-code-block"></button>
     </span>
     <span className="ql-formats">
       <button className="ql-list" value="ordered"></button>
@@ -67,23 +63,13 @@ const CustomToolbar = () => (
       <button className="ql-indent" value="-1"></button>
       <button className="ql-indent" value="+1"></button>
     </span>
-    <span className="ql-formats">
-      <button className="ql-direction" value="rtl"></button>
-      <select className="ql-align"></select>
-    </span>
-    <span className="ql-formats">
-      <button className="ql-link"></button>
-      <button className="ql-formula"></button>
-    </span>
-    <span className="ql-formats">
-      <button className="ql-clean"></button>
-    </span>
   </div>
 );
 
 const TC = () => {
   const { axios } = useAxiosInterceptor();
   const [title, setTitle] = useState('');
+  // const [numericCount, setNumericCount] = useState(0);
   const [content, setContent] = useState('');
   const [selectedDoctor, setSelectedDoctor] = useState('');
   const [doctors, setDoctors] = useState([]);
@@ -93,6 +79,12 @@ const TC = () => {
   const [editMode, setEditMode] = useState(false);
   const [currentAgreementId, setCurrentAgreementId] = useState(null);
   const [initialLoader, setInitialLoader] = useState(true); // New state for initial loader
+  const [isDuplicate, setIsDuplicate] = useState(false); // New state
+  const [originalTitle, setOriginalTitle] = useState('');
+  // State for dialog
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteAgreementId, setDeleteAgreementId] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const token = localStorage.getItem('token');
 
@@ -140,12 +132,50 @@ const TC = () => {
     fetchAgreements();
   }, [fetchDoctors, fetchAgreements]);
 
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+
+    // Normalize the current input and original title for comparison
+    const normalizedInput = value.replace(/\s+/g, '').toLowerCase();
+    const normalizedOriginal = originalTitle.replace(/\s+/g, '').toLowerCase();
+
+    // Split the input into allowed parts
+    const numericMatches = value.match(/\d/g) || []; // Find all numeric characters
+    const numericCountInValue = numericMatches.length;
+
+    if (numericCountInValue <= 1) {
+      const filteredValue = value
+        .replace(/[^a-zA-Z0-9\s]/g, '') // Remove invalid characters
+        .replace(/(\d)(?=\d)/g, ''); // Remove additional numeric characters beyond the first
+
+      setTitle(filteredValue);
+
+      // Only validate if the input title is different from the original title
+      if (normalizedInput !== normalizedOriginal) {
+        const titleConflict = agreements.some((agreement) => {
+          const normalizedExistingTitle = agreement.title
+            .replace(/\s+/g, '')
+            .toLowerCase();
+          return (
+            normalizedExistingTitle === normalizedInput &&
+            agreement._id !== currentAgreementId // Exclude the current agreement being edited
+          );
+        });
+
+        if (titleConflict) {
+          toast.error(t('Title already exists'));
+        }
+      }
+    }
+  };
+
   const handleEditAgreement = (agreement) => {
     setEditMode(true);
     setCurrentAgreementId(agreement._id);
     setTitle(agreement.title);
     setContent(agreement.body);
     setSelectedDoctor(agreement.emr_doctorId);
+    setOriginalTitle(agreement.title); // Track the original title
   };
 
   const handleSubmit = async () => {
@@ -162,7 +192,7 @@ const TC = () => {
           {
             title,
             body: content,
-            emr_doctorId: selectedDoctor,
+            // emr_doctorId: selectedDoctor,
             _id: currentAgreementId
           },
           {
@@ -406,6 +436,47 @@ const TC = () => {
     }
   };
 
+  // Handle Delete Button Click
+  const handleDeleteClick = (agreementId) => {
+    // console.log('aId', agreementId);
+    setDeleteAgreementId(agreementId);
+    setDeleteDialogOpen(true);
+  };
+  // Handle API Call for Deletion
+  const handleDeleteAgreement = async () => {
+    setIsDeleting(true);
+     // Check network connectivity
+     if (!navigator.onLine) {
+      toast.error(t('No internet connection'));
+      setIsLoading(false);
+      return;
+    }
+    try {
+    const response =  await axios.delete('/agreement/deleteAgreementClientAdmin', {
+        data: {
+          _id: deleteAgreementId,
+        },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.status === 200) {
+        toast.success(t('Agreement deleted successfully'));
+        setDeleteDialogOpen(false);
+        setDeleteAgreementId(null);
+        fetchAgreements();
+      }
+      // Refresh agreements (reload page or re-fetch data)
+    } catch (error) {
+      setIsLoading(false);
+      toast.error(error.response?.data?.data || 'An error occurred while deleting');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+  
+
   return (
     <Box p={4}>
       <Toaster position="bottom-right" />
@@ -456,11 +527,14 @@ const TC = () => {
             <TextField
               fullWidth
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={handleInputChange}
               placeholder={t('Enter title')}
               label={t('Agreement Title')}
               variant="outlined"
               disabled={!selectedDoctor}
+              inputProps={{ maxLength: 50 }}
+              error={isDuplicate} // Highlight the input field in red
+              helperText={isDuplicate ? t('The title already exists') : ''} // Show error message
             />
           </Grid>
 
@@ -486,7 +560,26 @@ const TC = () => {
               variant="contained"
               color="primary"
               onClick={handleSubmit}
-              disabled={isLoading || !title || !content || !selectedDoctor}
+              disabled={
+                isLoading ||
+                !title ||
+                !content ||
+                !selectedDoctor ||
+                (title.replace(/\s+/g, '').toLowerCase() !==
+                  originalTitle.replace(/\s+/g, '').toLowerCase() &&
+                  agreements.some((agreement) => {
+                    const normalizedExistingTitle = agreement.title
+                      .replace(/\s+/g, '')
+                      .toLowerCase();
+                    const normalizedTitle = title
+                      .replace(/\s+/g, '')
+                      .toLowerCase();
+                    return (
+                      normalizedExistingTitle === normalizedTitle &&
+                      agreement._id !== currentAgreementId
+                    );
+                  }))
+              }
             >
               {isLoading ? (
                 <CircularProgress size={24} />
@@ -539,17 +632,24 @@ const TC = () => {
                             onClick={() => handleEditAgreement(agreement)}
                           >
                             <Tooltip title={t('Edit')}>
-                              <EditIcon />
+                              <EditIcon  />
                             </Tooltip>
                           </Button>
-                          <Button
+                          <Button 
                             onClick={() =>
                               handleViewPdf(agreement.title, agreement.body)
                             }
                           >
-                            <Typography sx={{ textDecoration: 'underline' }}>
+                            <Typography  sx={{ textDecoration: 'underline' }}>
                               {t('View')}
                             </Typography>
+                          </Button>
+                          <Button
+                            onClick={() => handleDeleteClick(agreement._id)}
+                          >
+                            <Tooltip title={t('Delete')}>
+                              <DeleteIcon color="error" />
+                            </Tooltip>
                           </Button>
                         </TableCell>
                       </StyledTableRow>
@@ -565,6 +665,31 @@ const TC = () => {
           </Grid>
         </Grid>
       )}
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+      >
+        <DialogTitle>{t('Confirm Delete')}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {t('Are you sure you want to delete this agreement?')}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button  onClick={() => setDeleteDialogOpen(false)} color="secondary">
+            {t('No')}
+          </Button>
+          <Button
+            onClick={handleDeleteAgreement}
+            color="error"
+            disabled={isDeleting}
+            startIcon={isDeleting && <CircularProgress size={20} />}
+          >
+            {t('Yes')}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

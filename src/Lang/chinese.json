@@ -288,5 +288,19 @@
   "Mobile Number": "手机号码",
   "SMS Title": "短信标题",
   "Date of birth is required": "需要出生日期",
-  "Gender is required": "需要性别"
+  "Gender is required": "需要性别",
+  "Additional Information":"附加信息",
+  "Enter additional Information for appointment...":"为预约输入附加信息...",
+  "Additional Information are required":"需要附加信息",
+  "Additional Information cannot exceed 1000 characters":"附加信息不能超过1000个字符",
+  "About":"关于",
+  "Filter":"过滤",
+  "The Patient Intake Form URL is required": "患者入院表单URL是必填项",
+  "New SMS template added successfully!": "新短信模板添加成功!",
+  "Please fill out the SMS template title and content.": "请填写短信模板标题和内容。",
+  "Timeout In:": "超时时间：",
+  "Expires In:": "过期时间：",
+  "Days": "天",
+  "Change Password": "更改密码"
+
 }

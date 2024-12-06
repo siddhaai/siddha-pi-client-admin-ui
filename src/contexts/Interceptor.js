@@ -1,9 +1,17 @@
 import React from 'react';
-import { useNavigate } from 'react-router';
 import { axBackendInstance } from 'src/utils/axios-instance';
 
-const useAxiosInterceptor = () => {
-  const navigate = useNavigate();
+const useAxiosInterceptor = (onSessionExpired) => {
+
+// Utility to save the last visited URL with query parameters
+// const saveLastVisitedUrl = () => {
+//   const currentPath = window.location.pathname + window.location.search;
+//   const storedPath = localStorage.getItem('lastVisitedUrl');
+//   if (storedPath !== currentPath) {
+//     localStorage.setItem('lastVisitedUrl', currentPath);
+//   }
+// };
+
 
   // Define request/response and error interceptors
   const requestInterceptor = (config) => {
@@ -28,23 +36,10 @@ const useAxiosInterceptor = () => {
   };
   const errorResponseInterceptor = (error) => {
     if (error.response && error.response.status === 401) {
-      const errorMessage =
-        error.response.data?.message || 'Session expired. Please log in again.';
-
-      // Check if the error is due to an expired token or invalid credentials
-      const isExpiredTokenError = errorMessage.toLowerCase().includes('token');
-
-      // If it's due to an expired token, clear tokens and redirect to LogOutForSession
-      if (isExpiredTokenError) {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('jwtToken');
-        delete axBackendInstance.defaults.headers.common.Authorization;
-
-        navigate('/account/LogOutForSession');
-      }
+      console.log("Session Expired");
+      // saveLastVisitedUrl();
+      // if (onSessionExpired) onSessionExpired();
     }
-
     return Promise.reject(error);
   };
 
@@ -65,7 +60,7 @@ const useAxiosInterceptor = () => {
       axBackendInstance.interceptors.request.eject(requestInterceptorId);
       axBackendInstance.interceptors.response.eject(responseInterceptorId);
     };
-  }, [navigate]);
+  }, [onSessionExpired]);
 
   return { axios: axBackendInstance };
 };

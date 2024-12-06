@@ -38,7 +38,6 @@ const handlers = {
   }),
   REGISTER: (state, action) => {
     const { user } = action.payload;
-
     return {
       ...state,
       isAuthenticated: true,
@@ -61,6 +60,8 @@ const AuthContext = createContext({
 export const AuthProvider = (props) => {
   const { axios } = useAxiosInterceptor();
   const navigate = useNavigate();
+
+
   const { children } = props;
   const [state, dispatch] = useReducer(reducer, initialAuthState);
 
@@ -142,7 +143,9 @@ export const AuthProvider = (props) => {
       // const { accessToken, user } = response.data;
       const user = response.data.token;
       const token = response.data.token;
+      const fullRes = response.data;
 
+   
       setSession(token);
       dispatch({
         type: 'LOGIN',
@@ -150,10 +153,10 @@ export const AuthProvider = (props) => {
           user
         }
       });
-      return { success: true, user };
+      return { success: true, user, fullRes };
     } catch (error) {
       console.error('Login error:', error.response?.data);
-      return { success: false, token: null };
+      return { success: false, token: null,error: error.response?.data };
     }
   };
 

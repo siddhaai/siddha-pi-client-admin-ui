@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuth from 'src/hooks/useAuth';
 
-import LockOpenTwoToneIcon from '@mui/icons-material/LockOpenTwoTone';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import {
   Avatar,
@@ -20,6 +19,8 @@ import { useTranslation } from 'react-i18next';
 import useAxiosInterceptor from 'src/contexts/Interceptor';
 import { useLocation } from 'react-router-dom';
 import LogoutIcon from '@mui/icons-material/Logout';
+import SettingsIcon from '@mui/icons-material/Settings';
+
 
 const UserBoxButton = styled(IconButton)(
   ({ theme }) => `
@@ -140,6 +141,11 @@ function HeaderUserbox() {
     setOpen(false);
   };
 
+  const handleViewSettings = () => {
+    navigate('/extended-sidebar/SiddhaAI/Settings/Settings');
+    setOpen(false);
+  };
+
   return (
     <>
       <UserBoxButton color="primary" ref={ref} onClick={handleOpen}>
@@ -190,6 +196,16 @@ function HeaderUserbox() {
               }}
             />
             {t('View Profile')}
+          </Button>
+        </Box>
+        <Box m={1}>
+          <Button color="primary" fullWidth onClick={handleViewSettings}>
+            <SettingsIcon
+              sx={{
+                mr: 1
+              }}
+            />
+            {t('Settings')}
           </Button>
         </Box>
         {/* <Divider /> */}

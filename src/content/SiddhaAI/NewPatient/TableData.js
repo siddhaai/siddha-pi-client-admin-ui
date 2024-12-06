@@ -77,6 +77,8 @@ const validatePersonalDetails = (values) => {
   const errors = {};
   const nameRegex = /^[A-Za-z]+$/;
   const phoneRegex = /^\(\d{3}\) \d{3}-\d{4}$/; // US phone format (XXX) XXX-XXXX
+  const dateFormat = 'MM/DD/YYYY';
+  const minDate = dayjs('01/01/1900', dateFormat); // Set a minimum date for DOB
 
   if (!values.first_name) {
     errors.first_name = t('First name is required');
@@ -111,11 +113,17 @@ const validatePersonalDetails = (values) => {
     errors.preferred_doctor = t('Preferred doctor is required');
   }
 
-  if (!values.dob) {
-    errors.dob = t('Date of birth is required');
-  } else if (dayjs(values.dob).isAfter(dayjs())) {
-    errors.dob = t('Date of birth cannot be in the future');
-  }
+  if (!values.dob) { 
+    errors.dob = t('Date of birth is required'); 
+  } else if (!dayjs(values.dob, dateFormat, true).isValid())
+    { errors.dob = t('Invalid date format. Please use MM/DD/YYYY');
+
+     } else if (dayjs(values.dob).isAfter(dayjs())) {
+       errors.dob = t('Date of birth cannot be in the future');
+       }
+       else if (dayjs(values.dob).isBefore(minDate)) {
+         errors.dob = t('Date of birth cannot be before January 1, 1900'); 
+        }
 
   return errors;
 };
@@ -179,9 +187,9 @@ const validateReason = (value) => {
 
 const validateNotes = (value) => {
   if (!value) {
-    return t('Additional notes are required');
+    return t('Additional Information are required');
   } else if (value.length > 1000) {
-    return t('Additional notes cannot exceed 1000 characters');
+    return t('Additional Information cannot exceed 1000 characters');
   }
   return null;
 };
@@ -306,24 +314,26 @@ const PatientIntakeNew = () => {
       const response = await axios.get('/getHospitalDetails', {
         headers: { Authorization: `Bearer ${token}` }
       });
-
+  
       const { hospitalDoctorsDetail } = response.data.data;
-
+  
       if (hospitalDoctorsDetail) {
         const formattedDoctors = hospitalDoctorsDetail.map((doctor) => ({
           id: doctor.emr_doctor_id,
-          name: doctor.doctor_name
+          name: doctor.doctor_name,
+          npi_number: doctor.npi_number, // Include npi_number
         }));
         setDoctors(formattedDoctors);
       } else {
-        setDoctors([]); // Handle case when doctor details are missing
+        setDoctors([]);
         console.error('Unexpected data structure from API for doctors');
       }
     } catch (error) {
       console.error('Error fetching doctors:', error);
-      setDoctors([]); // Reset doctors state on error
+      setDoctors([]);
     }
   };
+  
 
   useEffect(() => {
     fetchDoctorOffice();
@@ -374,17 +384,17 @@ const PatientIntakeNew = () => {
       ...prevDetails,
       [name]: value
     }));
-
+  
     // Find the selected doctor's NPI number
     if (name === 'preferred_doctor') {
       const selectedDoctor = doctors.find((doctor) => doctor.id === value);
       const doctorNpi = selectedDoctor ? selectedDoctor.npi_number : '';
       setPersonalDetails((prevDetails) => ({
         ...prevDetails,
-        doctor_npi: doctorNpi
+        doctor_npi: doctorNpi // Save NPI number
       }));
     }
-
+  
     // Validate field on change
     const newErrors = validatePersonalDetails({
       ...personalDetails,
@@ -395,6 +405,7 @@ const PatientIntakeNew = () => {
       [name]: newErrors[name]
     }));
   };
+  
 
   // Handle Date of Birth change
   const handleDateChange = (date) => {
@@ -518,40 +529,36 @@ const PatientIntakeNew = () => {
   const handleSubmitAppointmentDetails = async () => {
     const dateTimeError = validateDateTime(appointmentDetails.appointment_date);
     const durationError = validateDuration(appointmentDetails.duration);
-    const locationError = validateLocation(
-      appointmentDetails.hospital_location
-    );
+    const locationError = validateLocation(appointmentDetails.hospital_location);
     const reasonError = validateReason(appointmentDetails.reason);
     const notesError = validateNotes(appointmentDetails.notes);
-
+  
     const validationErrors = {
       appointment_date: dateTimeError,
       duration: durationError,
       hospital_location: locationError,
       reason: reasonError,
-      notes: notesError
+      notes: notesError,
     };
-
-    // Filter out fields with no errors
+  
     const filteredErrors = Object.keys(validationErrors).reduce((acc, key) => {
       if (validationErrors[key]) {
         acc[key] = validationErrors[key];
       }
       return acc;
     }, {});
-
-    // If there are any errors, stop the submission
+  
     if (Object.keys(filteredErrors).length > 0) {
       setErrors(filteredErrors);
       return;
     }
-
+  
     setAppointmentDateandTime(
       dayjs(appointmentDetails.appointment_date).format('YYYY-MM-DDTHH:mm')
     );
-
+  
     setLoading(true);
-
+  
     const headersPayload = {
       patientId: id,
       scheduleDateTime: dayjs(appointmentDetails.appointment_date).format(
@@ -561,10 +568,10 @@ const PatientIntakeNew = () => {
       office_location: appointmentDetails.hospital_location,
       reason: appointmentDetails.reason,
       notes: appointmentDetails.notes,
-      doctorId: personalDetails.preferred_doctor, // Assuming doctor ID is static or passed from props
-      patientReSchedule: false
+      doctorId: personalDetails.preferred_doctor, // Use selected doctor ID
+      patientReSchedule: false,
     };
-
+  
     const smsTemplateDetails = {
       patientId: id,
       patientName: name,
@@ -574,54 +581,49 @@ const PatientIntakeNew = () => {
       patientPhNum: mobile,
       doctor_PraticeName: doctorPracticeName,
       patient_is_new: true,
-      doctorId: personalDetails.preferred_doctor, // Assuming doctor ID is static or passed from props
-      NpiNumber: doctorNpi,
-      office_location: selectedOfficeAddress
+      doctorId: personalDetails.preferred_doctor, //  selected doctor ID
+      NpiNumber: parseInt(personalDetails.doctor_npi), // selected doctor NPI
+      office_location: selectedOfficeAddress,
     };
-
+  
     try {
-      // First API Call: Schedule Appointment
       const response = await axios.post(
         `/scheduleAppointment`,
         headersPayload,
         {
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
-
+  
       if (response?.data?.status === 201) {
-        // Second API Call: Send SMS
         const smsResponse = await axios.post(`/sms`, smsTemplateDetails, {
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         });
-
+  
         setSmsTemeplateResponseData(smsResponse.data.data.message_template);
         toast.success(t('Appointment created successfully!'));
-
-        setActiveStep((prevStep) => prevStep + 1); // Move to the next step
+        setActiveStep((prevStep) => prevStep + 1);
       } else if (response.data.status === 409) {
         toast.error(
           response.data.message ||
-            t(
-              'The chosen time slot is unavailable. Please choose another time slot'
-            )
+            t('The chosen time slot is unavailable. Please choose another time slot')
         );
       }
     } catch (error) {
       toast.error(
-        error.response?.data?.message ||
-          t('Something went wrong. Please try again.')
+        error.response?.data?.message || t('Something went wrong. Please try again.')
       );
     } finally {
       setLoading(false);
     }
   };
+  
 
   const handleCopy = () => {
     navigator.clipboard.writeText(selectedTemplate);
@@ -781,11 +783,24 @@ const PatientIntakeNew = () => {
                         error={!!errors.gender}
                         helperText={errors.gender}
                       >
-                        {genders?.map((gender, index) => (
+                        {/* {genders?.map((gender, index) => (
                           <MenuItem key={index} value={gender?.id}>
                             {gender?.value}
                           </MenuItem>
-                        ))}
+                        ))} */}
+
+
+                        {genders.length === 0 ? (
+      <MenuItem disabled value="">
+        {t('No Genders available')}
+      </MenuItem>
+    ) : (
+      genders.map((gender, index) => (
+        <MenuItem key={index} value={gender?.id}>
+                            {gender?.value}
+                          </MenuItem>
+      ))
+    )}
                       </TextField>
                     </Grid>
                     <Grid item xs={12} sm={6}>
@@ -799,11 +814,22 @@ const PatientIntakeNew = () => {
                         error={!!errors.preferred_doctor}
                         helperText={errors.preferred_doctor}
                       >
-                        {doctors?.map((doctor) => (
+                        {/* {doctors?.map((doctor) => (
                           <MenuItem key={doctor?.id} value={doctor?.id}>
                             {doctor?.name}
                           </MenuItem>
-                        ))}
+                        ))} */}
+                        {doctors.length === 0 ? (
+      <MenuItem disabled value="">
+        {t('No doctors available')}
+      </MenuItem>
+    ) : (
+      doctors.map((doctor) => (
+        <MenuItem key={doctor?.id} value={doctor?.id}>
+          {doctor?.name}
+        </MenuItem>
+      ))
+    )}
                       </TextField>
                     </Grid>
                   </Grid>
@@ -873,14 +899,25 @@ const PatientIntakeNew = () => {
                         error={!!errors.hospital_location}
                         helperText={errors.hospital_location}
                       >
-                        {selectedOffices?.map((office) => (
+                        {/* {selectedOffices?.map((office) => (
                           <MenuItem
                             key={office?.office_id}
                             value={office?.office_id}
                           >
                             {office?.office_name}
                           </MenuItem>
-                        ))}
+                        ))} */}
+                        {selectedOffices.length === 0 ? (
+      <MenuItem disabled value="">
+        {t('No hospital locations available')}
+      </MenuItem>
+    ) : (
+      selectedOffices.map((office) => (
+        <MenuItem key={office?.office_id} value={office?.office_id}>
+          {office?.office_name}
+        </MenuItem>
+      ))
+    )}
                       </TextField>
                     </Grid>
                     {/* empty  grid item for spacing */}
@@ -901,7 +938,7 @@ const PatientIntakeNew = () => {
                     <Grid item xs={12} sm={6} md={6}>
                       <TextField
                         fullWidth
-                        label={t('Additional Notes')}
+                        label={t('Additional Information')}
                         name="notes"
                         value={appointmentDetails.notes}
                         onChange={handleChangeAppointmentDetails}

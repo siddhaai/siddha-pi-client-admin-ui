@@ -107,8 +107,8 @@ const appointmentDetailsSchema = Yup.object({
     ),
 
   notes: Yup.string()
-    .required(t('Additional notes is required'))
-    .max(1000, t('Additional notes cannot exceed 1000 characters')),
+    .required(t('Additional Information is required'))
+    .max(1000, t('Additional Information cannot exceed 1000 characters')),
   preferred_doctor: Yup.string().required(t('Preferred doctor is required'))
 });
 
@@ -232,16 +232,16 @@ const TableData = ({ selectedPatient }) => {
       if (hospitalDoctorsDetail) {
         const formattedDoctors = hospitalDoctorsDetail.map((doctor) => ({
           id: doctor.emr_doctor_id,
-          name: doctor.doctor_name
+          name: doctor.doctor_name,
+          npi_number: doctor.npi_number // Map NPI number here
         }));
         setDoctors(formattedDoctors);
       } else {
-        setDoctors([]); // Handle case when doctor details are missing
-        console.error('Unexpected data structure from API for doctors');
+        setDoctors([]);
       }
     } catch (error) {
       console.error('Error fetching doctors:', error);
-      setDoctors([]); // Reset doctors state on error
+      setDoctors([]);
     }
   };
 
@@ -363,6 +363,7 @@ const TableData = ({ selectedPatient }) => {
   };
 
   const handleSubmitAppointmentDetails = async (values, { setSubmitting }) => {
+    console.log('Submitted Values:', values); // Debug here
     setAppointmentDateandTime(
       dayjs(values.appointment_date).format('YYYY-MM-DDTHH:mm')
     );
@@ -394,7 +395,7 @@ const TableData = ({ selectedPatient }) => {
         patient_is_new: selectedPatientId?.patient_is_new,
         patientReSchedule: true,
         document_id: selectedPatientId?.document_id,
-        NpiNumber: selectedPatientId?.NpiNumber,
+        NpiNumber: parseInt(values.doctor_npi),
         office_location: selectedOfficeAddress
       };
 
@@ -483,7 +484,8 @@ const TableData = ({ selectedPatient }) => {
                 duration: '',
                 hospital_location: '',
                 reason: '',
-                notes: ''
+                notes: '',
+                doctor_npi: '' // Initialize this field
               }}
               validationSchema={
                 step === 0
@@ -629,17 +631,29 @@ const TableData = ({ selectedPatient }) => {
                                     event.target.value
                                   );
                                 }}
-
-                      
                               >
-                                {selectedOffices?.map((office) => (
+                                {/* {selectedOffices?.map((office) => (
                                   <MenuItem
                                     key={office?.office_id}
                                     value={office?.office_id}
                                   >
                                     {office?.office_name}
                                   </MenuItem>
-                                ))}
+                                ))} */}
+                                {selectedOffices.length === 0 ? (
+                                  <MenuItem disabled value="">
+                                    {t('No hospital locations available')}
+                                  </MenuItem>
+                                ) : (
+                                  selectedOffices.map((office) => (
+                                    <MenuItem
+                                      key={office?.office_id}
+                                      value={office?.office_id}
+                                    >
+                                      {office?.office_name}
+                                    </MenuItem>
+                                  ))
+                                )}
                               </TextField>
                             )}
                           </Field>
@@ -666,17 +680,41 @@ const TableData = ({ selectedPatient }) => {
                                   errors.preferred_doctor
                                 }
                                 onChange={(event) => {
+                                  const selectedDoctorId = event.target.value;
+
+                                  // Find the selected doctor
+                                  const selectedDoctor = doctors.find(
+                                    (doctor) => doctor.id === selectedDoctorId
+                                  );
+                                  console.log(
+                                    'selectedDoctor?.npi_number',
+                                    selectedDoctor?.npi_number
+                                  );
+                                  // Update fields
                                   setFieldValue(
                                     'preferred_doctor',
-                                    event.target.value
+                                    selectedDoctorId
                                   );
+                                  setFieldValue(
+                                    'doctor_npi',
+                                    selectedDoctor?.npi_number || ''
+                                  ); // Check if npi_number is valid
                                 }}
                               >
-                                {doctors?.map((doctor) => (
-                                  <MenuItem key={doctor?.id} value={doctor?.id}>
-                                    {doctor?.name}
+                                {doctors.length === 0 ? (
+                                  <MenuItem disabled value="">
+                                    {t('No doctors available')}
                                   </MenuItem>
-                                ))}
+                                ) : (
+                                  doctors.map((doctor) => (
+                                    <MenuItem
+                                      key={doctor?.id}
+                                      value={doctor?.id}
+                                    >
+                                      {doctor?.name}
+                                    </MenuItem>
+                                  ))
+                                )}
                               </TextField>
                             )}
                           </Field>
@@ -708,9 +746,9 @@ const TableData = ({ selectedPatient }) => {
                                 rows={5}
                                 multiline
                                 fullWidth
-                                label={t('Additional Notes')}
+                                label={t('Additional Information')}
                                 placeholder={t(
-                                  'Enter additional notes for appointment...'
+                                  'Enter additional Information for appointment...'
                                 )}
                                 error={Boolean(touched.notes && errors.notes)}
                                 helperText={touched.notes && errors.notes}
@@ -896,9 +934,9 @@ const TableData = ({ selectedPatient }) => {
                                         color="primary"
                                         onClick={handleCreatePatient}
                                       >
-                                          <DashboardIcon
-                                            sx={{ padding: '0 5px 0 0' }}
-                                          />
+                                        <DashboardIcon
+                                          sx={{ padding: '0 5px 0 0' }}
+                                        />
                                         {t('Go to Dashboard')}
                                       </Button>
                                     </Box>

@@ -5,6 +5,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ArticleIcon from '@mui/icons-material/Article';
+import InfoIcon from '@mui/icons-material/Info';
 import { t } from 'i18next';
 
 const menuItems = [
@@ -54,6 +55,11 @@ const menuItems = [
         name: t(`Settings`),
         icon: SettingsIcon,
         link: 'SiddhaAI/Settings/Settings'
+      },
+      {
+        name: t(`About`),
+        icon: InfoIcon,
+        link: 'SiddhaAI/About/About'
       }
       // {
       //   name: `AI`,

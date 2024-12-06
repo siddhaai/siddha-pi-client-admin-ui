@@ -310,11 +310,13 @@ const FormBuilder = () => {
       return false;
     });
     if (!hasError) {
-      if (!isFormBuilt) {
-        setIsLoading(true);
-        // setIsFormBuilt(true);
-        sendFormData();
-      }
+      // if (!isFormBuilt) {
+      //   setIsLoading(true);
+      //   // setIsFormBuilt(true);
+      //   sendFormData();
+      // }
+      setIsLoading(true); // Start loading state
+    sendFormData(); // Always call sendFormData, regardless of isFormBuilt
     }
   };
 
@@ -421,6 +423,7 @@ const FormBuilder = () => {
         setIsLoading(false); // Stop loading state
       });
   };
+
   const handleAccordionChange = (section) => {
     setExpandedSection(expandedSection === section ? null : section);
   };

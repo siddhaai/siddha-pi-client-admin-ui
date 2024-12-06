@@ -47,14 +47,16 @@ export default function Settings() {
   const [openDialog, setOpenDialog] = useState(false);
   const [showAddTemplate, setShowAddTemplate] = useState(false); // To toggle the add template section
   const [initialLoader, setInitialLoader] = useState(true); // New state for initial loader
-  // const [adminData, setAdminData] = useState([]);
+  const [adminData, setAdminData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  // const [errorAdmin, setError] = useState(null);
-  // const [openAdminDialog, setOpenAdminDialog] = useState(false);
-  // const [newAdmin, setNewAdmin] = useState({ email: '', password: '' });
-  // const [errorsAdmin, setErrorsAdmin] = useState({});
+  const [errorAdmin, setError] = useState(null);
+  const [openAdminDialog, setOpenAdminDialog] = useState(false);
+  const [newAdmin, setNewAdmin] = useState({ email: '', password: '' });
+  const [errorsAdmin, setErrorsAdmin] = useState({});
+  
 
   // const [errorMessage, setErrorMessage] = useState('');
+
 
   // Initialize the states
   const [formData, setFormData] = useState({
@@ -70,11 +72,15 @@ export default function Settings() {
     logo: ''
   });
 
+  
+
   const validateEmail = (email) => {
     const emailRegex =
       /^(?!.*\.\.)[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*@[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,})+$/;
     return emailRegex.test(email);
   };
+
+
 
   const [smsData, setSmsData] = useState({
     templateName: '',
@@ -86,6 +92,7 @@ export default function Settings() {
     newTemplateText: '', // New template content
     newSelectedVariables: [] // Variables for new template
   });
+  
 
   // Function to handle deleting a template
   const handleDeleteTemplate = (indexToDelete) => {
@@ -178,56 +185,25 @@ export default function Settings() {
 
   // Handle Template Name Change
   const handleTemplateNameChange = (e) => {
-    const input = e.target.value;
-  
-    // Allow only alphabetic characters, spaces, and at most one numeric character
-    const validInput = input.replace(/[^a-zA-Z0-9 ]/g, ''); // Remove invalid characters
-    
-    // Count the numeric characters in the input
-    const numericCount = (validInput.match(/[0-9]/g) || []).length;
-  
-    if (numericCount <= 1 && validInput.length <= 50) {
-      setSmsData({ ...smsData, templateName: validInput });
-    }
+    setSmsData({ ...smsData, templateName: e.target.value });
   };
-  
 
   // Handle Text Change for the SMS template
   const handleTextChange = (e) => {
     setSmsData({ ...smsData, templateText: e.target.value });
   };
 
-  // Add New Template to the List
-  // const handleAddTemplate = () => {
-  //   if (smsData.templateName && smsData.templateText) {
-  //     const newTemplate = {
-  //       templateName: smsData.templateName,
-  //       smsTemplateContant: smsData.templateText,
-  //       selected: false
-  //     };
+  // Handle Variable Selection
+  // const handleVariableSelect = (variable) => {
+  //   const selectedVariables = smsData.selectedVariables.includes(variable)
+  //     ? smsData.selectedVariables.filter((v) => v !== variable)
+  //     : [...smsData.selectedVariables, variable];
 
-  //     setSmsData((prevData) => ({
-  //       ...prevData,
-  //       smsTemplates: [...prevData.smsTemplates, newTemplate], // Add the new template
-  //       templateName: '',
-  //       templateText: '',
-  //       selectedVariables: []
-  //     }));
-  //     setShowAddTemplate(false); // Hide add template section after adding
-  //     toast.success('New SMS template added successfully!');
-  //   } else {
-  //     toast.error('Please fill out the SMS template title and content.');
-  //   }
+  //   setSmsData({ ...smsData, selectedVariables });
   // };
 
+  // Add New Template to the List
   const handleAddTemplate = () => {
-    // Check if the required variable (WEB_APP_URL) is selected
-    if (!smsData.selectedVariables.includes('WEB_APP_URL')) {
-      toast.error(t('The Patient Intake Form URL is required'));
-      return; // Stop execution if the required variable is not selected
-    }
-
-    // Check if template name and text are filled
     if (smsData.templateName && smsData.templateText) {
       const newTemplate = {
         templateName: smsData.templateName,
@@ -243,9 +219,9 @@ export default function Settings() {
         selectedVariables: []
       }));
       setShowAddTemplate(false); // Hide add template section after adding
-      toast.success(t('New SMS template added successfully!'));
+      toast.success('New SMS template added successfully!');
     } else {
-      toast.error(t('Please fill out the SMS template title and content.'));
+      toast.error('Please fill out the SMS template title and content.');
     }
   };
 
@@ -260,14 +236,14 @@ export default function Settings() {
     const textarea = document.getElementById('smsTemplateTextarea');
     const cursorPosition = textarea.selectionStart; // Get the current cursor position
     const isSelected = smsData.selectedVariables.includes(variable);
-  
+
     if (isSelected) {
       // Remove the variable from selectedVariables and the templateText
       setSmsData((prevData) => {
         const updatedTemplateText = prevData.templateText.replace(
           `{{${variable}}}`,
           ''
-        ).trim(); // Remove extra spaces if any
+        );
         return {
           ...prevData,
           selectedVariables: prevData.selectedVariables.filter(
@@ -281,15 +257,14 @@ export default function Settings() {
       setSmsData((prevData) => {
         const beforeText = prevData.templateText.slice(0, cursorPosition);
         const afterText = prevData.templateText.slice(cursorPosition);
-        const variableText = `{{${variable}}}`;
-        const updatedTemplateText = `${beforeText}${variableText}${afterText}`.trim();
+        const updatedTemplateText = `${beforeText}{{${variable}}}${afterText}`;
         return {
           ...prevData,
           selectedVariables: [...prevData.selectedVariables, variable],
           templateText: updatedTemplateText
         };
       });
-  
+
       // Move the cursor to the right of the inserted variable
       setTimeout(() => {
         textarea.setSelectionRange(
@@ -300,7 +275,6 @@ export default function Settings() {
       }, 0);
     }
   };
-  
 
   // Submit function for saving settings, including selected template
   const handleSubmit = async () => {
@@ -373,6 +347,9 @@ export default function Settings() {
   // const [cursorPosition, setCursorPosition] = useState(0); // To track cursor position
   const [selectedImage, setSelectedImage] = useState(null); // Selected new image for upload
   const [selectedImageFile, setSelectedImageFile] = useState(null); // For binary upload
+
+
+
 
   // Handle tab change
   const handleTabChange = (event, newIndex) => {
@@ -539,6 +516,7 @@ export default function Settings() {
     }
   };
 
+
   const handleImageChange = (event) => {
     const file = event.target.files[0];
 
@@ -610,87 +588,103 @@ export default function Settings() {
     getAdminCustomSetting();
   }, []);
 
+  // const handleCancel = () => {
+  //   setIsEditing(false); // Reset to non-editing state when Cancel is clicked
+  // };
+
+  // const handleCloseDialog = () => {
+  //   setOpenDialog(false);
+  // };
+
+  // const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  // const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg'));
+  // const isExtraLargeScreen = useMediaQuery(theme.breakpoints.up('xl'));
+
   // Fetch admin data on component mount
-  // useEffect(() => {
-  //   const fetchAdminData = async () => {
-  //     try {
-  //       const response = await axios.get('/settings/getMultipleAdmins', {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       });
-  //       setAdminData(response.data.adminData);
-  //       setIsLoading(false);
-  //     } catch (err) {
-  //       setError(err.message);
-  //       setIsLoading(false);
-  //     }
-  //   };
+  useEffect(() => {
+    const fetchAdminData = async () => {
+      try {
+        const response = await axios.get('/settings/getMultipleAdmins', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setAdminData(response.data.adminData);
+        setIsLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setIsLoading(false);
+      }
+    };
 
-  //   fetchAdminData();
-  // }, []);
+    fetchAdminData();
+  }, []);
 
-  // const handleAdminDialogOpen = () => {
-  //   setOpenAdminDialog(true);
-  //   setNewAdmin({ email: '', password: '' });
-  //   setErrorsAdmin({});
-  // };
 
-  // const handleAdminDialogClose = () => {
-  //   setOpenAdminDialog(false);
-  // };
+  const handleAdminDialogOpen = () => {
+    setOpenAdminDialog(true);
+    setNewAdmin({ email: '', password: '' });
+    setErrorsAdmin({});
+  };
 
-  // const handleAdminInputChange = (e) => {
-  //   const { name, value } = e.target;
-  //   setNewAdmin((prev) => ({ ...prev, [name]: value }));
-  // };
+  const handleAdminDialogClose = () => {
+    setOpenAdminDialog(false);
+  };
 
-  // const validateAdminForm = () => {
-  //   const validationErrors = {};
-  //   if (!newAdmin.email) {
-  //     validationErrors.email = 'Email is required';
-  //   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newAdmin.email)) {
-  //     validationErrors.email = 'Invalid email format';
-  //   }
+  const handleAdminInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewAdmin((prev) => ({ ...prev, [name]: value }));
+  };
 
-  //   if (!newAdmin.password) {
-  //     validationErrors.password = 'Password is required';
-  //   } else if (newAdmin.password.length < 8 || newAdmin.password.length > 20) {
-  //     validationErrors.password = 'Password must be between 8 and 20 characters';
-  //   } else if (!/[A-Z]/.test(newAdmin.password) || !/[a-z]/.test(newAdmin.password) || !/[0-9]/.test(newAdmin.password) || !/[@$!%*?&]/.test(newAdmin.password)) {
-  //     validationErrors.password =
-  //       'Password must include uppercase, lowercase, number, and special character';
-  //   }
+  const validateAdminForm = () => {
+    const validationErrors = {};
+    if (!newAdmin.email) {
+      validationErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newAdmin.email)) {
+      validationErrors.email = 'Invalid email format';
+    }
 
-  //   setErrorsAdmin(validationErrors);
-  //   return Object.keys(validationErrors).length === 0;
-  // };
+    if (!newAdmin.password) {
+      validationErrors.password = 'Password is required';
+    } else if (newAdmin.password.length < 8 || newAdmin.password.length > 20) {
+      validationErrors.password = 'Password must be between 8 and 20 characters';
+    } else if (!/[A-Z]/.test(newAdmin.password) || !/[a-z]/.test(newAdmin.password) || !/[0-9]/.test(newAdmin.password) || !/[@$!%*?&]/.test(newAdmin.password)) {
+      validationErrors.password =
+        'Password must include uppercase, lowercase, number, and special character';
+    }
 
-  // const handleAdminSubmit = async () => {
-  //   if (!validateAdminForm()) {
-  //     return;
-  //   }
-  //   try {
-  //     const response = await axios.post(
-  //       '/settings/createMultipleAdmins',
-  //       { username: newAdmin.email, password: newAdmin.password },
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       }
-  //     );
-  //     console.log('response admin', response);
-  //     setAdminData((prev) => [...prev, response.data.newAdmin]); // Assuming the new admin data is returned in the response
-  //     setOpenAdminDialog(false);
-  //     setErrorsAdmin({}); // Clear errors on successful submission
-  //   } catch (err) {
-  //     // console.error('Error creating admin:', err.response.data.detail);
-  //     toast.error(err.response.data.detail);
-  //     const errorMessage = err.response?.data?.detail || 'An unexpected error occurred';
-  //   setErrorsAdmin({ global: errorMessage }); // Set the global error message
-  //   }
-  // };
+    setErrorsAdmin(validationErrors);
+    return Object.keys(validationErrors).length === 0;
+  };
+
+
+  const handleAdminSubmit = async () => {
+    if (!validateAdminForm()) {
+      return;
+    }
+    try {
+      const response = await axios.post(
+        '/settings/createMultipleAdmins',
+        { username: newAdmin.email, password: newAdmin.password },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log('response admin', response);
+      setAdminData((prev) => [...prev, response.data.newAdmin]); // Assuming the new admin data is returned in the response
+      setOpenAdminDialog(false);
+      setErrorsAdmin({}); // Clear errors on successful submission
+    } catch (err) {
+      // console.error('Error creating admin:', err.response.data.detail);
+      toast.error(err.response.data.detail);
+      const errorMessage = err.response?.data?.detail || 'An unexpected error occurred';
+    setErrorsAdmin({ global: errorMessage }); // Set the global error message
+    }
+  };
+
+
 
   return (
     <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
@@ -731,7 +725,7 @@ export default function Settings() {
             </Typography>
             <Grid container alignItems="center" spacing={2}>
               <Grid item xs={12} md={6} lg={2}>
-                <Typography variant="caption">{t('Timeout In:')}</Typography>
+                <Typography variant="caption">Timeout In:</Typography>
                 <TextField
                   type="number"
                   name="sessionTimeout"
@@ -830,22 +824,135 @@ export default function Settings() {
             <Grid container alignItems="center" spacing={2}>
               <Grid item xs={12} md={6} lg={6}>
                 <Typography variant="h5" gutterBottom>
-                  {t('Reset Password')}
+                  Reset Password
                 </Typography>
                 {isEditing ? (
                   <Link
                     to="/extended-sidebar/SiddhaAI/PasswordReset/PasswordReset"
                     style={{ textDecoration: 'none' }}
                   >
-                    <Button variant="outlined">{t('Change Password')}</Button>
+                    <Button variant="outlined">Change Password</Button>
                   </Link>
                 ) : (
                   <Button variant="outlined" disabled>
-                    {t('Change Password')}
+                    Change Password
                   </Button>
                 )}
               </Grid>
             </Grid>
+            
+            <Divider sx={{ my: 3 }} />
+            <Button variant="outlined" onClick={handleAdminDialogOpen}>
+        Add Admin
+      </Button>
+            <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>{'Admin Role'}</TableCell>
+                <TableCell>{'Username'}</TableCell>
+                <TableCell>{'Password'}</TableCell>
+                <TableCell>{'Actions'}</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {adminData.map((admin, index) => (
+                <TableRow key={index}>
+                  <TableCell>{admin.admin_role}</TableCell>
+                  <TableCell>{admin.username}</TableCell>
+                  <TableCell>{admin.password}</TableCell>
+                  <TableCell>
+                    {admin.admin_role !== 1 && (
+                      <>
+                        <Tooltip title="Edit">
+                          <Button variant="text">
+                            <Edit color="primary" />
+                          </Button>
+                        </Tooltip>
+                        <Tooltip title="Delete">
+                          <Button variant="text">
+                            <Delete color="error" />
+                          </Button>
+                        </Tooltip>
+                      </>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Grid>
+      </Grid>
+
+      <Dialog open={openAdminDialog} onClose={handleAdminDialogClose}>
+  {/* Display global error message if it exists */}
+  {errorsAdmin.global && (
+  <Box
+    sx={{
+      mt: 2, // Margin top for spacing
+      mx: 'auto', // Center horizontally
+      px: 2, // Padding for inner content
+      py: 1, // Padding for height
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      maxWidth: 400, // Set a maximum width for the box
+      backgroundColor: 'rgba(255, 0, 0, 0.1)', // Light red background
+      borderRadius: 1, // Rounded corners
+      border: '1px solid rgba(255, 0, 0, 0.3)', // Border for visibility
+      boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)', // Optional shadow for better visibility
+    }}
+  >
+    <Typography
+      variant="body2"
+      sx={{
+        color: 'rgb(218, 50, 50)', // Text color
+        fontWeight: 500, // Bold text
+        textAlign: 'center',
+      }}
+    >
+      {errorsAdmin.global}
+    </Typography>
+  </Box>
+)}
+
+
+  <DialogTitle>Add New Admin</DialogTitle>
+  <DialogContent>
+    <TextField
+      fullWidth
+      margin="normal"
+      label="Email"
+      name="email"
+      value={newAdmin.email}
+      onChange={handleAdminInputChange}
+      error={!!errorsAdmin.email}
+      helperText={errorsAdmin.email}
+    />
+    <TextField
+      fullWidth
+      margin="normal"
+      label="Password"
+      name="password"
+      type="password"
+      value={newAdmin.password}
+      onChange={handleAdminInputChange}
+      error={!!errorsAdmin.password}
+      helperText={errorsAdmin.password}
+    />
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={handleAdminDialogClose} color="info" variant="outlined">
+      Cancel
+    </Button>
+    <Button onClick={handleAdminSubmit} variant="contained" color="primary">
+      Submit
+    </Button>
+  </DialogActions>
+</Dialog>
+
+
           </Box>
         )
       )}
@@ -857,7 +964,7 @@ export default function Settings() {
           </Typography>
           <Grid container alignItems="center" spacing={2}>
             <Grid item xs={12} md={6} lg={2}>
-              <Typography variant="caption">{t('Expires In:')}</Typography>
+              <Typography variant="caption">Expires In:</Typography>
               <TextField
                 type="number"
                 name="expiry"
@@ -939,9 +1046,6 @@ export default function Settings() {
                       placeholder={t('Enter SMS Template Title')}
                       fullWidth
                       sx={{ mb: 2 }}
-                      inputProps={{
-      maxLength: 50,
-    }}
                     />
                   </Grid>
                 </Grid>
@@ -1086,7 +1190,7 @@ export default function Settings() {
                       smsData.smsTemplates.map((template, index) => (
                         <TableRow key={template.templateName}>
                           <TableCell>
-                            {/* <Radio
+                            <Radio
                               disabled={!isEditing}
                               checked={smsData.selectedTemplateIndex === index}
                               onChange={() =>
@@ -1094,16 +1198,6 @@ export default function Settings() {
                                   ...smsData,
                                   selectedTemplateIndex: index
                                 })
-                              }
-                            /> */}
-                            <Radio
-                              disabled={!isEditing}
-                              checked={smsData.selectedTemplateIndex === index}
-                              onChange={() =>
-                                setSmsData((prevState) => ({
-                                  ...prevState,
-                                  selectedTemplateIndex: index // Update only on explicit selection
-                                }))
                               }
                             />
                           </TableCell>
@@ -1475,24 +1569,25 @@ export default function Settings() {
             <Button variant="contained" onClick={handleSubmit}>
               {t('Save Settings')}
             </Button>
+            {/* Single Global Cancel Button */}
             <Button
-  variant="outlined"
-  color="secondary"
-  sx={{ ml: 2 }}
-  onClick={() => {
-    setIsEditing(false); // Exit editing mode
-    setShowAddTemplate(false); // Hide the Add New SMS Template form
-    setSmsData((prevData) => ({
-      ...prevData,
-      templateName: '', // Clear template name
-      templateText: '', // Clear template text
-      // Preserve selectedVariables
-    }));
-  }}
->
-  {t('Cancel')}
-</Button>
-
+              variant="outlined"
+              color="secondary"
+              sx={{ ml: 2 }}
+              onClick={() => {
+                setIsEditing(false); // Exit editing mode
+                setShowAddTemplate(false); // Hide the Add New SMS Template form
+                setSmsData({
+                  ...smsData,
+                  templateName: '', // Clear template name
+                  templateText: '', // Clear template text
+                  selectedVariables: [], // Clear selected variables
+                  selectedTemplateIndex: null // Clear selected template
+                });
+              }}
+            >
+              {t('Cancel')}
+            </Button>
           </>
         )}
       </Box>

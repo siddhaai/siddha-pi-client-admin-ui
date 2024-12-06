@@ -288,5 +288,19 @@
   "Mobile Number": "Numéro de Mobile",
   "SMS TITLE": "Titre du SMS",
   "Date of birth is required": "La date de naissance est requise",
-  "Gender is required": "Le genre est requis"
+  "Gender is required": "Le genre est requis",
+  "Additional Information": "Informations supplémentaires",
+  "Enter additional Information for appointment...":"Entrez des informations supplémentaires pour le rendez-vous...",
+  "Additional Information are required": "Les informations supplémentaires sont requises",
+  "Additional Information cannot exceed 1000 characters": "Les informations supplémentaires ne peuvent pas franchir 1000 caractères",
+  "About":"A propos",
+  "Filter":"Filtrer",
+  "The Patient Intake Form URL is required": "L'URL du formulaire d'admission du patient est requise",
+  "New SMS template added successfully!": "Modèle de SMS ajouté avec succès!",
+  "Please fill out the SMS template title and content.": "Veuillez remplir le titre et le contenu du modèle de SMS.",
+  "Timeout In:": "Expiration dans:",
+  "Expires In:": "Expire dans:",
+  "Days": "Jours",
+  "Change Password": "Changer le mot de passe"
+
 }

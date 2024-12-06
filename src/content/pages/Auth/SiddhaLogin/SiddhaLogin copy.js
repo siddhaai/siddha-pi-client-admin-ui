@@ -18,7 +18,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { t } from 'i18next';
-import useAuth from 'src/hooks/useAuth';
+import { verify } from 'src/utils/jwt';import useAuth from 'src/hooks/useAuth';
 import useAxiosInterceptor from 'src/contexts/Interceptor';
 import { Copyright } from '@mui/icons-material';
 import Doctors from '../../../../assets/Doctors.svg';
@@ -28,50 +28,49 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
-  DialogActions
+  DialogActions,
+  DialogContentText
 } from '@mui/material';
+// import { Link } from 'react-router-dom';
 import AuthContext from 'src/contexts/AuthContext';
 import VerifiedIcon from '@mui/icons-material/Verified';
-import './SiddhaLogin.css';
+import CloseIcon from '@mui/icons-material/Close';
 
 // Validation Schema
 const validationSchema = Yup.object({
   email: Yup.string()
     .matches(
-      /^(?!.*\.\.)[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*@[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,})+$/,
+    /^(?!.*\.\.)[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*@[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,})+$/,
       t('Invalid email address')
     )
     .required(t('Email is required')),
-  password: Yup.string().required(t('Password is required'))
-  // .min(8, t('Password is too short - should be 8 chars minimum'))
-  // .max(13, t('Password is too long - should be 13 chars maximum'))
-  // .matches(/[a-zA-Z]/, t('Password can only contain Latin letters'))
-  // .matches(/[A-Z]/, t('Password must contain at least one uppercase letter'))
-  // .matches(/[a-z]/, t('Password must contain at least one lowercase letter'))
-  // .matches(/[0-9]+/, t('Password must contain at least one number'))
-  // .matches(
-  //   /[!@#$%^&*()\-_"=+{}; :,<.>]/,
-  //   t('Password must contain at least one special character')
-  // )
+  password: Yup.string()
+    .required(t('Password is required'))
+    .min(8, t('Password is too short - should be 8 chars minimum'))
+    .max(13, t('Password is too long - should be 13 chars maximum'))
+    .matches(/[a-zA-Z]/, t('Password can only contain Latin letters'))
+    .matches(/[A-Z]/, t('Password must contain at least one uppercase letter'))
+    .matches(/[a-z]/, t('Password must contain at least one lowercase letter'))
+    .matches(/[0-9]+/, t('Password must contain at least one number'))
+    .matches(
+      /[!@#$%^&*()\-_"=+{}; :,<.>]/,
+      t('Password must contain at least one special character')
+    )
 });
-
-// const MAX_ATTEMPTS = 3; // Maximum allowed login attempts
-// const LOCKOUT_TIME = 5 * 60 * 1000; // 5 minutes in milliseconds
 
 export default function Login() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  // const isMountedRef = useRefMounted();
   const { axios } = useAxiosInterceptor();
   const {
     setName,
     setGuideName,
     setAccountId,
     openDialog3,
-    setOpenDialog3,
-    setCompanyProvidedPassword,
-    setOpenDialog2
+    setOpenDialog3
   } = useContext(AuthContext);
-  // const [openDialog2, setOpenDialog2] = useState(true);
+  const [openDialog2, setOpenDialog2] = useState(false);
   // const { login, setSession } = useContext(AuthContext);
   const { login } = useAuth();
 
@@ -88,29 +87,20 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
-  const [practiceName, setPracticeName] = useState(''); // State to toggle password visibility
-  const [errorMessage, setErrorMessage] = useState('');
-  // const [attemptMessage, setAttemptMessage] = useState('');
+  const [practiceName, setPracticeName] = useState(""); // State to toggle password visibility
+
 
   const [initialValues, setInitialValues] = useState({
     email: '',
     password: ''
   });
-
-  // const [remainingAttempts, setRemainingAttempts] = useState(
-  //   MAX_ATTEMPTS - (parseInt(localStorage.getItem('failedAttempts')) || 0)
-  // );
-  // const [isLocked, setIsLocked] = useState(false);
-  // const [timer, setTimer] = useState(300); // 5 minutes countdown in seconds
-
-  // !subscription Dialog
-  //   const [openDialog, setOpenDialog] = useState(false);
-  // const [dialogContent, setDialogContent] = useState({
-  //     title: '',
-  //     message: '',
-  //     actionText: '',
-  //     actionLink: '',
-  // });
+  const [openDialog, setOpenDialog] = useState(false);
+const [dialogContent, setDialogContent] = useState({
+    title: '',
+    message: '',
+    actionText: '',
+    actionLink: '',
+});
 
   useEffect(() => {
     const storedEmail = localStorage.getItem('rememberedEmail');
@@ -134,100 +124,121 @@ export default function Login() {
     };
   }, []);
 
-  const handleSubmit = async (values, { setSubmitting }) => {
-    // if (isLocked) return;
+  // const handleSubmit = async (values, setSubmitting) => {
+  //   setLoading(true); // Show loading spinner
+  //   try {
+  //     // Attempt login with provided credentials
+  //     const response = await login(values.email, values.password);
+
+  //     if (response.success && response.user) {
+  //       const token = response.user;
+  //       let accessToken = token;
+
+  //       // Verify token and ensure it's valid before proceeding
+  //       if (accessToken && verify(accessToken)) {
+  //         // Successful login, navigate to dashboard
+  //         toast.success(t('Login successful!'));
+  //         setSession(accessToken);
+  //         navigate('/extended-sidebar/SiddhaAI/Dashboard/Dashboard');
+
+  //         // Store credentials if 'Remember Me' is checked
+  //         if (rememberMe) {
+  //           localStorage.setItem('rememberedEmail', values.email);
+  //           localStorage.setItem('rememberedPassword', values.password);
+  //         } else {
+  //           localStorage.removeItem('rememberedEmail');
+  //           localStorage.removeItem('rememberedPassword');
+  //         }
+  //       }
+  //     } else {
+  //       // Show error message if response is not successful (e.g., invalid credentials)
+  //       toast.error(t('Invalid Email ID or Password. Please try again!'));
+  //     }
+  //   } catch (error) {
+  //     // If error is 401 (Unauthorized), show invalid credentials message
+  //     if (error.response?.status === 401) {
+  //       // Specific handling for invalid credentials
+  //       toast.error(t('Invalid Email ID or Password. Please try again!'));
+  //     } else {
+  //       // Handle other errors that are not 401
+  //       toast.error(error.response?.data?.message || t('Login failed'));
+  //     }
+
+  //     setSubmitting(false); // Ensure form stops submitting
+  //   } finally {
+  //     setLoading(false); // Hide loading spinner
+  //   }
+  // };
+
+  const handleSubmit = async (values) => {
     setLoading(true); // Show loading spinner
-
+  
     try {
-      // Check network connectivity
-      if (!navigator.onLine) {
-        toast.error(t('No internet connection'));
-        setSubmitting(false);
-        setLoading(false);
-        return;
-      }
-
       // Call the login function
       const response = await login(values.email, values.password);
-      // console.log(response, 'response on loginscreen');
-      setName(response?.error?.emrName);
-      setGuideName(response?.error?.emrDocumentation);
-      setAccountId(response?.error?.client_AccountId);
+      console.log(response, 'response on loginscreen');
+  
       const errorMessage = response?.error?.message;
-
+      console.log(errorMessage, 'errorMessage');
+  
+      // Check if login was successful
       if (!response.success) {
+        // Handle specific error messages
         if (
           errorMessage === 'Invalid Email ID or Password. Please try again!' ||
-          errorMessage ===
-            'Unauthorized domain. Please login with the correct domain.'
+          errorMessage === 'Unauthorized domain. Please login with the correct domain.'
         ) {
-          // setErrorMessage(
-          //   `${errorMessage}    ${remainingAttempts - 1} attempts remaining.`
-          // );
-          // setAttemptMessage(`${remainingAttempts - 1} attempts remaining.`);
-          setErrorMessage(errorMessage);
-          // handleLoginFail();
-        }
-        //  !No subscription found for the customer
-        // else if (errorMessage === 'No subscription found for the customer.') {
-        //   // Show subscription renewal dialog
-        //   setDialogContent({
-        //     title: 'Subscription Expired',
-        //     message: errorMessage,
-        //     actionText: 'Renew Now',
-        //     actionLink: '/account/pay-ment', // Adjust link as needed
-        //   });
-        //   setOpenDialog(true);
-        // }
-        else if (errorMessage === 'Client EMR details not found.') {
-          // console.log("client emr condition");
+          toast.error(errorMessage);
+        } else if (errorMessage === 'No subscription found for the customer.') {
+          console.log("no subs condition");
+          // Show subscription renewal dialog
+          setDialogContent({
+            title: 'Subscription Expired',
+            message: errorMessage,
+            actionText: 'Renew Now',
+            actionLink: '/account/pay-ment', // Adjust link as needed
+          });
+          setOpenDialog(true);
+        } else if (errorMessage === 'Client EMR details not found.') {
           // Show EMR configuration dialog
-          navigate('/account/emr-response');
           setOpenDialog2(true);
-          // console.log('EMR connection not found. Please configure your EMR connection.');
+          console.log('EMR connection not found. Please configure your EMR connection.');
+        } else {
+          // Fallback for unexpected errors
+          // toast.error(t('An unexpected error occurred. Please try again.'));
         }
         // setSubmitting(false);
         setLoading(false);
         return; // Stop further execution if login fails
       }
-
+  
       // If login is successful and authentication is verified
-      if (response.fullRes?.message === 'Authentication successful.') {
-        setCompanyProvidedPassword(
-          response?.fullRes?.is_Company_provided_password
-        );
-        localStorage.setItem('userAdminEmail', values.email);
-        localStorage.setItem('userAdminPassword', values.password);
-        localStorage.setItem('adminPortalSessionTime', response?.fullRes?.adminPortal_session_time);
-        // localStorage.setItem('adminPortalSessionTime', Date.now() + 1 * 60 * 1000); // 1 minutes from now
-
-
+      if (errorMessage === 'Authentication successful.') {
         const token = response.user;
         // Navigate to the dashboard
         toast.success(t('Login successful!'));
         navigate('/extended-sidebar/SiddhaAI/Dashboard/Dashboard');
         // Store token and user session
         setSession(token);
-
+  
         if (rememberMe) {
           localStorage.setItem('rememberedEmail', values.email);
           localStorage.setItem('rememberedPassword', values.password);
-          localStorage.removeItem('lockoutEndTime');
-          localStorage.removeItem('failedAttempts');
         } else {
           localStorage.removeItem('rememberedEmail');
           localStorage.removeItem('rememberedPassword');
         }
       }
     } catch (error) {
-      // Fallback for truly unexpected errors
-      console.error('Unexpected error in handleSubmit:', error);
-      //  toast.error(t('An unexpected error occurred. Please try again. catch'));
-      setErrorMessage(errorMessage);
+       // Fallback for truly unexpected errors
+       console.error('Unexpected error in handleSubmit:', error);
+       toast.error(t('An unexpected error occurred. Please try again. catch'));
     } finally {
       setLoading(false); // Hide loading spinner
     }
   };
+  
+  
 
   const handleClickShowPassword = () => setShowPassword(!showPassword);
   const handleMouseDownPassword = (event) => event.preventDefault();
@@ -246,20 +257,14 @@ export default function Login() {
         } else {
           setLogoUrl(null); // If no logo, set to null
         }
-        setPracticeName(practiceName);
+        setPracticeName(practiceName)
       })
       .catch((error) => {
-        // console.error('Error fetching the logo:', error);
+        console.error('Error fetching the logo:', error);
         setLogoUrl(null); // Set to null on error
       });
   }, []);
 
- 
-
-  // const handleNavigate = (resetForm) => {
-  //   window.location.reload();
-  //   resetForm();
-  // }
 
   return (
     <>
@@ -285,35 +290,37 @@ export default function Login() {
               <Grid
                 item
                 mt={4}
-                md={8}
+                md={7}
                 sx={{
-                  display: { xs: 'none', sm: 'none', md: 'block', lg: 'block' },
+                  display: { xs: 'none', sm: 'none', md: 'none', lg: 'block' },
                   backgroundImage: `url(${Doctors})`,
                   backgroundSize: 'contain',
                   backgroundRepeat: 'no-repeat',
                   backgroundPosition: 'center'
                 }}
               />
-              <Grid item xs={12} sm={12} md={4} elevation={6} square>
-                <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                  <Grid
-                    item
-                    mt={4}
-                    xs={4}
-                    sm={4}
-                    md={6}
-                    sx={{
-                      height: '70px',
-                      mt: 8,
-                      backgroundImage: logoUrl ? `url(${logoUrl})` : 'none', // Only show image if logoUrl is set
-                      backgroundSize: 'contain',
-                      backgroundRepeat: 'no-repeat',
-                      backgroundPosition: 'center center',
-                      mr: { xs: 0, sm: 0, md: -2 }
-                    }}
-                  />
+              <Grid item xs={12} sm={10} md={4} elevation={6} square>
+              <Box sx={{display:"flex", justifyContent:"center"}}>
+                <Grid
+                  item
+                  mt={4}
+                  xs={4}
+                  sm={4}
+                  md={6}
+                  sx={{
+                    height: '70px',
+                    mt: 8,
+                    backgroundImage: logoUrl ? `url(${logoUrl})` : 'none', // Only show image if logoUrl is set
+                    backgroundSize: 'contain',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'center center'
+                  }}
+                />
                 </Box>
-                <Box
+ <Typography variant="h5" align="center" sx={{ mt: 2 }}>
+        {practiceName}
+      </Typography>                
+      <Box
                   sx={{
                     my: 4,
                     mx: 4,
@@ -324,42 +331,13 @@ export default function Login() {
                 >
                   <Box textAlign="center">
                     <Typography
-                      variant="h4"
+                      variant="h2"
                       sx={{
                         mb: 1
                       }}
                     >
-                      {practiceName}
+                      {t('Sign in')}
                     </Typography>
-                    {/* Display error message if it exists */}
-                    {errorMessage && (
-                      <Box
-                        sx={{
-                          mt: 2, // Margin top for spacing
-                          px: 2, // Padding for inner content
-                          py: 1, // Padding for height
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          backgroundColor: 'rgba(255, 0, 0, 0.1)', // Light red background
-                          borderRadius: 1, // Rounded corners
-                          border: '1px solid rgba(255, 0, 0, 0.3)' // Border for visibility
-                        }}
-                      >
-                        <ErrorIcon sx={{ color: 'rgb(237, 33, 33)', mr: 1 }} />{' '}
-                        {/* Error icon with spacing */}
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            color: 'rgb(218, 50, 50)', // Text color
-                            fontWeight: 500, // Bold text
-                            textAlign: 'center'
-                          }}
-                        >
-                          {errorMessage}
-                        </Typography>
-                      </Box>
-                    )}
                   </Box>
                   <Box component="div" noValidate sx={{ mt: 1 }}>
                     <TextField
@@ -421,32 +399,27 @@ export default function Login() {
                       label={t('Remember me')}
                     />
                     <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                      <Button
-                        type="submit"
-                        variant="contained"
-                        sx={{
-                          mt: 1,
-                          mb: 2,
-                          width: '70%'
-                        }}
-                      >
-                       {t("Sign In")}
-                      </Button>
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      sx={{
+                        mt: 1,
+                        mb: 2,
+                        width: '70%'
+                      }}
+                    >
+                      {t('Sign In')}
+                    </Button>
                     </Box>
+                   
                     <Grid container>
-                      <Grid item xs={12}>
-                        {' '}
+                      <Grid item xs>
                         <Link
                           component={RouterLink}
                           to="/account/forgot-password"
-                          style={{ textDecoration: 'none', color: 'primary' }}
                         >
-                          {' '}
-                          <Typography variant="body1" color="primary">
-                            {' '}
-                            {t('Forgot Password?')}{' '}
-                          </Typography>{' '}
-                        </Link>{' '}
+                          <b>{t('Forgot password?')}</b>
+                        </Link>
                       </Grid>
                     </Grid>
                     <Box
@@ -470,7 +443,7 @@ export default function Login() {
                       }}
                     >
                       <Typography color="secondary">
-                        {t('Version')} 0.0.11
+                        {t('Version')} 0.0.7
                       </Typography>
                     </Box>
                   </Box>
@@ -481,7 +454,8 @@ export default function Login() {
         )}
       </Formik>
 
-      {/* // !subscribe Dialog for  Open Dialog 
+      
+      {/* Dialog for Open Dialog */}
 
       {openDialog && (
     <Dialog onClose={() => setOpenDialog(false)} open={openDialog}>
@@ -502,13 +476,65 @@ export default function Login() {
     </Dialog>
 )}
 
-*/}
+
+
+      <Dialog open={openDialog2} maxWidth="xs" sx={{  backgroundColor: 'rgb(255, 255, 255)', // Semi-transparent white background
+    backdropFilter: 'blur(10px)', // Apply blur effect to background
+    }}>
+  
+        <DialogTitle
+          sx={{
+            fontSize: '1.2rem',
+            textAlign: 'center',
+            fontWeight: 'bold',
+            mt: 2
+          }}
+        >
+          Configure Your EMR First!
+        </DialogTitle>
+        <DialogContent>
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            justifyContent="center"
+            textAlign="center"
+          >
+            {/* Yellow Error Icon */}
+            <ErrorIcon sx={{ color: '#f2c94c', fontSize: 50 }} />
+
+            {/* Text Content */}
+            <Typography variant="h6" sx={{ margin: '20px 0' }}>
+              The Siddha PI web app must integrate with an EMR system to
+              efficiently manage and expand the patient intake process.
+            </Typography>
+
+            {/* Button */}
+
+            {/* <Button variant="contained" color="primary" onClick={() => setOpenDialog2(false)}>
+            Configure
+          </Button> */}
+            <Link
+              to="/account/emr-configure"
+              style={{ textDecoration: 'none' }}
+            >
+              <Button variant="contained" color="primary">
+                Configure
+              </Button>
+            </Link>
+          </Box>
+        </DialogContent>
+        {/* <DialogActions>
+          <Button onClick={() => setOpenDialog2(false)} color="primary">
+            Close
+          </Button>
+        </DialogActions> */}
+      </Dialog>
 
       <Dialog open={openDialog3} maxWidth="xs">
         <DialogActions sx={{ justifyContent: 'end' }}>
-          <Button onClick={() => setOpenDialog3(false)} color="error">
-            {/* <CloseIcon sx={{ color: 'red' }} />{' '} */}
-            Close
+          <Button onClick={() => setOpenDialog3(false)} color="primary">
+            <CloseIcon sx={{ color: 'red' }} />{' '}
             {/* Set the icon color to red */}
           </Button>
         </DialogActions>
@@ -547,13 +573,19 @@ export default function Login() {
               Your EMR is now seamlessly connected with Siddha PI
             </Typography>
 
-            {/* <Link to="/" style={{ textDecoration: 'none' }}> */}
-            {/* <Button variant="contained" color="info" onClick={handleNavigate}>
-                Login
-              </Button> */}
-            {/* </Link> */}
+
+              <Link
+                to="/"
+                style={{ textDecoration: 'none' }}
+              >
+                <Button variant="contained" color="info">
+                 Login
+                </Button>
+              </Link>
           </Box>
         </DialogContent>
+
+        {/* Dialog Actions */}
       </Dialog>
     </>
   );

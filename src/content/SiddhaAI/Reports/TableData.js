@@ -71,12 +71,6 @@ function Reports() {
       '#b2e061',
       '#bd7ebe',
       '#ffb55a'
-
-      // theme.colors.primary.main,
-      // theme.colors.info.main,
-      // theme.colors.warning.main,
-      // theme.colors.success.main,
-      // theme.colors.error.main
     ],
     legend: {
       position: 'bottom'
@@ -109,17 +103,17 @@ function Reports() {
       if (selectedReport === 'monthly') {
         const {
           totalPatientCreateCount,
-          totalSmsSendCount,
           totalExistingPatientRetrievedCount,
           totalScheduleAppointmentCount,
+          totalSmsSendCount,
           totalUpdatePatientPiForm
         } = response.data.monthlySummary;
 
         const data = [
           totalPatientCreateCount,
-          totalSmsSendCount,
           totalExistingPatientRetrievedCount,
           totalScheduleAppointmentCount,
+          totalSmsSendCount,
           totalUpdatePatientPiForm
         ];
 
@@ -141,10 +135,10 @@ function Reports() {
 
         const data = [
           weeklySummary.totalPatientCreateCount || 0,
-          weeklySummary.totalSmsSendCount || 0,
           weeklySummary.totalExistingPatientRetrievedCount || 0,
           weeklySummary.totalScheduleAppointmentCount || 0,
-          weeklySummary.totalUpdatePatientPiForm || 0
+          weeklySummary.totalSmsSendCount || 0,
+          weeklySummary.totalUpdatePatientPiForm || 0,
         ];
 
         setChartTitle(t('Weekly Summary Report'));
@@ -165,9 +159,9 @@ function Reports() {
 
         const data = [
           customReport.totalPatientCreateCount || 0,
-          customReport.totalSmsSendCount || 0,
           customReport.totalExistingPatientRetrievedCount || 0,
           customReport.totalScheduleAppointmentCount || 0,
+          customReport.totalSmsSendCount || 0,
           customReport.totalUpdatePatientPiForm || 0
         ];
 
@@ -282,14 +276,51 @@ function Reports() {
               </Grid>
             )}
 
-            {chartData && (
+            {/* {chartData && (
               <Chart
                 options={chartOptions}
                 series={chartData}
                 type="pie"
                 height={300}
               />
-            )}
+            )} */}
+
+            {/* Render chart or message for custom report */}
+{/* {selectedReport === 'custom' && chartData && chartData.every((value) => value === 0) ? (
+  <Box sx={{ textAlign: 'center', mt: 4 }}>
+    <Typography variant="h6">{t('No data available for the selected date range')}</Typography>
+  </Box>
+) : (
+  chartData && (
+    <Chart
+      options={chartOptions}
+      series={chartData}
+      type="pie"
+      height={300}
+    />
+  )
+)} */}
+{/* Render chart or "No records found" message */}
+{chartData && chartData.every((value) => value === 0) ? (
+    <Box sx={{ textAlign: 'center', mt: 4 }}>
+      <Typography variant="h6">
+        {selectedReport === 'monthly'
+          ? t('No records found for the Monthly Report')
+          : selectedReport === 'weekly'
+          ? t('No records found for the Weekly Report')
+          : t('No records found for the selected date range')}
+      </Typography>
+    </Box>
+  ) : (
+    chartData && (
+      <Chart
+        options={chartOptions}
+        series={chartData}
+        type="pie"
+        height={300}
+      />
+    )
+  )}
           </Box>
         )}
       </Card>

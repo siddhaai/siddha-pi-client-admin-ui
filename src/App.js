@@ -11,6 +11,7 @@ import ThemeProvider from './theme/ThemeProvider';
 import AppInit from './components/AppInit';
 import { I18nextProvider } from 'react-i18next';
 import i18n from './Lang/i18n'; // Import the i18n configuration
+// import Session from './utils/Session';
 
 function App() {
   const content = useRoutes(router);
@@ -31,6 +32,7 @@ function App() {
             <I18nextProvider i18n={i18n}>
               {auth.isInitialized ? content : <AppInit />}
             </I18nextProvider>
+            {/* <Session/> */}
           </SnackbarProvider>
         </LocalizationProvider>
       </AuthProvider>
