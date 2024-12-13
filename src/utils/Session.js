@@ -1,115 +1,169 @@
-// import React, { useState, useEffect } from 'react';
-// import {
-//   Dialog,
-//   DialogTitle,
-//   DialogContent,
-//   DialogActions,
-//   Button
-// } from '@mui/material';
-// import useAxiosInterceptor from 'src/contexts/Interceptor';
-// import { useNavigate } from 'react-router';
+import React, { useState, useEffect, useCallback } from 'react';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  CircularProgress,
+  IconButton
+} from '@mui/material';
+import useAxiosInterceptor from 'src/contexts/Interceptor';
+import CloseIcon from '@mui/icons-material/Close';
 
-// export default function Session() {
-//   const navigate = useNavigate();
-//   const { axios } = useAxiosInterceptor();
+export default function Session() {
+  const { axios } = useAxiosInterceptor();
 
-//   const [isSessionExpired, setIsSessionExpired] = useState(false);
-//   const adminPortalSessionTime = localStorage.getItem('adminPortalSessionTime');
+  const [isSessionExpired, setIsSessionExpired] = useState(false);
+  const [sessionEndTime, setSessionEndTime] = useState(null);
+  const [warningTime, setWarningTime] = useState(null);
+  const [isStayLoginLoading, setIsStayLoginLoading] = useState(false);
+  const [dialogManuallyClosed, setDialogManuallyClosed] = useState(false); // New state to track manual closure
 
-//   const setSession = (accessToken) => {
-//     if (accessToken) {
-//       localStorage.setItem('accessToken', accessToken);
-//       axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
-//     } else {
-//       localStorage.removeItem('accessToken');
-//       delete axios.defaults.headers.common.Authorization;
-//     }
-//   };
+  const setSession = (accessToken) => {
+    if (accessToken) {
+      localStorage.setItem('accessToken', accessToken);
+      axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+    } else {
+      localStorage.removeItem('accessToken');
+      delete axios.defaults.headers.common.Authorization;
+    }
+  };
 
-//   useEffect(() => {
-//     if (adminPortalSessionTime) {
-//       const sessionEndTime = new Date(Number(adminPortalSessionTime));
-//       const warningTime = new Date(sessionEndTime.getTime() - 30 * 1000); // 30 seconds before session ends
-//       //   const warningTime = new Date(sessionEndTime.getTime() - 30 * 60 * 1000); // 30 minutes before session expires
+  const checkSessionTimeout = useCallback(() => {
+    if (sessionEndTime && warningTime && !dialogManuallyClosed) {
+      const now = new Date();
+      if (now >= warningTime && now < sessionEndTime) {
+        setIsSessionExpired(true); // Show the dialog when 30 minutes are left
+      }
+    }
+  }, [sessionEndTime, warningTime ,dialogManuallyClosed]);
 
-//       const interval = setInterval(() => {
-//         const now = new Date();
-  
-//         // Avoid resetting the state if already expired
-//         if (now >= warningTime && now < sessionEndTime && !isSessionExpired) {
-//           setIsSessionExpired(true);
-//         } else if (now >= sessionEndTime) {
-//           handleLogout();
-//           clearInterval(interval);
-//         }
-//       }, 1000);
-  
-//       return () => clearInterval(interval); // Cleanup on component unmount
-//     }
-//   }, [adminPortalSessionTime, isSessionExpired]);
-  
-//   const handleStayLogin = async () => {
-//     const username = localStorage.getItem('userAdminEmail');
-//     const password = localStorage.getItem('userAdminPassword');
-  
-//     if (username && password) {
-//       try {
-//         const response = await axios.post(
-//           `/adminLogin`,
-//           {},
-//           {
-//             headers: {
-//               username,
-//               password,
-//               'Content-Type': 'application/json',
-//             },
-//           }
-//         );
-//         if (response.status === 200) {
-//           setSession(response.data.token);
-//           setIsSessionExpired(false); // Close the dialog
-//           localStorage.setItem('adminPortalSessionTime', Date.now() + 1 * 60 * 1000); // Reset session time (1 minute)
-//         } else {
-//           console.error('Login failed. Status:', response.status);
-//         }
-//       } catch (error) {
-//         console.error('Error during stay login:', error);
-//       }
-//     } else {
-//       console.error('Username or password is missing in localStorage');
-//     }
-//   };
-  
+  useEffect(() => {
+    const adminPortalSessionTime = localStorage.getItem('adminPortalSessionTime');
 
-//   const handleLogout = () => {
-//     localStorage.removeItem('userAdminEmail');
-//     localStorage.removeItem('userAdminPassword');
-//     localStorage.removeItem('accessToken');
-//     setIsSessionExpired(false);
-//     navigate('/');
-//   };
+    if (adminPortalSessionTime) {
+      // Convert the session time (hours) to milliseconds and calculate the end time
+      const sessionDurationHours = Number(adminPortalSessionTime);
+      if (!isNaN(sessionDurationHours) && sessionDurationHours > 0) {
+        // const sessionStartTime = new Date(); // Assume session starts now
+        const sessionStartTime = new Date(localStorage.getItem('sessionStartTime'));
+        // console.log('sessionStartTime', sessionStartTime);
+        const sessionEnd = new Date(sessionStartTime.getTime() + sessionDurationHours * 60 * 60 * 1000);
+        setSessionEndTime(sessionEnd);
 
+        // Set the warning time 30 minutes before the session ends
+        const warningTime = new Date(sessionEnd.getTime() - 30 * 60 * 1000);
+        setWarningTime(warningTime);
+        // console.log('Session End Time:', sessionEnd);
+        // console.log('Warning Time:', warningTime);
+      } else {
+        console.error('Invalid session duration:', adminPortalSessionTime);
+      }
+    }
+  }, []);
 
+  useEffect(() => {
+    // Check session timeout every second
+    // console.log("sessionEndTime", sessionEndTime, "warningTime", warningTime);
+    if (sessionEndTime && warningTime) {
+      const intervalId = setInterval(() => {
+    // console.log("sessionEndTime In", sessionEndTime, "warningTime In", warningTime);
+        if (!isStayLoginLoading) {
+          checkSessionTimeout(); // Skip session checks while Stay Login is processing
+        }
+      }, 1000); // 1seconds once check session timeout
 
-//   return (
-//     <Dialog
-//       open={isSessionExpired}
-//       onClose={() => setIsSessionExpired(false)}
-//       fullWidth
-//       maxWidth="sm"
-//     >
-//       <DialogTitle>Session Expiration Warning</DialogTitle>
-//       <DialogContent>
-//         Your session will expire soon. Do you want to stay logged in?
-//       </DialogContent>
-//       <DialogActions>
-//         <Button onClick={handleStayLogin} color="primary" variant="contained">
-//           Stay Logged In
-//         </Button>
-//         <Button onClick={handleLogout} color="secondary" variant="outlined">
-//           Logout
-//         </Button>
-//       </DialogActions>
-//     </Dialog>
-//   );
-// }
+      return () => clearInterval(intervalId); // Cleanup interval
+    }
+  }, [checkSessionTimeout, sessionEndTime, warningTime, isStayLoginLoading]);
+
+  const handleStayLogin = async () => {
+    setIsStayLoginLoading(true);
+    const username = localStorage.getItem('userAdminEmail');
+    const password = localStorage.getItem('userAdminPassword');
+
+    if (username && password) {
+      try {
+        const response = await axios.post(
+          `/adminLogin`,
+          {},
+          {
+            headers: {
+              username,
+              password,
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+        if (response.status === 200) {
+          // console.log("token get", localStorage.getItem('accessToken'));
+          // console.log('Login successful Token:', response.data.token);
+          setSession(response.data.token);
+
+          const sessionDurationHours = Number(response.data.adminPortal_session_time);
+          if (!isNaN(sessionDurationHours) && sessionDurationHours > 0) {
+            const sessionStartTime = new Date();
+            const newSessionEndTime = new Date(sessionStartTime.getTime() + sessionDurationHours * 60 * 60 * 1000);
+            setSessionEndTime(newSessionEndTime);
+
+            const newWarningTime = new Date(newSessionEndTime.getTime() - 30 * 60 * 1000);
+            setWarningTime(newWarningTime);
+
+            localStorage.setItem('adminPortalSessionTime', sessionDurationHours.toString());
+            setIsSessionExpired(false); // Close the dialog
+            setDialogManuallyClosed(false); // Reset manual close flag
+          } else {
+            console.error('Invalid session duration received:', sessionDurationHours);
+          }
+        } else {
+          console.error('Login failed. Status:', response.status);
+        }
+      } catch (error) {
+        console.error('Error during stay login:', error);
+      } finally {
+        setIsStayLoginLoading(false);
+      }
+    } else {
+      console.error('Username or password is missing in localStorage');
+    }
+  };
+
+  const handleCloseDialog = () => {
+    setIsSessionExpired(false);
+    setDialogManuallyClosed(true); // Mark the dialog as manually closed
+  };
+
+  return (
+    <Dialog
+      open={isSessionExpired}
+      onClose={() => {}} //disable close on outside click
+      fullWidth
+      maxWidth="xs"
+    >
+      <DialogTitle>Session Expire - Warning
+      <IconButton
+          size="small"
+          aria-label="close"
+          onClick={handleCloseDialog}
+          style={{ position: 'absolute', right: 8, top: 8 }}
+        >
+          <CloseIcon color='error' />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent>
+      Your session will expire soon.
+      </DialogContent>
+      <DialogActions>
+        <Button
+        variant="contained"
+          onClick={handleStayLogin}
+          color="primary"
+          disabled={isStayLoginLoading} // Disable the button while loading
+        >
+          {isStayLoginLoading ? <CircularProgress size={20} /> : 'Stay Signed In'}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}

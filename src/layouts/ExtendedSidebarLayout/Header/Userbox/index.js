@@ -97,6 +97,10 @@ function HeaderUserbox() {
   const handleLogout = async () => {
     try {
       handleClose();
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('warningshown');
+      localStorage.removeItem('adminPortalSessionTime');
+      localStorage.removeItem('sessionStartTime');
       await logout();
       navigate('/');
     } catch (err) {

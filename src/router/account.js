@@ -14,9 +14,9 @@ const SiddhaLogin = Loader(
   lazy(() => import('src/content/pages/Auth/SiddhaLogin/SiddhaLogin'))
 );
 
-const RegisterBasic = Loader(
-  lazy(() => import('src/content/pages/Auth/Register/Basic'))
-);
+// const RegisterBasic = Loader(
+//   lazy(() => import('src/content/pages/Auth/Register/Basic'))
+// );
 const EMRConfigure = Loader(
   lazy(() => import('src/content/pages/Auth/EMRConfigure/EMRConfigure'))
 );
@@ -26,10 +26,12 @@ const ForgotPassword = Loader(
 const ResetPassword = Loader(
   lazy(() => import('src/content/pages/Auth/ForgetPassword/ResetPassword'))
 );
+const UnAuth = Loader(
+  lazy(() => import('src/content/pages/Status/UnAuth/index'))
+);
 // const InvalidToken = Loader(
 //   lazy(() => import('src/content/pages/Auth/InvalidToken/InvalidToken'))
 // );
-
 // const PayMent = Loader(
 //   lazy(() => import('src/content/pages/Auth/PayMent/PayMent'))
 // );
@@ -37,7 +39,10 @@ const EMRResponse = Loader(
   lazy(() => import('src/content/pages/Auth/EMRResponse/EMRResponse'))
 );
 
+// const PI = Loader(lazy(() => import('src/content/pages/Auth/PI/PI')));
+
 const accountRoutes = [
+  // outside admin panel routes 
   {
     path: 'forgot-password',
     element: <ForgotPassword />
@@ -51,11 +56,6 @@ const accountRoutes = [
     path: 'login',
     element: <SiddhaLogin />
   },
-
-  {
-    path: 'register-basic',
-    element: <RegisterBasic />
-  },
   {
     path: 'emr-configure',
     element: <EMRConfigure />
@@ -64,10 +64,10 @@ const accountRoutes = [
     path: 'emr-response',
     element: <EMRResponse />
   },
-  // {
-  //   path: 'session-expired',
-  //   element: <InvalidToken />
-  // },
+  {
+    path: 'unauthorized',
+    element: <UnAuth />
+  },
   // {
   //   path: 'pay-ment',
   //   element: <PayMent />

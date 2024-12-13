@@ -830,7 +830,7 @@ export default function Settings() {
             <Grid container alignItems="center" spacing={2}>
               <Grid item xs={12} md={6} lg={6}>
                 <Typography variant="h5" gutterBottom>
-                  {t('Reset Password')}
+                  {t('Change Your Password')}
                 </Typography>
                 {isEditing ? (
                   <Link
@@ -841,7 +841,7 @@ export default function Settings() {
                   </Link>
                 ) : (
                   <Button variant="outlined" disabled>
-                    {t('Change Password')}
+                    {t('Update Password')}
                   </Button>
                 )}
               </Grid>

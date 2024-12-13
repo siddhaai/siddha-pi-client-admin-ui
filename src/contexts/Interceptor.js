@@ -1,7 +1,11 @@
 import React from 'react';
+import { useNavigate } from 'react-router';
 import { axBackendInstance } from 'src/utils/axios-instance';
 
 const useAxiosInterceptor = (onSessionExpired) => {
+  const navigate = useNavigate();
+
+
 
 // Utility to save the last visited URL with query parameters
 // const saveLastVisitedUrl = () => {
@@ -35,8 +39,12 @@ const useAxiosInterceptor = (onSessionExpired) => {
     return Promise.reject(error);
   };
   const errorResponseInterceptor = (error) => {
-    if (error.response && error.response.status === 401) {
-      console.log("Session Expired");
+    // console.log("error Login",error);
+    // console.log("error Login",error.response.data.detail);  //Unauthorized: Invalid Token
+    if ( error.response.status === 401 && ( error.response.data.detail === "Unauthorized: Invalid Token" || error.response.data.detail === "Invalid session token" || error.response.data.detail === "Session token expired" ) )  {
+      // Handle session expiration
+      navigate('/account/unauthorized');
+      // console.log("Session Expired");
       // saveLastVisitedUrl();
       // if (onSessionExpired) onSessionExpired();
     }

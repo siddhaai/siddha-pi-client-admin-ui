@@ -301,6 +301,18 @@
   "Timeout In:": "Expiration dans:",
   "Expires In:": "Expire dans:",
   "Days": "Jours",
-  "Change Password": "Changer le mot de passe"
+  "Change Password": "Changer le mot de passe",
+  "Agreement Title already exists": "Le titre d'accord existe d'alors",
+  "At least 8 characters": "8 caractères au moins",
+  "No more than 13 characters": "13 caractères au maximum",
+  "At least one uppercase letter": "Au moins une lettre majuscule",
+  "At least one lowercase letter": "Au moins une lettre minuscule",
+  "At least one number": "Au moins un chiffre",
+  "At least one special character": "Au moins un caractère special",
+  "Old Password": "Ancien mot de passe",
+  "Change Your Password": "Changer votre mot de passe",
+  "Update Password": "Mettre à jour le mot de passe",
+  "Go To Sign In": "Aller à la connexion",
+  "Your session has expired. Please log in again.":"Votre session a expiré. Veuillez vous reconnecter."
 
 }

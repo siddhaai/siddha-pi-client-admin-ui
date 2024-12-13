@@ -5,7 +5,6 @@ import {
   Typography,
   Box,
   Paper,
-
   FormControl,
   InputLabel,
   Select,
@@ -14,8 +13,7 @@ import {
   Grid,
   alpha,
   Card,
-  Input,
- 
+  Input
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import toast, { Toaster } from 'react-hot-toast';
@@ -25,7 +23,6 @@ import useAxiosInterceptor from 'src/contexts/Interceptor';
 import NotificationImportantTwoToneIcon from '@mui/icons-material/NotificationImportantTwoTone';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { useNavigate } from 'react-router-dom';
-import EmrBackImage from '../../../../assets/EmrBg.jpg';
 
 const ClientAndOAuthFlow = () => {
   const { axios } = useAxiosInterceptor();
@@ -44,12 +41,11 @@ const ClientAndOAuthFlow = () => {
 
   // const name = 'epic';
   const theme = useTheme();
-  const { name, guideName, accountId, setOpenDialog3 } = useContext(AuthContext);
-// console.log(name, 'name',guideName,'guideName',accountId,'accountId');
+  const { name, guideName, accountId, setOpenDialog3 } =
+    useContext(AuthContext);
+  // console.log(name, 'name',guideName,'guideName',accountId,'accountId');
   // Replace with your actual name
 
-
-  
   // Fetch EMR options from the API
   const fetchEmrOptions = async () => {
     setLoading(true);
@@ -65,7 +61,7 @@ const ClientAndOAuthFlow = () => {
           setEmr(matchingEmr.emrName); // Set the EMR to the matched name
         }
       } else {
-        toast.error('Failed to load EMR options');
+        console.error('Failed to load EMR options');
       }
     } catch (error) {
       console.error('Error fetching EMR settings. Please try again.');
@@ -118,14 +114,14 @@ const ClientAndOAuthFlow = () => {
 
   // console.log(accessToken, 'accessToken');
   // console.log(refreshToken, 'refreshToken');
-  
+
   // Function to handle tokens from the popup
   const handleTokenResponse = (event) => {
     const tokens = event.data;
     if (tokens && tokens.access_token && tokens.refresh_token) {
       setAccessToken(tokens.access_token);
       setRefreshToken(tokens.refresh_token);
-      
+
       localStorage.removeItem('drchrono_tokens');
     }
   };
@@ -137,38 +133,39 @@ const ClientAndOAuthFlow = () => {
     };
   }, []);
 
-
   const handleSubmit = async () => {
+    setLoading(true);
     const headers = {
-      'client_id': clientId,
-      'client_secret': clientSecret,
-      'redirect_uri': redirectUri,
-      'client_emr': emr,
-      'access_token': accessToken,
-      'refresh_token': refreshToken,
-      'client_AccountId': accountId,
-      'Content-Type': 'application/json',
+      client_id: clientId,
+      client_secret: clientSecret,
+      redirect_uri: redirectUri,
+      client_emr: emr,
+      access_token: accessToken,
+      refresh_token: refreshToken,
+      client_accountid: accountId,
+      'Content-Type': 'application/json'
     };
-  
+
     // console.log('Headers being sent:', headers); // Debugging
-  
+
     try {
-      const response = await axios.post('/clientEmrDetails', {}, { headers: headers });
-  
+      const response = await axios.post('/clientEmrDetails', headers);
+
       if (response.status === 201) {
         toast.success('Registration successful!');
         navigate('/');
         setOpenDialog3(true);
       }
     } catch (error) {
+      // console.log(error.response.data.data);
       // console.error('Error:', error.response?.data || error.message);
       toast.error(
-        error.response?.data?.error || 'An error occurred while submitting'
+        error.response?.data?.data || 'An error occurred while submitting'
       );
+    } finally {
+      setLoading(false);
     }
   };
-
-
 
   // Function to handle file upload
   const handleFileUpload = (e) => {
@@ -182,7 +179,7 @@ const ClientAndOAuthFlow = () => {
         padding: theme.spacing(4),
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
+        alignItems: 'center'
         // background:`url(${EmrBackImage})`
       }}
     >
@@ -380,7 +377,6 @@ const ClientAndOAuthFlow = () => {
               margin="normal"
               sx={{ flex: 1 }} // Make sure it takes equal space
             />
-          
 
             <Box
               sx={{
@@ -434,20 +430,35 @@ const ClientAndOAuthFlow = () => {
         )}
 
         {accessToken && (
-          <Button
-            onClick={handleSubmit}
-            variant="contained"
+          <Box
             sx={{
-              marginTop: 2,
+              width: '100%',
+              display: 'flex',
+              justifyContent: 'flex-end', // This will push the button to the right
+              mt: 2 // Adds margin to the top
             }}
           >
-            Register
-          </Button>
+            <Button onClick={handleSubmit} variant="contained">
+              {loading && <CircularProgress size={24} />}
+              Register
+            </Button>
+          </Box>
         )}
 
         <Grid item xs={12} sx={{ mt: 4 }}>
-        
           <Box>
+            <Typography
+              variant="h5"
+              sx={{
+                fontSize: theme.typography.pxToRem(12),
+                color: theme.colors.error.main
+              }}
+            >
+              {t(
+                `Important :
+                `
+              )}
+            </Typography>
             <Typography
               variant="subtitle1"
               sx={{
@@ -456,14 +467,36 @@ const ClientAndOAuthFlow = () => {
               }}
             >
               {t(
-                'Important : When you click “Next” button you will be redirect to your EMR Authentication page. Once authentication done. You will be get a EMR Configuration successful message with Siddha PI app.'
+                `
+                1.When you click the 'Next' button, you will be redirected to your EMR Authentication page.`
+              )}
+            </Typography>
+            <Typography
+              variant="subtitle1"
+              sx={{
+                fontSize: theme.typography.pxToRem(12),
+                color: theme.colors.error.main
+              }}
+            >
+              {t(
+                `2.After completing the authentication process, a 'Register' button will appear on same page.`
+              )}
+            </Typography>
+            <Typography
+              variant="subtitle1"
+              sx={{
+                fontSize: theme.typography.pxToRem(12),
+                color: theme.colors.error.main
+              }}
+            >
+              {t(
+                `3.Click the 'Register' button to see the 'EMR Configuration successful' message with the Siddha PI app.`
               )}
             </Typography>
           </Box>
           {/* </Card> */}
         </Grid>
       </Paper>
-
     </Box>
   );
 };

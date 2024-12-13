@@ -13,16 +13,18 @@ import {
 } from '@mui/material';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { toast, Toaster } from 'react-hot-toast';
 import useAxiosInterceptor from 'src/contexts/Interceptor';
 import ClearIcon from '@mui/icons-material/Clear';
 import CheckIcon from '@mui/icons-material/Check';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 export default function PasswordReset() {
   const { axios } = useAxiosInterceptor();
   const navigate = useNavigate();
+  const { t } = useTranslation();
+
 
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -73,21 +75,21 @@ export default function PasswordReset() {
 
     // Validate old password
     if (!oldPassword) {
-      fieldErrors.oldPassword = 'Old password is required';
+      fieldErrors.oldPassword = t('Old password is required');
     }
 
     // Validate new password
     if (!newPassword) {
-      fieldErrors.newPassword = 'New password is required';
+      fieldErrors.newPassword = t('New password is required');
     } else if (!Object.values(validationStatus).every((valid) => valid)) {
-      fieldErrors.newPassword = 'Password does not meet the requirements';
+      fieldErrors.newPassword = t('Password does not meet the requirements');
     }
 
     // Validate confirm password
     if (!confirmPassword) {
-      fieldErrors.confirmPassword = 'Confirm password is required';
+      fieldErrors.confirmPassword = t('Confirm password is required');
     } else if (newPassword !== confirmPassword) {
-      fieldErrors.confirmPassword = 'Passwords do not match';
+      fieldErrors.confirmPassword = t('Passwords do not match');
     }
 
     // Set errors to state
@@ -142,12 +144,12 @@ export default function PasswordReset() {
         <Card>
           <CardContent>
             <Typography variant="h5" align="center" gutterBottom>
-              Reset Password
+              {t('Reset Password')}
             </Typography>
             <Box mb={2}>
               <TextField
                 fullWidth
-                label="Old Password"
+                label={t("Old Password")}
                 type={showOldPassword ? 'text' : 'password'}
                 value={oldPassword}
                 onChange={(e) => {
@@ -172,7 +174,7 @@ export default function PasswordReset() {
             <Box mb={2}>
               <TextField
                 fullWidth
-                label="New Password"
+                label={t("New Password")}
                 type={showNewPassword ? 'text' : 'password'}
                 value={newPassword}
                 onChange={(e) => {
@@ -210,13 +212,13 @@ export default function PasswordReset() {
                       <ClearIcon fontSize="inherit"  />
                     )}
                     <Box ml={1}>
-                      {key === 'minLength' && 'At least 8 characters'}
-                      {key === 'maxLength' && 'No more than 13 characters'}
-                      {key === 'uppercase' && 'At least one uppercase letter'}
-                      {key === 'lowercase' && 'At least one lowercase letter'}
-                      {key === 'number' && 'At least one number'}
+                      {key === 'minLength' && t('At least 8 characters')}
+                      {key === 'maxLength' && t('No more than 13 characters')}
+                      {key === 'uppercase' && t('At least one uppercase letter')}
+                      {key === 'lowercase' && t('At least one lowercase letter')}
+                      {key === 'number' && t('At least one number')}
                       {key === 'specialChar' &&
-                        'At least one special character'}
+                        t('At least one special character')}
                     </Box>
                   </Typography>
                 ))}
@@ -225,7 +227,7 @@ export default function PasswordReset() {
             <Box mb={2}>
               <TextField
                 fullWidth
-                label="Confirm Password"
+                label={t("Confirm Password")}
                 type={showConfirmPassword ? 'text' : 'password'}
                 value={confirmPassword}
                 onChange={(e) => {
@@ -261,7 +263,7 @@ export default function PasswordReset() {
               disabled={loading}
               sx={{borderRadius: '30px', width:"60%"}}
             >
-              {loading ? <CircularProgress size={24} /> : 'Save'}
+              {loading ? <CircularProgress size={24} /> : t('Save')}
             </Button>
             </Box>
           </CardContent>

@@ -194,36 +194,6 @@ const validateNotes = (value) => {
   return null;
 };
 
-// Validation for Appointment Details
-// const validateAppointmentDetails = (values) => {
-//   const errors = {};
-
-//   // Validate the DateTime using custom logic
-//   const dateTimeError = validateDateTime(values.appointment_date);
-//   if (dateTimeError) {
-//     errors.appointment_date = dateTimeError;
-//   }
-
-//   if (!values.duration) {
-//     errors.duration = 'Duration is required.';
-//   }
-
-//   if (!values.hospital_location) {
-//     errors.hospital_location = 'Hospital location is required.';
-//   }
-
-//   if (!values.reason) {
-//     errors.reason = 'Reason for appointment is required.';
-//   }
-
-//   if (!values.notes) {
-//     errors.notes = 'Notes are required.';
-//   } else if (values.notes.length > 300) {
-//     errors.notes = 'Notes cannot exceed 300 characters.';
-//   }
-
-//   return errors;
-// };
 
 // Component
 const PatientIntakeNew = () => {
@@ -234,7 +204,7 @@ const PatientIntakeNew = () => {
   const [loading, setLoading] = useState(false);
   const token = localStorage.getItem('token');
   const [doctors, setDoctors] = useState([]);
-  const [officePhone, setOfficePhone] = useState();
+  // const [officePhone, setOfficePhone] = useState();
   const [selectedOffices, setSelectedOffices] = useState([]);
   const [id, setId] = useState('');
   const [smsText, setSmsText] = useState('');
@@ -251,24 +221,6 @@ const PatientIntakeNew = () => {
   const [doctorNpi, setDoctorNpi] = useState('');
   const [selectedOfficeAddress, setSelectedOfficeAddress] = useState(false);
 
-  // const fetchDoctorOffice = async () => {
-  //   try {
-  //     const response = await axios.get(`/drchronoDoctorDetails`, {
-  //       headers: {
-  //         Authorization: `Bearer ${token}`
-  //       }
-  //     });
-  //     //office phone
-  //     setOfficePhone(
-  //       response.data.drchronoDoctoresDetail.results[0].office_phone
-  //     );
-  //     const { drchronoOfficeLocation } = response.data;
-  //     const officeLocations = drchronoOfficeLocation.results;
-  //     setSelectedOffices(officeLocations);
-  //   } catch (error) {
-  //     console.error('Failed to fetch user data in new patient');
-  //   }
-  // };
 
   const fetchDoctorOffice = async () => {
     try {
@@ -371,12 +323,13 @@ const PatientIntakeNew = () => {
     if (selectedOffice) {
       const officeAddress = selectedOffice.office_address;
       // Send `officeAddress` to backend or store it for further use
-      console.log('Selected Office Address:', officeAddress);
+      // console.log('Selected Office Address:', officeAddress);
       // Example: save in state or send to backend as needed
       setSelectedOfficeAddress(officeAddress); // Optional, if you need to store
-    } else {
-      console.error('Office not found for the selected ID');
-    }
+    } 
+    // else {
+    //   console.error('Office not found for the selected ID');
+    // }
   };
   const handleChangePersonalDetails = (e) => {
     const { name, value } = e.target;

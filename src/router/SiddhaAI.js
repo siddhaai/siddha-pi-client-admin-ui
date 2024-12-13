@@ -54,15 +54,7 @@ const TC = Loader(lazy(() => import('src/content/SiddhaAI/TC/TC')));
 const PasswordReset = Loader(lazy(() => import('src/content/SiddhaAI/PasswordReset/PasswordReset')));
 
 const AdminRoutes = [
-  // {
-  //   path: 'LoginScreen',
-  //   children: [
-  //     {
-  //       path: 'LoginScreen',
-  //       element: <LoginScreen />
-  //     }
-  //   ]
-  // },
+  // Sidebar items for the admin panel navigation
   {
     path: 'CreateDoctor',
     children: [
@@ -145,15 +137,6 @@ const AdminRoutes = [
       }
     ]
   },
-  // {
-  //   path: 'Ai',
-  //   children: [
-  //     {
-  //       path: 'Ai',
-  //       element: <Ai />
-  //     }
-  //   ]
-  // },
   {
     path: 'TC',
     children: [
@@ -172,16 +155,6 @@ const AdminRoutes = [
       }
     ]
   }
-
-  // {
-  //   path: 'ForgetPassword',
-  //   children: [
-  //     {
-  //       path: 'ForgetPassword',
-  //       element: <ForgetPassword />
-  //     }
-  //   ]
-  // },
 ];
 
 export default AdminRoutes;

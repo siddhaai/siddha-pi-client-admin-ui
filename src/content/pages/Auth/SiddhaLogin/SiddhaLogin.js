@@ -32,7 +32,6 @@ import {
 } from '@mui/material';
 import AuthContext from 'src/contexts/AuthContext';
 import VerifiedIcon from '@mui/icons-material/Verified';
-import './SiddhaLogin.css';
 
 // Validation Schema
 const validationSchema = Yup.object({
@@ -198,8 +197,12 @@ export default function Login() {
         );
         localStorage.setItem('userAdminEmail', values.email);
         localStorage.setItem('userAdminPassword', values.password);
+         // Assume this is a UNIX timestamp in seconds
         localStorage.setItem('adminPortalSessionTime', response?.fullRes?.adminPortal_session_time);
+        localStorage.setItem("sessionStartTime",new Date())
         // localStorage.setItem('adminPortalSessionTime', Date.now() + 1 * 60 * 1000); // 1 minutes from now
+        localStorage.setItem('warningshown', 'false');
+        localStorage.getItem('warningshown');
 
 
         const token = response.user;
@@ -221,7 +224,7 @@ export default function Login() {
       }
     } catch (error) {
       // Fallback for truly unexpected errors
-      console.error('Unexpected error in handleSubmit:', error);
+      // console.error('Unexpected error in handleSubmit:', error);
       //  toast.error(t('An unexpected error occurred. Please try again. catch'));
       setErrorMessage(errorMessage);
     } finally {
@@ -232,8 +235,11 @@ export default function Login() {
   const handleClickShowPassword = () => setShowPassword(!showPassword);
   const handleMouseDownPassword = (event) => event.preventDefault();
 
+
+// logo state
   const [logoUrl, setLogoUrl] = useState(null);
 
+// get logo and practice name from the api
   useEffect(() => {
     axios
       .get('/adminLogin/getClientLogo')
@@ -335,15 +341,15 @@ export default function Login() {
                     {errorMessage && (
                       <Box
                         sx={{
-                          mt: 2, // Margin top for spacing
-                          px: 2, // Padding for inner content
-                          py: 1, // Padding for height
+                          mt: 2, 
+                          px: 2, 
+                          py: 1, 
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          backgroundColor: 'rgba(255, 0, 0, 0.1)', // Light red background
-                          borderRadius: 1, // Rounded corners
-                          border: '1px solid rgba(255, 0, 0, 0.3)' // Border for visibility
+                          backgroundColor: 'rgba(255, 0, 0, 0.1)', 
+                          borderRadius: 1, 
+                          border: '1px solid rgba(255, 0, 0, 0.3)'
                         }}
                       >
                         <ErrorIcon sx={{ color: 'rgb(237, 33, 33)', mr: 1 }} />{' '}
@@ -351,8 +357,8 @@ export default function Login() {
                         <Typography
                           variant="body2"
                           sx={{
-                            color: 'rgb(218, 50, 50)', // Text color
-                            fontWeight: 500, // Bold text
+                            color: 'rgb(218, 50, 50)',
+                            fontWeight: 500, 
                             textAlign: 'center'
                           }}
                         >
@@ -375,14 +381,13 @@ export default function Login() {
                       error={touched.email && Boolean(errors.email)}
                       helperText={touched.email && errors.email}
                     />
-
                     {/* Password Input Field with Toggle Visibility */}
                     <TextField
                       margin="normal"
                       fullWidth
                       name="password"
                       label={t('Password')}
-                      type={showPassword ? 'text' : 'password'} // Toggle between text and password
+                      type={showPassword ? 'text' : 'password'} 
                       id="password"
                       onChange={handleChange}
                       onBlur={handleBlur}
@@ -470,7 +475,7 @@ export default function Login() {
                       }}
                     >
                       <Typography color="secondary">
-                        {t('Version')} 0.0.11
+                        {t('Version')} 0.0.16
                       </Typography>
                     </Box>
                   </Box>
@@ -509,7 +514,6 @@ export default function Login() {
           <Button onClick={() => setOpenDialog3(false)} color="error">
             {/* <CloseIcon sx={{ color: 'red' }} />{' '} */}
             Close
-            {/* Set the icon color to red */}
           </Button>
         </DialogActions>
         <DialogContent>
@@ -519,39 +523,30 @@ export default function Login() {
             alignItems="center"
             justifyContent="center"
             textAlign="center"
-            // mt={2} // Add margin to space content from the top
           >
             {/* Verified Icon */}
             <VerifiedIcon
               sx={{
                 color: '#00d566',
                 fontSize: 50,
-                mt: -2 // Add margin below the icon to space it from the title
+                mt: -2 
               }}
             />
 
-            {/* Dialog Title */}
             <DialogTitle
               sx={{
                 fontSize: '1.3rem',
                 textAlign: 'center',
                 fontWeight: 'bold',
-                mt: 0 // Ensure no extra margin on the top
+                mt: 0
               }}
             >
               Congratulations..!
             </DialogTitle>
 
-            {/* Text Content */}
             <Typography sx={{ margin: '20px 0', fontSize: '1.1rem' }}>
               Your EMR is now seamlessly connected with Siddha PI
             </Typography>
-
-            {/* <Link to="/" style={{ textDecoration: 'none' }}> */}
-            {/* <Button variant="contained" color="info" onClick={handleNavigate}>
-                Login
-              </Button> */}
-            {/* </Link> */}
           </Box>
         </DialogContent>
       </Dialog>

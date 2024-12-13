@@ -163,7 +163,7 @@ const TC = () => {
         });
 
         if (titleConflict) {
-          toast.error(t('Title already exists'));
+          toast.error(t('Agreement Title already exists'));
         }
       }
     }
@@ -179,6 +179,12 @@ const TC = () => {
   };
 
   const handleSubmit = async () => {
+    // Check network connectivity
+    if (!navigator.onLine) {
+      toast.error(t('No internet connection'));
+      setIsLoading(false);
+      return;
+    }
     if (!selectedDoctor) {
       toast.error(t('Please select a doctor'));
       return;
@@ -237,7 +243,8 @@ const TC = () => {
         }
       }
     } catch (error) {
-      console.error('Error submitting the content:', error);
+      toast.error(t('Something went wrong'));
+      // console.error('Error submitting the content:', error);
     } finally {
       setIsLoading(false);
     }
@@ -445,22 +452,25 @@ const TC = () => {
   // Handle API Call for Deletion
   const handleDeleteAgreement = async () => {
     setIsDeleting(true);
-     // Check network connectivity
-     if (!navigator.onLine) {
+    // Check network connectivity
+    if (!navigator.onLine) {
       toast.error(t('No internet connection'));
       setIsLoading(false);
       return;
     }
     try {
-    const response =  await axios.delete('/agreement/deleteAgreementClientAdmin', {
-        data: {
-          _id: deleteAgreementId,
-        },
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.delete(
+        '/agreement/deleteAgreementClientAdmin',
+        {
+          data: {
+            _id: deleteAgreementId
+          },
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
       if (response.status === 200) {
         toast.success(t('Agreement deleted successfully'));
         setDeleteDialogOpen(false);
@@ -470,12 +480,13 @@ const TC = () => {
       // Refresh agreements (reload page or re-fetch data)
     } catch (error) {
       setIsLoading(false);
-      toast.error(error.response?.data?.data || 'An error occurred while deleting');
+      toast.error(
+        error.response?.data?.data || 'An error occurred while deleting'
+      );
     } finally {
       setIsDeleting(false);
     }
   };
-  
 
   return (
     <Box p={4}>
@@ -632,15 +643,15 @@ const TC = () => {
                             onClick={() => handleEditAgreement(agreement)}
                           >
                             <Tooltip title={t('Edit')}>
-                              <EditIcon  />
+                              <EditIcon />
                             </Tooltip>
                           </Button>
-                          <Button 
+                          <Button
                             onClick={() =>
                               handleViewPdf(agreement.title, agreement.body)
                             }
                           >
-                            <Typography  sx={{ textDecoration: 'underline' }}>
+                            <Typography sx={{ textDecoration: 'underline' }}>
                               {t('View')}
                             </Typography>
                           </Button>
@@ -677,7 +688,7 @@ const TC = () => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button  onClick={() => setDeleteDialogOpen(false)} color="secondary">
+          <Button onClick={() => setDeleteDialogOpen(false)} color="secondary">
             {t('No')}
           </Button>
           <Button

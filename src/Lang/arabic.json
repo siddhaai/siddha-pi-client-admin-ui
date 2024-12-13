@@ -301,7 +301,22 @@
   "Timeout In:": "انتهاء الاتصال في:",
   "Expires In:": "انتهاء الصلاحية في:",
   "Days": "يوم",
-  "Change Password": "تغيير كلمة المرور"
+  "Change Password": "تغيير كلمة المرور",
+  "Agreement Title already exists": "عنوان الاتفاق موجود بالفعل",
+  "At least 8 characters": "8 حروف على الاقل",
+  "No more than 13 characters": "13 حرف على الاكثر",
+  "At least one uppercase letter": "حرف كبير على الاقل",
+  "At least one lowercase letter": "حرف صغير على الاقل",
+  "At least one number": "رقم على الاقل",
+  "At least one special character": "رمز خاص على الاقل",
+  "Old Password": "كلمة المرور القديمة",
+  "Change Your Password": "تغيير كلمة المرور الخاصة بك",
+  "Update Password": "تحديث كلمة المرور",
+  "Your session has expired. Please log in again.": "انتهت صلاحية الجلسة الخاصة بك. يرجى تسجيل الدخول مرة اخرى.",
+  "Go To Sign In":"انتقل لتسجيل الدخول"
+
+
+  
 
 
   

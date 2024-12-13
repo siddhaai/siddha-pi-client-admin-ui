@@ -301,6 +301,20 @@
   "Timeout In:": "超时时间：",
   "Expires In:": "过期时间：",
   "Days": "天",
-  "Change Password": "更改密码"
+  "Change Password": "更改密码",
+  "Agreement Title already exists": "协议标题已存在",
+  "At least 8 characters": "至少8个字符",
+  "No more than 13 characters": "最多13个字符",
+  "At least one uppercase letter": "至少一个大写字母",
+  "At least one lowercase letter": "至少一个小写字母",
+  "At least one number": "至少一个数字",
+  "At least one special character": "至少一个特殊字符",
+  "Old Password": "旧密码",
+  "Change Your Password":"更改密码",
+  "Update Password":"更新密码",
+  "Your session has expired. Please log in again.":"您的会话已过期。请重新登录。",
+  "Go To Sign In":"前往登录"
+  
+
 
 }

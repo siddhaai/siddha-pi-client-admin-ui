@@ -16,8 +16,12 @@ const Loader = (Component) => (props) =>
 const SiddhaLogin = Loader(
   lazy(() => import('src/content/pages/Auth/SiddhaLogin/SiddhaLogin'))
 );
-// Status
 
+const PI = Loader(
+  lazy(() => import('src/content/pages/Auth/PI/PI'))
+);
+
+// Status
 const Status404 = Loader(
   lazy(() => import('src/content/pages/Status/Status404'))
 );
@@ -35,6 +39,10 @@ const baseRoutes = [
   {
     path: '/',
     element: <SiddhaLogin />
+  },
+  {
+    path: '/patient-intake',
+    element: <PI />
   },
   {
     path: 'overview',

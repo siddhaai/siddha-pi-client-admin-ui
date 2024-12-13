@@ -202,26 +202,6 @@ const PatientIntakeExisting = () => {
 
   const [doctorNpi, setDoctorNpi] = useState('');
 
-  // const fetchDoctorOffice = async () => {
-  //   try {
-  //     const response = await axios.get(`/drchronoDoctorDetails`, {
-  //       headers: {
-  //         Authorization: `Bearer ${token}`
-  //       }
-  //     });
-
-  //     //office phone
-  //     setOfficePhone(
-  //       response.data.drchronoDoctoresDetail.results[0].office_phone
-  //     );
-  //     const { drchronoOfficeLocation } = response.data;
-  //     const officeLocations = drchronoOfficeLocation.results;
-  //     setSelectedOffices(officeLocations);
-  //   } catch (error) {
-  //     console.error('Failed to fetch user data get Existing ');
-  //   }
-  // };
-
   const fetchDoctorOffice = async () => {
     try {
       const response = await axios.get('/getHospitalDetails', {
@@ -247,29 +227,7 @@ const PatientIntakeExisting = () => {
     fetchDoctorOffice();
   }, []);
 
-  // console.log(officePhone);
 
-  // const fetchDoctors = useCallback(async () => {
-  //   try {
-  //     const response = await axios.get(`/drchronoDoctorDetails`, {
-  //       headers: { Authorization: `Bearer ${token}` }
-  //     });
-
-  //     const { drchronoDoctoresDetail } = response.data;
-
-  //     // Ensure that you are getting results and update the state
-  //     if (drchronoDoctoresDetail && drchronoDoctoresDetail.results) {
-  //       setDoctors(drchronoDoctoresDetail.results);
-  //     } else {
-  //       setDoctors([]); // In case of unexpected data structure
-  //       console.error('Unexpected data structure from API');
-  //     }
-  //   } catch (error) {
-  //     console.error('Error fetching doctors get Existing:', error);
-  //     console.error(t('Error fetching doctors get Existing'));
-  //     setDoctors([]); // Reset doctors state on error
-  //   }
-  // }, []);
 
   const fetchDoctors = async () => {
     try {
@@ -367,72 +325,6 @@ const PatientIntakeExisting = () => {
     }));
   };
 
-  // Handle Date of Birth change
-  // const handleDateChange = (date) => {
-  //   setPersonalDetails({ ...personalDetails, dob: date });
-  // };
-
-  // Handle change for Appointment Details with real-time validation
-  // const handleChangeAppointmentDetails = (e) => {
-  //   const { name, value } = e.target;
-  //   setAppointmentDetails((prevDetails) => {
-  //     const updatedDetails = { ...prevDetails, [name]: value };
-
-  //     // Validate the updated field and remove the error if it's valid
-  //     const updatedErrors = validateAppointmentDetails(updatedDetails);
-  //     setErrors(updatedErrors);
-
-  //     return updatedDetails;
-  //   });
-  // };
-
-  // // Handle Date Change for Appointment with real-time validation
-  // const handleAppointmentDateChange = (newDateTime) => {
-  //   setAppointmentDetails((prevDetails) => {
-  //     const updatedDetails = { ...prevDetails, appointment_date: newDateTime };
-
-  //     // Validate the updated date field and remove the error if it's valid
-  //     const updatedErrors = validateAppointmentDetails(updatedDetails);
-  //     setErrors(updatedErrors);
-
-  //     return updatedDetails;
-  //   });
-  // };
-
-  // Handle change for Appointment Details with real-time validation
-  // Updated handleChange function
-  // const handleChangeAppointmentDetails = (e) => { 
-  //   const { name, value } = e.target;
-  
-  //   // Update the field value
-  //   setAppointmentDetails((prevDetails) => ({
-  //     ...prevDetails,
-  //     [name]: value
-  //   }));
-  
-  //   // Find the selected doctor's NPI number
-  //   if (name === 'preferred_doctor') {
-  //     const selectedDoctor = doctors.find((doctor) => doctor.id === value);
-  //     const doctorNpi = selectedDoctor ? selectedDoctor.npi_number : '';
-  
-  //     setAppointmentDetails((prevDetails) => ({
-  //       ...prevDetails,
-  //       doctor_npi: doctorNpi // Save the NPI number in appointment details
-  //     }));
-  //   }
-  
-  //   // Validate the specific field that has changed
-  //   const fieldError = validateAppointmentDetails({
-  //     ...appointmentDetails,
-  //     [name]: value
-  //   });
-  
-  //   // Update error state for the specific field
-  //   setErrors((prevErrors) => ({
-  //     ...prevErrors,
-  //     [name]: fieldError[name] || null // Only update the error for the specific field
-  //   }));
-  // };
   
   const handleChangeAppointmentDetails = (e) => {
     const { name, value } = e.target;
@@ -485,57 +377,6 @@ const PatientIntakeExisting = () => {
       appointment_date: dateTimeError || null // Only update the error for date field
     }));
   };
-
-  // // Handle Submit for Personal Information
-  // const handleSubmitPersonalInfo = async () => {
-  //   const validationErrors = validatePersonalDetails(personalDetails);
-
-  //   if (Object.keys(validationErrors).length > 0) {
-  //     setErrors(validationErrors);
-  //     return;
-  //   }
-  //   setName(personalDetails.first_name);
-  //   setMobile(personalDetails.phone);
-  //   setLoading(true);
-  //   try {
-  //     // const token = localStorage.getItem('token');
-  //     const headersPayload = {
-  //       patientFname: personalDetails.first_name,
-  //       patientPhNum: personalDetails.phone
-  //       // patientDob: dayjs(values.dob).format('YYYY-MM-DD')
-  //     };
-
-  //     const response = await axios.post(`/existingPatients`, headersPayload, {
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //         Authorization: `Bearer ${token}`
-  //       }
-  //     });
-  //     if (response.data.status === 200) {
-  //       setPatients(response?.data?.data);
-  //       setSelectedPatient(true);
-  //       // setStep((prevStep) => prevStep + 1); // Move to the next step
-  //       // console.log(step, 'step 0');
-  //     } else {
-  //       toast.error(
-  //         response.data.message || 'Failed to validate personal information.'
-  //       );
-  //     }
-  //   } catch (error) {
-  //     if (error.response && error.response.status === 404) {
-  //       // No patient found
-  //       toast.error('No patient found with the provided details.');
-  //     } else {
-  //       // General error handling
-  //       toast.error(
-  //         error.response?.data?.detail ||
-  //           'An unexpected error occurred. Please try again.'
-  //       );
-  //     }
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   // Handle Submit for Personal Information
   const handleSubmitPersonalInfo = async () => {

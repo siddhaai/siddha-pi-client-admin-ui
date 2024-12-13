@@ -302,6 +302,17 @@
   "Timeout In:": "Hệ thống trong:",
   "Days": "Ngày",
   "Change Password": "Đổi mật khẩu",
-  "Expires In:": "Hệ thống trong:"
-
+  "Expires In:": "Hệ thống trong:",
+  "Agreement Title already exists": "Tiêu đề thỏa thuận đã tồn tại",
+  "At least 8 characters": "Ít nhất 8 ký tự",
+  "'No more than 13 characters'": "Những chữa nhất 13 ký tự",
+  "At least one uppercase letter": "Ít nhất một chữ cái viết hoa",
+  "At least one lowercase letter":"Ít nhất một chữ cái viết thường",
+  "At least one number": "Ít nhất một số",
+  "At least one special character": "Ít nhất một ký tự đặc biệt",
+  "Old Password": "Mật khẻu cuối",
+  "Change Your Password": "Đổi mật khẻu",
+  "Update Password": "Cập nhật mật khẻu",
+  "Go To Sign In":"Chuyeển đổi đăng nhập",
+  "Your session has expired. Please log in again.":"Ph sesión công hạng công. Vui lý đăng nhập lần nây."
 }
