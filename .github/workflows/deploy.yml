@@ -22,7 +22,9 @@ jobs:
       run: npm i --force
 
     - name: Build React App
-      run: npm run build:force
+      run: |
+           export CI=false
+           npm run build
 
     - name: Delete Existing S3 Objects
       env:
