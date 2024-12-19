@@ -19,7 +19,7 @@ jobs:
         node-version: 18.x  # Use the required Node.js version for your project
 
     - name: Install Dependencies
-      run: npm install
+      run: npm i --force
 
     - name: Build React App
       run: npm run build
