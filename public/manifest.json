@@ -7,24 +7,24 @@
   "name": "Siddha Ai",
   "icons": [
     {
-      "src": "/public/favicon.jpg",
+      "src": "../src/assets/Siddha Ai Logo.jpeg",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/jpeg"
     },
     {
-      "src": "/public/favicon.jpg",
+      "src": "../src/assets/Siddha Ai Logo.jpeg",
       "sizes": "256x256",
-      "type": "image/png"
+      "type": "image/jpeg"
     },
     {
-      "src": "/public/favicon.jpg",
+      "src": "../src/assets/Siddha Ai Logo.jpeg",
       "sizes": "384x384",
-      "type": "image/png"
+      "type": "image/jpeg"
     },
     {
-      "src": "/public/favicon.jpg",
+      "src": "../src/assets/Siddha Ai Logo.jpeg",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/jpeg"
     }
   ]
 }

@@ -99,7 +99,7 @@ const appointmentDetailsSchema = Yup.object({
   duration: Yup.string().required(t('Duration is required')),
   hospital_location: Yup.string().required(t('Hospital Location is required')),
   reason: Yup.string()
-    .required(t('Reason is required'))
+    // .required(t('Reason is required'))
     .max(100, t('Reason cannot exceed 100 characters'))
     .matches(
       /^[a-zA-Z0-9 ]*$/,
@@ -107,7 +107,7 @@ const appointmentDetailsSchema = Yup.object({
     ),
 
   notes: Yup.string()
-    .required(t('Additional Information is required'))
+    // .required(t('Additional Information is required'))
     .max(1000, t('Additional Information cannot exceed 1000 characters')),
   preferred_doctor: Yup.string().required(t('Preferred doctor is required'))
 });
@@ -596,9 +596,13 @@ const TableData = ({ selectedPatient }) => {
                                 )}
                                 helperText={touched.duration && errors.duration}
                               >
-                                <MenuItem value="30">30</MenuItem>
+                                {/* <MenuItem value="30">30</MenuItem>
                                 <MenuItem value="60">60</MenuItem>
-                                <MenuItem value="90">90</MenuItem>
+                                <MenuItem value="90">90</MenuItem> */}
+                                <MenuItem value="15">15</MenuItem>
+                                <MenuItem value="30">30</MenuItem>
+                                <MenuItem value="45">45</MenuItem>
+                                <MenuItem value="60">60</MenuItem>
                               </TextField>
                             )}
                           </Field>

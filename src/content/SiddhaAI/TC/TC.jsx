@@ -32,6 +32,9 @@ import { Helmet } from 'react-helmet-async';
 import { t } from 'i18next';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useTranslation } from 'react-i18next';
+import html2canvas from "html2canvas";
+
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
   '&:hover': {
     backgroundColor: '#eef1f6', // Add hover effect
@@ -85,6 +88,8 @@ const TC = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteAgreementId, setDeleteAgreementId] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+    const { t } = useTranslation();
+  
 
   const token = localStorage.getItem('token');
 
@@ -170,6 +175,7 @@ const TC = () => {
   };
 
   const handleEditAgreement = (agreement) => {
+    console.log('Editing agreement:', agreement.body);
     setEditMode(true);
     setCurrentAgreementId(agreement._id);
     setTitle(agreement.title);
@@ -436,6 +442,64 @@ const TC = () => {
       console.error('Failed to open the new window');
     }
   };
+
+  // const handleViewPdf = async (title, body) => {
+  //   try {
+  //     const doc = new jsPDF({
+  //       unit: 'pt',  // Points for precise placement
+  //       format: 'a4', // Standard paper size
+  //     });
+  
+  //     // Create a temporary div to format the content
+  //     const tempDiv = document.createElement('div');
+  //     tempDiv.innerHTML = `
+  //       <div style="text-align: center; margin-bottom: 20px;">
+  //         <h1 style="font-size: 24px; font-weight: bold; margin: 0;">${title}</h1>
+  //       </div>
+  //       <div style="text-align: justify; font-size: 14px; line-height: 1.6; padding: 10px; margin-left: 30px;">
+  //         ${body}
+  //       </div>
+  //     `;
+  //     tempDiv.style.width = '800px'; // Set width to simulate A4 paper
+  //     tempDiv.style.padding = '20px';
+  //     tempDiv.style.fontFamily = 'Arial, sans-serif'; // Consistent font
+  
+  //     document.body.appendChild(tempDiv);
+  
+  //     // Render content to canvas
+  //     const canvas = await html2canvas(tempDiv, { scale: 2 });
+  //     const imgData = canvas.toDataURL('image/png');
+  //     const imgWidth = 600.28; // A4 width in points
+  //     const pageHeight = 841.89; // A4 height in points
+  //     const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  //     let position = 0;
+  
+  //     // Add content to PDF with pagination
+  //     if (imgHeight > pageHeight) {
+  //       let remainingHeight = imgHeight;
+  //       while (remainingHeight > 0) {
+  //         doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+  //         remainingHeight -= pageHeight;
+  //         position -= pageHeight;
+  //         if (remainingHeight > 0) {
+  //           doc.addPage();
+  //         }
+  //       }
+  //     } else {
+  //       doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+  //     }
+  
+  //     // Open the PDF in a new tab
+  //     const pdfBlob = doc.output('blob');
+  //     const pdfUrl = URL.createObjectURL(pdfBlob);
+  //     window.open(pdfUrl, '_blank');
+  
+  //     // Clean up
+  //     document.body.removeChild(tempDiv);
+  //   } catch (error) {
+  //     console.error("Error generating PDF:", error);
+  //   }
+  // };
 
   const quillModules = {
     toolbar: {
@@ -706,3 +770,5 @@ const TC = () => {
 };
 
 export default TC;
+
+

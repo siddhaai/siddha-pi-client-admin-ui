@@ -11,21 +11,27 @@ import { SidebarProvider } from 'src/contexts/SidebarContext';
 import * as serviceWorker from 'src/serviceWorker';
 import { AuthProvider } from 'src/contexts/JWTAuthContext';
 
+// import { disableReactDevTools } from '@fvilers/disable-react-devtools';
+// if(process.env.NODE_ENV === 'development') {
+//   disableReactDevTools();
+// }
 
-const PROD = true;
-const StateForBuild = PROD ? 'PROD' : 'DEV';
+
+// const PROD = true;
+// const StateForBuild = PROD ? 'PROD' : 'DEV';
 
 // console.log('StateForBuild', StateForBuild);
 // console.log("StateForBuild !== 'DEV'", StateForBuild !== 'DEV');
 
 // Disable console logs in production
-if (StateForBuild !== 'DEV') {
-  console.log = () => {};
-  console.error = () => {};
-  console.debug = () => {};
-  console.info = () => {};
-  console.warn = () => {};
-}
+// if (StateForBuild !== 'DEV') {
+//   // console.log("StateForBuild !== 'DEV'",StateForBuild !== 'DEV');
+//   console.log = () => {};
+//   console.error = () => {};
+//   console.debug = () => {};
+//   console.info = () => {};
+//   console.warn = () => {};
+// }
 
 ReactDOM.render(
   <HelmetProvider>

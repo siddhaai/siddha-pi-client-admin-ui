@@ -175,9 +175,14 @@ const validateLocation = (value) => {
 
 const validateReason = (value) => {
   const reasonRegex = /^[a-zA-Z0-9\s]*$/; // Allows only alphanumeric characters and spaces
-  if (!value) {
-    return t('Reason for appointment is required');
-  } else if (!reasonRegex.test(value)) {
+  // if (!value) {
+  //   return t('Reason for appointment is required');
+  // } else if (!reasonRegex.test(value)) {
+  //   return t('Reason can only contain letters and numbers');
+  // } else if (value.length > 100) {
+  //   return t('Reason cannot exceed 100 characters');
+  // }
+ if (!reasonRegex.test(value)) {
     return t('Reason can only contain letters and numbers');
   } else if (value.length > 100) {
     return t('Reason cannot exceed 100 characters');
@@ -186,10 +191,13 @@ const validateReason = (value) => {
 };
 
 const validateNotes = (value) => {
-  if (!value) {
-    return t('Additional Information are required');
-  } else if (value.length > 1000) {
-    return t('Additional Information cannot exceed 1000 characters');
+  // if (!value) {
+  //   return t('Additional Information are required');
+  // } else if (value.length > 1000) {
+  //   return t('Additional Information cannot exceed 1000 characters');
+  // }
+if (value.length > 1000) {
+ return t('Additional Information cannot exceed 1000 characters');
   }
   return null;
 };
@@ -832,9 +840,10 @@ const PatientIntakeNew = () => {
                         error={!!errors.duration}
                         helperText={errors.duration}
                       >
+                        <MenuItem value="15">15</MenuItem>
                         <MenuItem value="30">30</MenuItem>
+                        <MenuItem value="45">45</MenuItem>
                         <MenuItem value="60">60</MenuItem>
-                        <MenuItem value="90">90</MenuItem>
                       </TextField>
                     </Grid>
                     <Grid item xs={12} sm={6} md={6}>

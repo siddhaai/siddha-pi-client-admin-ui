@@ -10,12 +10,12 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  TableSortLabel,
+  // TableSortLabel,
   TextField
 } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import toast from 'react-hot-toast';
+// import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import useAxiosInterceptor from 'src/contexts/Interceptor';
 
@@ -52,24 +52,58 @@ function TableData() {
   };
 
   // Fetch doctors from the API old
+  // const fetchDoctors = useCallback(async () => {
+  //   setLoading(true);
+  //   try {
+  //     const response = await axios.get(`/drchronoDoctorDetails`, {
+  //     // const response = await axios.get(`/getHospitalDetails`, {
+  //       // getHospitalDetails
+  //       headers: { Authorization: `Bearer ${token}` }
+  //     });
+  //     const { drchronoDoctoresDetail } = response.data;
+  //     // Wrap in an array to handle a single doctor object
+  //     setDoctors(drchronoDoctoresDetail.results || []);
+  //     setLoading(false);
+  //   } catch (error) {
+  //     setLoading(false);
+  //     console.error('Error fetching doctors:', error);
+  //     // toast.error(t('Error fetching doctors create doctors file'));
+  //     setDoctors([]); // Ensure doctors state is an empty array on error
+  //   }
+  // }, []);
+
   const fetchDoctors = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`/drchronoDoctorDetails`, {
+      const response = await axios.get(`/getHospitalDetails`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      const { drchronoDoctoresDetail } = response.data;
-
-      // Wrap in an array to handle a single doctor object
-      setDoctors(drchronoDoctoresDetail.results || []);
+  
+      const { hospitalDoctorsDetail } = response.data.data; // Destructure hospitalDoctorsDetail from API response
+  
+      if (hospitalDoctorsDetail && Array.isArray(hospitalDoctorsDetail)) {
+        const mappedDoctors = hospitalDoctorsDetail.map((doctor) => ({
+          id: doctor.emr_doctor_id,
+          name: doctor.doctor_name,
+          officePhone: doctor.office_phone,
+          cellPhone: doctor.cell_phone,
+          npiNumber: doctor.npi_number,
+          email: doctor.email,
+        }));
+  
+        setDoctors(mappedDoctors);
+      } else {
+        setDoctors([]); // Ensure doctors state is an empty array if data is not available
+      }
+  
       setLoading(false);
     } catch (error) {
       setLoading(false);
       console.error('Error fetching doctors:', error);
-      // toast.error(t('Error fetching doctors create doctors file'));
       setDoctors([]); // Ensure doctors state is an empty array on error
     }
   }, []);
+  
 
   //old
   useEffect(() => {
@@ -277,18 +311,18 @@ function TableData() {
                 direction={orderBy === 'first_name' ? order : 'asc'}
                 onClick={createSortHandler('first_name')}
               > */}
-                {t('FIRST NAME')}
+                {t('NAME')}
               {/* </TableSortLabel> */}
             </TableCell>
-            <TableCell sx={{ textWrap: 'nowrap',textAlign: 'left' }}>
+            {/* <TableCell sx={{ textWrap: 'nowrap',textAlign: 'left' }}> */}
               {/* <TableSortLabel
                 active={orderBy === 'last_name'}
                 direction={orderBy === 'last_name' ? order : 'asc'}
                 onClick={createSortHandler('last_name')}
               > */}
-                {t('LAST NAME')}
+                {/* {t('LAST NAME')} */}
               {/* </TableSortLabel> */}
-            </TableCell>
+            {/* </TableCell> */}
             <TableCell sx={{ textWrap: 'nowrap',textAlign: 'left' }}>
               {/* <TableSortLabel
                 active={orderBy === 'email'}
@@ -298,15 +332,15 @@ function TableData() {
                 {t('EMAIL')}
               {/* </TableSortLabel> */}
             </TableCell>
-            <TableCell sx={{ textWrap: 'nowrap',textAlign: 'left' }}>
+            {/* <TableCell sx={{ textWrap: 'nowrap',textAlign: 'left' }}> */}
               {/* <TableSortLabel
                 active={orderBy === 'practice_name'}
                 direction={orderBy === 'practice_name' ? order : 'asc'}
                 onClick={createSortHandler('practice_name')}
               > */}
-                {t('PRACTICE NAME')}
+                {/* {t('PRACTICE NAME')} */}
               {/* </TableSortLabel> */}
-            </TableCell>
+            {/* </TableCell> */}
             <TableCell sx={{ textWrap: 'nowrap',textAlign: 'left' }}>
               {/* <TableSortLabel
                 active={orderBy === 'npi_number'}
@@ -340,7 +374,7 @@ function TableData() {
                 direction={orderBy === 'specialty' ? order : 'asc'}
                 onClick={createSortHandler('specialty')}
               > */}
-                {t('SPECIALTY')}
+                {t('OFFICE PHONE')}
               {/* </TableSortLabel> */}
             </TableCell>
           </TableRow>
@@ -365,29 +399,29 @@ function TableData() {
             doctors.map((doctor) => (
               <TableRow key={doctor?.id}>
                 <TableCell sx={{ textWrap: 'nowrap' ,textAlign: 'left'}}>
-                  {doctor?.first_name}
-                </TableCell>
-                <TableCell sx={{ textWrap: 'nowrap',textAlign: 'left' }}>
-                  {doctor?.last_name}
+                  {doctor?.name}
                 </TableCell>
                 <TableCell sx={{ textWrap: 'nowrap',textAlign: 'left' }}>
                   {doctor?.email}
                 </TableCell>
                 <TableCell sx={{ textWrap: 'nowrap',textAlign: 'left' }}>
-                  {doctor?.practice_group_name || '-'}
-                </TableCell>
-                <TableCell sx={{ textWrap: 'nowrap',textAlign: 'left' }}>
-                  {doctor?.npi_number || '-'}
+                  {doctor?.npiNumber || '-'}
                 </TableCell>
                 <TableCell sx={{ textWrap: 'nowrap',textAlign: 'left' }}>
                   {doctor?.id}
                 </TableCell>
                 <TableCell sx={{ textWrap: 'nowrap',textAlign: 'left' }}>
-                  {doctor?.cell_phone || '-'}
+                  {doctor?.cellPhone || '-'}
                 </TableCell>
                 <TableCell sx={{ textWrap: 'nowrap',textAlign: 'left' }}>
-                  {doctor?.specialty || '-'}
+                  {doctor?.officePhone || '-'}
                 </TableCell>
+                {/* <TableCell sx={{ textWrap: 'nowrap',textAlign: 'left' }}>
+                  {doctor?.last_name}
+                </TableCell> */}
+                {/* <TableCell sx={{ textWrap: 'nowrap',textAlign: 'left' }}>
+                  {doctor?.practice_group_name || '-'}
+                </TableCell> */}
               </TableRow>
             ))
           )}

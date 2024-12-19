@@ -31,43 +31,50 @@ const ClientAndOAuthFlow = () => {
   const [redirectUri, setRedirectUri] = useState('');
   const [tenantId, setTenantId] = useState('');
   const [publicKey, setPublicKey] = useState('');
-  const [privateKeyFile, setPrivateKeyFile] = useState(null);
+  const [privateKeyFile, setPrivateKeyFile] = useState(null); // For file upload
   const [emr, setEmr] = useState('');
   const [emrOptions, setEmrOptions] = useState([]);
   const [accessToken, setAccessToken] = useState('');
   const [refreshToken, setRefreshToken] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  // const name = 'epic';
   const theme = useTheme();
-  const { name, guideName, accountId, setOpenDialog3 } = useContext(AuthContext);
+  const { name, guideName, accountId, setOpenDialog3 } =
+    useContext(AuthContext);
+  // console.log(name, 'name',guideName,'guideName',accountId,'accountId');
+  // Replace with your actual name
 
   // Fetch EMR options from the API
   const fetchEmrOptions = async () => {
     setLoading(true);
     try {
       const response = await axios.get('/fieldValues/emrSettings');
-      if (response.data?.emrData) {
-        setEmrOptions(response.data.emrData);
-        const matchingEmr = response.data.emrData.find((option) => option.emrName === name);
-        if (matchingEmr) setEmr(matchingEmr.emrName);
+      if (response.data && response.data.emrData) {
+        setEmrOptions(response.data.emrData); // Set the dropdown options from API
+        // Check if the `name` matches any emrName and set that as the selected value
+        const matchingEmr = response.data.emrData.find(
+          (option) => option.emrName === name
+        );
+        if (matchingEmr) {
+          setEmr(matchingEmr.emrName); // Set the EMR to the matched name
+        }
       } else {
         console.error('Failed to load EMR options');
       }
     } catch (error) {
-      console.error('Error fetching EMR settings:', error);
+      console.error('Error fetching EMR settings. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchEmrOptions();
+    fetchEmrOptions(); // Fetch the EMR options when the component mounts
   }, []);
-
+  // Function to handle OAuth authorization with query parameters
   const handleAuthorization = async () => {
-    // Clear localStorage before starting a new authorization process
-    localStorage.clear();
-
     try {
       const params = new URLSearchParams({
         client_id: clientId,
@@ -79,32 +86,55 @@ const ClientAndOAuthFlow = () => {
       const response = await axios.get(`/authSource?${params}`);
       const authUrl = response.data;
 
-      const popup = window.open(authUrl, 'DrChronoAuth', 'width=600,height=600');
-    localStorage.clear();
+      // console.log('Authorization URL:', authUrl);
+
+      const popup = window.open(
+        authUrl,
+        'DrChronoAuth',
+        'width=600,height=600'
+      );
+
       const timer = setInterval(() => {
         if (popup.closed) {
           clearInterval(timer);
-
-          // Fetch tokens from localStorage if present (e.g., set by popup)
           const tokens = localStorage.getItem('drchrono_tokens');
           if (tokens) {
             const { access_token, refresh_token } = JSON.parse(tokens);
             setAccessToken(access_token);
             setRefreshToken(refresh_token);
-
-            // Clear tokens from localStorage to prevent reuse
             localStorage.removeItem('drchrono_tokens');
           }
         }
       }, 1000);
     } catch (error) {
+      // console.error('Error fetching authorization URL:', error);
       toast.error('Error during authorization. Please try again.');
     }
   };
 
+  // console.log(accessToken, 'accessToken');
+  // console.log(refreshToken, 'refreshToken');
+
+  // Function to handle tokens from the popup
+  const handleTokenResponse = (event) => {
+    const tokens = event.data;
+    if (tokens && tokens.access_token && tokens.refresh_token) {
+      setAccessToken(tokens.access_token);
+      setRefreshToken(tokens.refresh_token);
+
+      localStorage.removeItem('drchrono_tokens');
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('message', handleTokenResponse);
+    return () => {
+      window.removeEventListener('message', handleTokenResponse);
+    };
+  }, []);
+
   const handleSubmit = async () => {
     setLoading(true);
-
     const headers = {
       client_id: clientId,
       client_secret: clientSecret,
@@ -116,6 +146,8 @@ const ClientAndOAuthFlow = () => {
       'Content-Type': 'application/json'
     };
 
+    // console.log('Headers being sent:', headers); // Debugging
+
     try {
       const response = await axios.post('/clientEmrDetails', headers);
 
@@ -125,12 +157,17 @@ const ClientAndOAuthFlow = () => {
         setOpenDialog3(true);
       }
     } catch (error) {
-      toast.error(error.response?.data?.data || 'An error occurred while submitting');
+      // console.log(error.response.data.data);
+      // console.error('Error:', error.response?.data || error.message);
+      toast.error(
+        error.response?.data?.data || 'An error occurred while submitting'
+      );
     } finally {
       setLoading(false);
     }
   };
 
+  // Function to handle file upload
   const handleFileUpload = (e) => {
     setPrivateKeyFile(e.target.files[0]);
   };
@@ -373,13 +410,13 @@ const ClientAndOAuthFlow = () => {
           </Box>
         )}
 
-        {!accessToken ? (
+        {!accessToken && (
           <Box
             sx={{
               width: '100%',
               display: 'flex',
-              justifyContent: 'flex-end',
-              mt: 2
+              justifyContent: 'flex-end', // This will push the button to the right
+              mt: 2 // Adds margin to the top
             }}
           >
             <Button
@@ -390,19 +427,19 @@ const ClientAndOAuthFlow = () => {
               Next
             </Button>
           </Box>
-        ) : (
+        )}
+
+        {accessToken && (
           <Box
             sx={{
               width: '100%',
               display: 'flex',
-              justifyContent: 'flex-end',
-              mt: 2
+              justifyContent: 'flex-end', // This will push the button to the right
+              mt: 2 // Adds margin to the top
             }}
           >
             <Button onClick={handleSubmit} variant="contained">
-              {loading && (
-                <CircularProgress size={24} color="inherit" sx={{ mr: 1 }} />
-              )}
+              {loading && <CircularProgress size={24} color="inherit" sx={{ color: 'white', mr: 1 }} />}
               Register
             </Button>
           </Box>

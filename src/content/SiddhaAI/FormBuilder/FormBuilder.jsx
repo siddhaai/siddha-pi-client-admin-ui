@@ -55,7 +55,7 @@ const AddressDetailsFields = [
 ];
 
 const InsuranceDetailsFields = [
-  { name: 'payerName', label: t('Payer Name'), visibility: false },
+  // { name: 'payerName', label: t('Payer Name'), visibility: false },
   { name: 'groupNumber', label: t('Group Number'), visibility: false },
   { name: 'MemberId', label: t('Member Id'), visibility: false },
   {
@@ -128,17 +128,23 @@ const PrimaryCarePhysicianDetailsFields = [
 ];
 // Define required fields
 const requiredFields = {
-  PersonalDetails: ['firstName', 'lastName', 'dob', 'phoneNumber', 'gender'],
+  PersonalDetails: ['firstName', 'lastName', 'dob','email', 'phoneNumber', 'gender'],
   AddressDetails: ['street', 'city', 'state', 'zipCode'],
   InsuranceDetails: [
-    'payerName',
+    // 'payerName',
     'groupNumber',
     'MemberId',
     'patientsubscriberFirstName',
     'patientsubscriberLastName',
     'patientsubscriberDOB',
     'patientsubscriberRelationShip'
-  ]
+  ],
+  EmergencyDetails: [
+    'emergencyContactFirstName',
+    'emergencyContactLastName',
+    'emergencyContactPhNum',
+  ],
+  
 };
 const FormBuilder = () => {
   const { axios } = useAxiosInterceptor();
@@ -202,7 +208,7 @@ const FormBuilder = () => {
             (section) => {
               const sectionFields = Object.values(section)[0]; // Get section fields
               return sectionFields.some((field) => field.visibility); // Check if any field is visible
-            }
+            } 
           );
 
           if (validSections.length > 0) {
@@ -277,25 +283,67 @@ const FormBuilder = () => {
 
   const buildForm = () => {
     let hasError = false;
-    const validateSection = (section) => {
-      const fields = requiredFields[section];
-      if (!fields) return true; // No required fields for this section
-      return fields.every((requiredField) => {
-        if (!selectedFields[section].includes(requiredField)) {
-          toast.error(
-            t(
-              `Please select the ${requiredField} in ${section
-                .replace(/([A-Z])/g, ' $1')
-                .trim()}`
-            )
-          );
 
-          hasError = true;
-          return false; // Indicate that validation failed
-        }
-        return true; // Validation passed
-      });
-    };
+
+    // Define a map of fields to their details
+const sectionFields = {
+  PersonalDetails: PersonalDetailsFields,
+  AddressDetails: AddressDetailsFields,
+  InsuranceDetails: InsuranceDetailsFields,
+  EmergencyDetails: EmergencyDetailsFields,
+  PrimaryCarePhysicianDetails: PrimaryCarePhysicianDetailsFields,
+};
+
+const validateSection = (section) => {
+  const fields = requiredFields[section];
+  if (!fields) return true; // No required fields for this section
+
+  return fields.every((requiredField) => {
+    // Find the corresponding field details
+    const fieldDetail = sectionFields[section].find(
+      (field) => field.name === requiredField
+    );
+
+    // Get the label for the error message
+    const fieldLabel = fieldDetail ? fieldDetail.label : requiredField;
+
+    if (!selectedFields[section].includes(requiredField)) {
+      toast.error(
+        t(
+          `Please select the ${fieldLabel} in ${section
+            .replace(/([A-Z])/g, " $1")
+            .trim()}`
+        )
+      );
+
+      hasError = true;
+      return false; // Indicate that validation failed
+    }
+    return true; // Validation passed
+  });
+};
+
+    // const validateSection = (section) => {
+    //   const fields = requiredFields[section];
+    //   if (!fields) return true; // No required fields for this section
+    //   return fields.every((requiredField) => {
+    //     if (!selectedFields[section].includes(requiredField)) {
+    //       toast.error(
+    //         t(
+    //           `Please select the ${requiredField} in ${section
+    //             .replace(/([A-Z])/g, ' $1')
+    //             .trim()}`
+    //         )
+    //       );
+
+    //       hasError = true;
+    //       return false; // Indicate that validation failed
+    //     }
+    //     return true; // Validation passed
+    //   });
+    // }; 
+
+
     const sections = [
       t('PersonalDetails'),
       t('AddressDetails'),
@@ -320,15 +368,55 @@ const FormBuilder = () => {
     }
   };
 
+  // Default form view
   // Function to render the current section (step) based on activeStep
+  // const renderStepperContentDefault = (activeStep) => {
+  //   if (!formData?.defaultForm) return null; // If no form data, return nothing
+
+  //   const sections = formData.defaultForm.fields; // Get all the sections from defaultForm
+  //   const currentSection = sections[activeStep]; // Get the current section based on activeStep
+  //   const sectionName = Object.keys(currentSection)[0]; // Get the section name (e.g., PersonalDetails)
+  //   const fields = currentSection[sectionName]; // Get the fields for that section
+
+  //   // Render the fields in a 2-column layout
+  //   return (
+  //     <Grid container spacing={2}>
+  //       {fields.map(
+  //         (field, index) =>
+  //           field.visibility && (
+  //             <Grid item xs={12} sm={6} key={index}>
+  //               {' '}
+  //               {/* 2-column layout */}
+  //               <TextField
+  //                 fullWidth
+  //                 label={field.field.replace(/([A-Z])/g, ' $1').trim()} // Convert field name to label
+  //                 variant="outlined"
+  //               />
+  //             </Grid>
+  //           )
+  //       )}
+  //     </Grid>
+  //   );
+  // };
+
+  // Default form view
   const renderStepperContentDefault = (activeStep) => {
     if (!formData?.defaultForm) return null; // If no form data, return nothing
-
+  
     const sections = formData.defaultForm.fields; // Get all the sections from defaultForm
     const currentSection = sections[activeStep]; // Get the current section based on activeStep
     const sectionName = Object.keys(currentSection)[0]; // Get the section name (e.g., PersonalDetails)
     const fields = currentSection[sectionName]; // Get the fields for that section
-
+  
+    // Helper function to capitalize each word
+    const capitalizeWords = (str) =>
+      str
+        .replace(/([A-Z])/g, ' $1') // Insert a space before uppercase letters
+        .trim()
+        .split(' ') // Split by spaces
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize first letter of each word
+        .join(' '); // Join words back together
+  
     // Render the fields in a 2-column layout
     return (
       <Grid container spacing={2}>
@@ -336,11 +424,10 @@ const FormBuilder = () => {
           (field, index) =>
             field.visibility && (
               <Grid item xs={12} sm={6} key={index}>
-                {' '}
                 {/* 2-column layout */}
                 <TextField
                   fullWidth
-                  label={field.field.replace(/([A-Z])/g, ' $1').trim()} // Convert field name to label
+                  label={capitalizeWords(field.field)} // Format label with first letter capitalized
                   variant="outlined"
                 />
               </Grid>
@@ -349,6 +436,8 @@ const FormBuilder = () => {
       </Grid>
     );
   };
+  
+// Default form view end
 
   const sendFormData = () => {
     // Include visibility status for both selected and non-selected fields
@@ -455,28 +544,63 @@ const FormBuilder = () => {
     );
   };
 
-  // Function to render fields for each section
-  const renderSectionFields = (sectionData) => {
-    return (
-      <Grid container spacing={2}>
-        {sectionData
-          .filter((field) => field.visibility) // Only show visible fields
-          .map((field, index) => (
-            <Grid item xs={12} sm={6} md={4} key={index}>
-              <TextField
-                fullWidth
-                label={field.field.replace(/([A-Z])/g, ' $1').trim()} // Display field name with spaces between words
-                variant="outlined"
-                size="small"
-                InputProps={{
-                  readOnly: true // Make fields read-only if needed
-                }}
-              />
-            </Grid>
-          ))}
-      </Grid>
-    );
-  };
+  // // Function to render fields for each section
+  // const renderSectionFields = (sectionData) => {
+  //   return (
+  //     <Grid container spacing={2}>
+  //       {sectionData
+  //         .filter((field) => field.visibility) // Only show visible fields
+  //         .map((field, index) => (
+  //           <Grid item xs={12} sm={6} md={4} key={index}>
+  //             <TextField
+  //               fullWidth
+  //               label={field.field.replace(/([A-Z])/g, ' $1').trim()} // Display field name with spaces between words
+  //               variant="outlined"
+  //               size="small"
+  //               InputProps={{
+  //                 readOnly: true // Make fields read-only if needed
+  //               }}
+  //             />
+  //           </Grid>
+  //         ))}
+  //     </Grid>
+  //   );
+  // };
+
+  // Function to render fields for each section Custom Form field View
+const renderSectionFields = (sectionData) => {
+  // Helper function to properly format the label
+  const capitalizeWords = (str) =>
+    str
+      .replace(/([a-z])([A-Z])/g, '$1 $2') // Add space between lowercase and uppercase letters
+      .replace(/([A-Z])([A-Z][a-z])/g, '$1 $2') // Handle cases like "Patientsubscriber"
+      .trim()
+      .split(' ') // Split by spaces
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize the first letter of each word
+      .join(' '); // Join words back together
+
+  return (
+    <Grid container spacing={2}>
+      {sectionData
+        .filter((field) => field.visibility) // Only show visible fields
+        .map((field, index) => (
+          <Grid item xs={12} sm={6} md={4} key={index}>
+            <TextField
+              fullWidth
+              label={capitalizeWords(field.field)} // Format label with proper spacing and capitalization
+              variant="outlined"
+              size="small"
+              InputProps={{
+                readOnly: true, // Make fields read-only if needed
+              }}
+            />
+          </Grid>
+        ))}
+    </Grid>
+  );
+};
+// Custom Form field View End
+
 
   // Function to render content inside the Stepper
   const renderStepperContent = (step) => {

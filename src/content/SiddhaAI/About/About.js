@@ -12,9 +12,12 @@ import {
 } from '@mui/material';
 import useAxiosInterceptor from 'src/contexts/Interceptor';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 
 const About = () => {
   const { axios } = useAxiosInterceptor();
+    const { t } = useTranslation();
+  
   const token = localStorage.getItem('token');
   const [about, setAbout] = useState({
     api: '',
@@ -73,43 +76,43 @@ const About = () => {
               mt={-2}
               mb={2}
             >
-              About
+              {t("About")}
             </Typography>
 
             {/* First Paragraph */}
             <Typography fontSize={15} paragraph>
-              Siddha-PI is an innovative healthcare platform designed to
+             {t(`Siddha-PI is an innovative healthcare platform designed to
               streamline and enhance medical practice management through
               advanced digital solutions. It connects electronic medical records
               (EMR) systems with a comprehensive set of tools to simplify
               patient intake, streamline communication, and improve overall
-              efficiency in healthcare settings.
+              efficiency in healthcare settings.`)}
             </Typography>
 
             {/* Second Paragraph */}
             <Typography fontSize={15} paragraph>
-              With features like patient intake automation, appointment
-              scheduling, SMS and email notifications, AI-driven data retrieval,
+            {t(`With features like patient intake automation, appointment scheduling, SMS and email notifications, AI-driven data retrieval,
               and secure payment processing, Siddha-PI helps healthcare
               providers manage their operations with ease. The platform ensures
               HIPAA compliance and integrates clearinghouse support for claims
               management, making it a powerful solution for both small practices
-              and larger healthcare systems.
+              and larger healthcare systems.`)}
+              
             </Typography>
 
             {/* Second Title */}
             <Typography variant="h4" component="div" gutterBottom mt={2}>
-              Information about Siddha-PI integrated systems
+              {t("Information about Siddha-PI integrated systems")}
             </Typography>
 
             {/* Bullet Points Section */}
             <Box component="ul" sx={{ ml: -7.5, mt: 1 }}>
               <List>
                 <ListItem>
-                  <ListItemText primary="Siddha PI - Admin Panel Version - V0.0.16" />
+                  <ListItemText primary="Siddha PI - Admin Panel Version - V0.0.22" />
                 </ListItem>
                 <ListItem>
-                  <ListItemText primary="Siddha PI - Intake Form Version - V1.1.13" />
+                  <ListItemText primary="Siddha PI - Intake Form Version - V1.1.16" />
                 </ListItem>
                 <ListItem>
                   <ListItemText

@@ -206,6 +206,7 @@ export default function Login() {
 
 
         const token = response.user;
+        // console.log("token get",token);
         // Navigate to the dashboard
         toast.success(t('Login successful!'));
         navigate('/extended-sidebar/SiddhaAI/Dashboard/Dashboard');
@@ -289,17 +290,17 @@ export default function Login() {
             <Grid container component="main" sx={{ height: '100vh' }}>
               <CssBaseline />
               <Grid
-                item
-                mt={4}
-                md={8}
-                sx={{
-                  display: { xs: 'none', sm: 'none', md: 'block', lg: 'block' },
-                  backgroundImage: `url(${Doctors})`,
-                  backgroundSize: 'contain',
-                  backgroundRepeat: 'no-repeat',
-                  backgroundPosition: 'center'
-                }}
-              />
+  item
+  md={8}
+  sx={{
+    display: { xs: 'none', sm: 'none', md: 'block', lg: 'block' },
+    backgroundImage: `url(${Doctors})`,
+    backgroundSize: 'contain',
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center'
+  }}
+/>
+
               <Grid item xs={12} sm={12} md={4} elevation={6} square>
                 <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                   <Grid
@@ -368,6 +369,8 @@ export default function Login() {
                     )}
                   </Box>
                   <Box component="div" noValidate sx={{ mt: 1 }}>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sm={12} md={12}>
                     <TextField
                       margin="normal"
                       fullWidth
@@ -381,7 +384,8 @@ export default function Login() {
                       error={touched.email && Boolean(errors.email)}
                       helperText={touched.email && errors.email}
                     />
-                    {/* Password Input Field with Toggle Visibility */}
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={12}>
                     <TextField
                       margin="normal"
                       fullWidth
@@ -414,7 +418,10 @@ export default function Login() {
                         )
                       }}
                     />
-
+                    </Grid>
+                  </Grid>
+                    
+                    {/* Password Input Field with Toggle Visibility */}
                     <FormControlLabel
                       control={
                         <Checkbox
@@ -475,7 +482,7 @@ export default function Login() {
                       }}
                     >
                       <Typography color="secondary">
-                        {t('Version')} 0.0.16
+                        {t('Version')} 0.0.22
                       </Typography>
                     </Box>
                   </Box>

@@ -179,18 +179,17 @@ export default function Settings() {
   // Handle Template Name Change
   const handleTemplateNameChange = (e) => {
     const input = e.target.value;
-  
+
     // Allow only alphabetic characters, spaces, and at most one numeric character
     const validInput = input.replace(/[^a-zA-Z0-9 ]/g, ''); // Remove invalid characters
-    
+
     // Count the numeric characters in the input
     const numericCount = (validInput.match(/[0-9]/g) || []).length;
-  
+
     if (numericCount <= 1 && validInput.length <= 50) {
       setSmsData({ ...smsData, templateName: validInput });
     }
   };
-  
 
   // Handle Text Change for the SMS template
   const handleTextChange = (e) => {
@@ -260,14 +259,13 @@ export default function Settings() {
     const textarea = document.getElementById('smsTemplateTextarea');
     const cursorPosition = textarea.selectionStart; // Get the current cursor position
     const isSelected = smsData.selectedVariables.includes(variable);
-  
+
     if (isSelected) {
       // Remove the variable from selectedVariables and the templateText
       setSmsData((prevData) => {
-        const updatedTemplateText = prevData.templateText.replace(
-          `{{${variable}}}`,
-          ''
-        ).trim(); // Remove extra spaces if any
+        const updatedTemplateText = prevData.templateText
+          .replace(`{{${variable}}}`, '')
+          .trim(); // Remove extra spaces if any
         return {
           ...prevData,
           selectedVariables: prevData.selectedVariables.filter(
@@ -282,14 +280,15 @@ export default function Settings() {
         const beforeText = prevData.templateText.slice(0, cursorPosition);
         const afterText = prevData.templateText.slice(cursorPosition);
         const variableText = `{{${variable}}}`;
-        const updatedTemplateText = `${beforeText}${variableText}${afterText}`.trim();
+        const updatedTemplateText =
+          `${beforeText}${variableText}${afterText}`.trim();
         return {
           ...prevData,
           selectedVariables: [...prevData.selectedVariables, variable],
           templateText: updatedTemplateText
         };
       });
-  
+
       // Move the cursor to the right of the inserted variable
       setTimeout(() => {
         textarea.setSelectionRange(
@@ -300,7 +299,6 @@ export default function Settings() {
       }, 0);
     }
   };
-  
 
   // Submit function for saving settings, including selected template
   const handleSubmit = async () => {
@@ -380,11 +378,34 @@ export default function Settings() {
   };
 
   // Handle input change
+  // const handleChange = (e) => {
+  //   setFormData({
+  //     ...formData,
+  //     [e.target.name]: e.target.value
+  //   });
+  // };
+
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    const { name, value } = e.target;
+    // Ensure the value is not a single digit 0
+    if (value === '0') {
+      return;
+    }
+    if (name === 'sessionTimeout' && value > 24) {
+      return;
+    }
+    if ((name === 'expiry' || name === 'remainderTitle') && value > 31) {
+      return;
+    }
+    // console.log('Value:', value, 'Name:', name); 
+    if (value === '') {
+      setFormData({
+        ...formData,
+        [name]: 1
+      });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   // Handle checkbox change
@@ -940,8 +961,8 @@ export default function Settings() {
                       fullWidth
                       sx={{ mb: 2 }}
                       inputProps={{
-      maxLength: 50,
-    }}
+                        maxLength: 50
+                      }}
                     />
                   </Grid>
                 </Grid>
@@ -1476,23 +1497,22 @@ export default function Settings() {
               {t('Save Settings')}
             </Button>
             <Button
-  variant="outlined"
-  color="secondary"
-  sx={{ ml: 2 }}
-  onClick={() => {
-    setIsEditing(false); // Exit editing mode
-    setShowAddTemplate(false); // Hide the Add New SMS Template form
-    setSmsData((prevData) => ({
-      ...prevData,
-      templateName: '', // Clear template name
-      templateText: '', // Clear template text
-      // Preserve selectedVariables
-    }));
-  }}
->
-  {t('Cancel')}
-</Button>
-
+              variant="outlined"
+              color="secondary"
+              sx={{ ml: 2 }}
+              onClick={() => {
+                setIsEditing(false); // Exit editing mode
+                setShowAddTemplate(false); // Hide the Add New SMS Template form
+                setSmsData((prevData) => ({
+                  ...prevData,
+                  templateName: '', // Clear template name
+                  templateText: '' // Clear template text
+                  // Preserve selectedVariables
+                }));
+              }}
+            >
+              {t('Cancel')}
+            </Button>
           </>
         )}
       </Box>

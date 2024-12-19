@@ -151,17 +151,20 @@ const validateAppointmentDetails = (values) => {
 
   // Alpha-numeric validation for Reason
   const reasonRegex = /^[a-zA-Z0-9\s]*$/; // Allows only alphanumeric characters and spaces
-  if (!values.reason) {
-    errors.reason = t('Reason for appointment is required');
-  } else if (!reasonRegex.test(values.reason)) {
+  // if (!values.reason) {
+  //   errors.reason = t('Reason for appointment is required');
+  // } else if (!reasonRegex.test(values.reason)) {
+  //   errors.reason = t('Reason can only contain letters and numbers');
+  // } else if (values.reason.length > 100) {
+  //   errors.reason = t('Reason cannot exceed 100 characters');
+  // }
+  if (!reasonRegex.test(values.reason)) {
     errors.reason = t('Reason can only contain letters and numbers');
   } else if (values.reason.length > 100) {
     errors.reason = t('Reason cannot exceed 100 characters');
   }
 
-  if (!values.notes) {
-    errors.notes = t('Additional Information are required');
-  } else if (values.notes.length > 1000) {
+  if (values.notes.length > 1000) {
     errors.notes = t('Additional Information cannot exceed 1000 characters');
   }
 
@@ -232,7 +235,7 @@ const PatientIntakeExisting = () => {
   const fetchDoctors = async () => {
     try {
       const response = await axios.get('/getHospitalDetails', {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}`}
       });
   
       const { hospitalDoctorsDetail } = response.data.data;
@@ -512,6 +515,7 @@ const PatientIntakeExisting = () => {
         );
       }
     } catch (error) {
+      // console.log('error', error);
       toast.error(
         // error.response?.data?.message ||
         t('Something went wrong. Please try again')
@@ -811,9 +815,13 @@ const PatientIntakeExisting = () => {
                         error={!!errors.duration}
                         helperText={errors.duration}
                       >
-                        <MenuItem value="30">30</MenuItem>
+                        {/* <MenuItem value="30">30</MenuItem>
                         <MenuItem value="60">60</MenuItem>
-                        <MenuItem value="90">90</MenuItem>
+                        <MenuItem value="90">90</MenuItem> */}
+                        <MenuItem value="15">15</MenuItem>
+                                                <MenuItem value="30">30</MenuItem>
+                                                <MenuItem value="45">45</MenuItem>
+                                                <MenuItem value="60">60</MenuItem>
                       </TextField>
                     </Grid>
 
