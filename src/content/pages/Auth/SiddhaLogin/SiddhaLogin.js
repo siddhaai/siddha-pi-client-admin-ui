@@ -482,7 +482,7 @@ export default function Login() {
                       }}
                     >
                       <Typography color="secondary">
-                        {t('Version')} 0.0.24
+                        {t('Version')} 0.0.25
                       </Typography>
                     </Box>
                   </Box>
