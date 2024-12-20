@@ -1,4 +1,4 @@
-name: Build and Deploy to S3
+name: SPI-ADMIN-UI Build and Deploy to S3
 
 on:
   push:
@@ -21,12 +21,12 @@ jobs:
     - name: Install Dependencies
       run: npm i --force
 
-    - name: Build React App
+    - name: Build SPI-ADMIN-UI
       run: |
            export CI=false
            npm run build
 
-    - name: Delete Existing S3 Objects
+    - name: Delete Existing SPI-ADMIN-UI S3 Objects
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -35,7 +35,7 @@ jobs:
       run: |
         aws s3 rm s3://$S3_BUCKET --recursive --region $AWS_REGION
 
-    - name: Deploy to S3
+    - name: Deploy SPI-ADMIN-UI to S3
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
