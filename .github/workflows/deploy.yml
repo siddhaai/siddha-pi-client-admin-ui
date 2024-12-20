@@ -1,4 +1,4 @@
-name: Build and Deploy to S3 - spi-admin-ui 
+name: spi-admin-ui-model 
 
 on:
   push:
@@ -21,25 +21,25 @@ jobs:
     - name: Install Dependencies
       run: npm i --force
 
-    - name: Build - spi-admin-ui
+    - name: Build - spi-admin-ui-model
       run: |
            export CI=false
            npm run build
 
-    - name: Delete Existing S3 Objects - spi-admin-ui
+    - name: Delete Existing S3 Objects - spi-admin-ui-model
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_REGION: ${{ secrets.AWS_REGION }}
-        S3_BUCKET: ${{ secrets.S3_BUCKET }}
+        S3_BUCKET_MODEL: ${{ secrets.S3_BUCKET_MODEL }}
       run: |
-        aws s3 rm s3://$S3_BUCKET --recursive --region $AWS_REGION
+        aws s3 rm s3://$S3_BUCKET_MODEL --recursive --region $AWS_REGION
 
-    - name: Deploy to S3 - spi-admin-ui
+    - name: Deploy to S3 - spi-admin-ui-model
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_REGION: ${{ secrets.AWS_REGION }}
-        S3_BUCKET: ${{ secrets.S3_BUCKET }}
+        S3_BUCKET_MODEL: ${{ secrets.S3_BUCKET_MODEL }}
       run: |
-        aws s3 sync build/ s3://$S3_BUCKET --region $AWS_REGION --acl public-read
+        aws s3 sync build/ s3://$S3_BUCKET_MODEL --region $AWS_REGION --acl public-read
