@@ -660,6 +660,7 @@ const [titleError, setTitleError] = useState(''); // State to manage title field
               onClick={handleSubmit}
               disabled={
                 isLoading ||
+                titleError.length > 0 ||
                 !title ||
                 !content ||
                 !selectedDoctor ||
