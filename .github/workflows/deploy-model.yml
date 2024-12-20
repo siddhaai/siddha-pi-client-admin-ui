@@ -1,4 +1,4 @@
-name: spi-admin-ui-model 
+name: spi-cadmin-ui-model
 
 on:
   push:
@@ -21,25 +21,25 @@ jobs:
     - name: Install Dependencies
       run: npm i --force
 
-    - name: Build - spi-admin-ui-model
+    - name: Build - spi-cadmin-ui-model
       run: |
            export CI=false
            npm run build
 
-    - name: Delete Existing S3 Objects - spi-admin-ui-model
+    - name: Delete Existing S3 Objects - spi-cadmin-ui-model
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_REGION: ${{ secrets.AWS_REGION }}
-        S3_BUCKET_MODEL: ${{ secrets.S3_BUCKET_MODEL }}
+        S3-SPI-CADMIN-UI-MODEL: ${{ secrets.S3-SPI-CADMIN-UI-MODEL }}
       run: |
-        aws s3 rm s3://$S3_BUCKET_MODEL --recursive --region $AWS_REGION
+        aws s3 rm s3://$S3-SPI-CADMIN-UI-MODEL --recursive --region $AWS_REGION
 
-    - name: Deploy to S3 - spi-admin-ui-model
+    - name: Deploy to S3 - spi-cadmin-ui-model
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_REGION: ${{ secrets.AWS_REGION }}
-        S3_BUCKET_MODEL: ${{ secrets.S3_BUCKET_MODEL }}
+        S3-SPI-CADMIN-UI-MODEL: ${{ secrets.S3-SPI-CADMIN-UI-MODEL }}
       run: |
-        aws s3 sync build/ s3://$S3_BUCKET_MODEL --region $AWS_REGION --acl public-read
+        aws s3 sync build/ s3://$S3-SPI-CADMIN-UI-MODEL --region $AWS_REGION --acl public-read
