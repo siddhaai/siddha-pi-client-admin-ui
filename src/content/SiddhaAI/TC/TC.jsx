@@ -84,6 +84,8 @@ const TC = () => {
   const [initialLoader, setInitialLoader] = useState(true); // New state for initial loader
   const [isDuplicate, setIsDuplicate] = useState(false); // New state
   const [originalTitle, setOriginalTitle] = useState('');
+const [titleError, setTitleError] = useState(''); // State to manage title field error message
+
   // State for dialog
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteAgreementId, setDeleteAgreementId] = useState(null);
@@ -139,23 +141,36 @@ const TC = () => {
 
   const handleInputChange = (e) => {
     const value = e.target.value;
-
+  
     // Normalize the current input and original title for comparison
     const normalizedInput = value.replace(/\s+/g, '').toLowerCase();
     const normalizedOriginal = originalTitle.replace(/\s+/g, '').toLowerCase();
-
-    // Split the input into allowed parts
-    const numericMatches = value.match(/\d/g) || []; // Find all numeric characters
+  
+    // Regex for allowed characters: alphanumeric, space, _, and -
+    const allowedCharactersRegex = /^[a-zA-Z0-9 _-]*$/;
+    // Regex to count numeric characters
+    const numericCountRegex = /\d/g;
+    // Regex to check if it starts with an alphabet
+    const startsWithAlphabetRegex = /^[a-zA-Z]/;
+  
+    const numericMatches = value.match(numericCountRegex) || [];
     const numericCountInValue = numericMatches.length;
-
-    if (numericCountInValue <= 1) {
-      const filteredValue = value
-        .replace(/[^a-zA-Z0-9\s]/g, '') // Remove invalid characters
-        .replace(/(\d)(?=\d)/g, ''); // Remove additional numeric characters beyond the first
-
-      setTitle(filteredValue);
-
-      // Only validate if the input title is different from the original title
+  
+    let errorMessage = ''; // Default no error
+  
+    // Check for validation errors first
+    if (!allowedCharactersRegex.test(value)) {
+      errorMessage = t('Only letters, numbers, spaces, underscores, and hyphens are allowed.');
+    } else if (!startsWithAlphabetRegex.test(value)) {
+      errorMessage = t('Title must start with an alphabet character.');
+    } else if (numericCountInValue > 2) {
+      errorMessage = t('Only two numeric characters are allowed in the title.');
+    } else if (value.length > 50) {
+      errorMessage = t('Title cannot exceed 50 characters.');
+    }
+  
+    // If no validation errors, check if the title already exists
+    if (errorMessage === '') {
       if (normalizedInput !== normalizedOriginal) {
         const titleConflict = agreements.some((agreement) => {
           const normalizedExistingTitle = agreement.title
@@ -166,13 +181,20 @@ const TC = () => {
             agreement._id !== currentAgreementId // Exclude the current agreement being edited
           );
         });
-
+  
         if (titleConflict) {
           toast.error(t('Agreement Title already exists'));
         }
       }
     }
+  
+    // Update the state with the current title and error message
+    setTitle(value);
+    setTitleError(errorMessage); // Save the error message
   };
+  
+  
+  
 
   const handleEditAgreement = (agreement) => {
     console.log('Editing agreement:', agreement.body);
@@ -599,19 +621,20 @@ const TC = () => {
 
           {/* Title input */}
           <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              value={title}
-              onChange={handleInputChange}
-              placeholder={t('Enter title')}
-              label={t('Agreement Title')}
-              variant="outlined"
-              disabled={!selectedDoctor}
-              inputProps={{ maxLength: 50 }}
-              error={isDuplicate} // Highlight the input field in red
-              helperText={isDuplicate ? t('The title already exists') : ''} // Show error message
-            />
-          </Grid>
+  <TextField
+    fullWidth
+    value={title}
+    onChange={handleInputChange}
+    placeholder={t('Enter title')}
+    label={t('Agreement Title')}
+    variant="outlined"
+    disabled={!selectedDoctor}
+    inputProps={{ maxLength: 50 }}
+    error={Boolean(titleError)} // Highlight the input field in red if there's an error
+    helperText={titleError || ''} // Show error message below the field
+  />
+</Grid>
+
 
           {/* Custom toolbar */}
           <Grid item xs={12}>
@@ -637,6 +660,7 @@ const TC = () => {
               onClick={handleSubmit}
               disabled={
                 isLoading ||
+                titleError.length > 0 ||
                 !title ||
                 !content ||
                 !selectedDoctor ||
