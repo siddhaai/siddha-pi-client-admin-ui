@@ -109,7 +109,7 @@ const About = () => {
             <Box component="ul" sx={{ ml: -7.5, mt: 1 }}>
               <List>
                 <ListItem>
-                  <ListItemText primary="Siddha PI - Admin Panel Version - V0.0.22" />
+                  <ListItemText primary="Siddha PI - Admin Panel Version - V0.0.24" />
                 </ListItem>
                 <ListItem>
                   <ListItemText primary="Siddha PI - Intake Form Version - V1.1.16" />

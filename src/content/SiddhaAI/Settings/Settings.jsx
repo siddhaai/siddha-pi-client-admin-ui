@@ -79,7 +79,7 @@ export default function Settings() {
   const [smsData, setSmsData] = useState({
     templateName: '',
     templateText: '',
-    selectedVariables: ['WEB_APP_URL'],
+    selectedVariables: [], // Variables for selected template
     smsTemplates: [], // Store all templates
     selectedTemplateIndex: null, // Selected template index for radio button
     newTemplateName: '', // New template name
@@ -180,15 +180,53 @@ export default function Settings() {
   const handleTemplateNameChange = (e) => {
     const input = e.target.value;
 
-    // Allow only alphabetic characters, spaces, and at most one numeric character
-    const validInput = input.replace(/[^a-zA-Z0-9 ]/g, ''); // Remove invalid characters
+    // Define the allowed format using a regular expression
+    const format = /^[a-zA-Z0-9 _-]*$/;
 
-    // Count the numeric characters in the input
-    const numericCount = (validInput.match(/[0-9]/g) || []).length;
+    // Initialize an error state for the field
+    let errorMessage = '';
 
-    if (numericCount <= 1 && validInput.length <= 50) {
-      setSmsData({ ...smsData, templateName: validInput });
+     // Regex to ensure it starts with an alphabet character
+  const startsWithAlphabetRegex = /^[a-zA-Z]/;
+
+    // Validate the input format
+    if (!format.test(input)) {
+      errorMessage = t(
+        'Only letters, numbers, spaces, underscores, and hyphens are allowed.'
+      );
+    } else {
+      const numericCount = (input.match(/\d/g) || []).length;
+
+      if (numericCount > 2) {
+        errorMessage = t(
+          'Only two numeric characters are allowed in the sms template title'
+        );
+      } else if (input.length > 50) {
+        errorMessage = t('SMS template title cannot exceed 50 characters.');
+      }
+      else if(!startsWithAlphabetRegex.test(input)){
+        errorMessage = t('SMS template title must start with an alphabet character.');
+      }
     }
+
+    // Check if the template name already exists (case-insensitive comparison)
+    const isDuplicate = smsData.smsTemplates.some(
+      (template) =>
+        template.templateName.trim().toLowerCase() ===
+        input.trim().toLowerCase()
+    );
+
+    if (isDuplicate) {
+      // Show a toast error message if the template name already exists
+      toast.error(t('SMS template title already exists.'));
+    }
+
+    // Update the error message state and the template name
+    setSmsData((prevData) => ({
+      ...prevData,
+      templateName: input,
+      templateNameError: errorMessage // Store the field error message
+    }));
   };
 
   // Handle Text Change for the SMS template
@@ -387,21 +425,41 @@ export default function Settings() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     // Ensure the value is not a single digit 0
     if (value === '0') {
       return;
     }
-    if (name === 'sessionTimeout' && value > 24) {
-      return;
+
+    // Validate 'expiry' and 'remainderTitle' to ensure 'remainderTitle' is not greater than 'expiry'
+    if (
+      (name === 'expiry' || name === 'remainderTitle') &&
+      Number(value) > 31
+    ) {
+      return; // Prevent values greater than 31
     }
-    if ((name === 'expiry' || name === 'remainderTitle') && value > 31) {
-      return;
+
+    // Check if remainderTitle is greater than expiry
+    if (name === 'remainderTitle' && value > formData.expiry) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        remainderTitle: t(
+          `Form Submit Reminder cannot be greater than 'EXPIRES IN' patient Intake Form `
+        )
+      }));
+    } else {
+      // Remove error if remainderTitle is less than or equal to expiry
+      setErrors((prevErrors) => {
+        const { remainderTitle, ...rest } = prevErrors;
+        return rest;
+      });
     }
-    // console.log('Value:', value, 'Name:', name); 
+
+    // Update formData for other fields
     if (value === '') {
       setFormData({
         ...formData,
-        [name]: 1
+        [name]: 1 // Default value if empty
       });
     } else {
       setFormData({ ...formData, [name]: value });
@@ -439,9 +497,17 @@ export default function Settings() {
 
   // Add new email field
   const addEmailField = () => {
+    const newIndex = formData.emails.length;
+
     setFormData({
       ...formData,
       emails: [...formData.emails, { email: '' }]
+    });
+
+    // Mark the new field as invalid
+    setErrors({
+      ...errors,
+      [newIndex]: t('This field cannot be empty')
     });
   };
 
@@ -459,13 +525,16 @@ export default function Settings() {
     updatedEmails[index].email = value;
     setFormData({ ...formData, emails: updatedEmails });
 
-    // Check for validation
+    // Update validation errors
     const newErrors = { ...errors };
-    if (!validateEmail(value)) {
+    if (value.trim() === '') {
+      newErrors[index] = t('This field cannot be empty');
+    } else if (!validateEmail(value)) {
       newErrors[index] = t('Invalid email format');
     } else {
       delete newErrors[index]; // Remove error if valid
     }
+
     setErrors(newErrors);
   };
 
@@ -491,10 +560,19 @@ export default function Settings() {
     const updatedEmails = formData.emails.filter((_, i) => i !== index);
     setFormData({ ...formData, emails: updatedEmails });
 
-    // Remove error for the deleted field
-    const updatedErrors = { ...errors };
-    delete updatedErrors[index];
-    setErrors(updatedErrors);
+    // Remove the corresponding error if it exists
+    const newErrors = { ...errors };
+    delete newErrors[index];
+
+    // Reindex errors to match the new list of emails
+    const reindexedErrors = {};
+    updatedEmails.forEach((_, i) => {
+      if (newErrors[i]) {
+        reindexedErrors[i] = newErrors[i];
+      }
+    });
+
+    setErrors(reindexedErrors);
   };
 
   // Delete time zone field
@@ -963,6 +1041,8 @@ export default function Settings() {
                       inputProps={{
                         maxLength: 50
                       }}
+                      error={Boolean(smsData.templateNameError)}
+                      helperText={smsData.templateNameError || ''}
                     />
                   </Grid>
                 </Grid>
@@ -1252,6 +1332,8 @@ export default function Settings() {
                 fullWidth
                 inputProps={{ min: 1, max: 31 }}
                 disabled={!isEditing}
+                error={Boolean(errors.remainderTitle)} // Show error if there is an error for remainderTitle
+                helperText={errors.remainderTitle || ''} // Show the error message
               />
             </Grid>
             <Grid item sx={{ mt: 1.5 }}>
@@ -1493,14 +1575,43 @@ export default function Settings() {
           </Button>
         ) : (
           <>
-            <Button variant="contained" onClick={handleSubmit}>
+            <Button
+              variant="contained"
+              disabled={
+                Object.keys(errors).length > 0 || // Disable if there are validation errors or  // Disable if any email field is empty
+                formData.emails.some(
+                  (emailObj) => emailObj.email.trim() === ''
+                ) ||
+                (errors.length > 0)
+              }
+              onClick={handleSubmit}
+            >
               {t('Save Settings')}
             </Button>
+
             <Button
               variant="outlined"
               color="secondary"
               sx={{ ml: 2 }}
               onClick={() => {
+                // Remove all email fields that are empty
+                const filteredEmails = formData.emails.filter(
+                  (emailObj) => emailObj.email.trim() !== ''
+                );
+                setFormData({ ...formData, emails: filteredEmails });
+
+                // Reset errors to match the filtered emails
+                const newErrors = {};
+                filteredEmails.forEach((emailObj, index) => {
+                  if (
+                    emailObj.email.trim() === '' ||
+                    !validateEmail(emailObj.email)
+                  ) {
+                    newErrors[index] = t('Invalid email format');
+                  }
+                });
+                setErrors(newErrors);
+
                 setIsEditing(false); // Exit editing mode
                 setShowAddTemplate(false); // Hide the Add New SMS Template form
                 setSmsData((prevData) => ({
