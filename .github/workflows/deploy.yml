@@ -1,4 +1,4 @@
-name: Build and Deploy to S3 - spi-admin-ui 
+name: spi-admin-ui-dev
 
 on:
   push:
